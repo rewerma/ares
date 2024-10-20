@@ -1,0 +1,234 @@
+package com.github.ares.connctor.jdbc.catalog.psql;
+
+import com.github.ares.api.table.catalog.CatalogTable;
+import com.github.ares.api.table.catalog.Column;
+import com.github.ares.api.table.catalog.TablePath;
+import com.github.ares.api.table.catalog.exception.DatabaseNotExistException;
+import com.github.ares.api.table.connector.BasicTypeDefine;
+import com.github.ares.common.exceptions.AresException;
+import com.github.ares.connctor.jdbc.catalog.AbstractJdbcCatalog;
+import com.github.ares.connctor.jdbc.internal.dialect.psql.PostgresTypeConverter;
+import com.github.ares.connctor.jdbc.internal.dialect.psql.PostgresTypeMapper;
+import com.github.ares.connctor.jdbc.utils.CatalogUtils;
+import com.github.ares.connctor.jdbc.utils.JdbcUrlUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+@Slf4j
+public class PostgresCatalog extends AbstractJdbcCatalog {
+
+    private static final String SELECT_COLUMNS_SQL_TEMPLATE =
+            "SELECT \n"
+                    + "    a.attname AS column_name, \n"
+                    + "\t\tt.typname as type_name,\n"
+                    + "    CASE \n"
+                    + "        WHEN a.atttypmod = -1 THEN t.typname\n"
+                    + "        WHEN t.typname = 'varchar' THEN t.typname || '(' || (a.atttypmod - 4) || ')'\n"
+                    + "        WHEN t.typname = 'bpchar' THEN 'char' || '(' || (a.atttypmod - 4) || ')'\n"
+                    + "        WHEN t.typname = 'numeric' OR t.typname = 'decimal' THEN t.typname || '(' || ((a.atttypmod - 4) >> 16) || ', ' || ((a.atttypmod - 4) & 65535) || ')'\n"
+                    + "        WHEN t.typname = 'bit' OR t.typname = 'bit varying' THEN t.typname || '(' || (a.atttypmod - 4) || ')'\n"
+                    + "        WHEN t.typname IN ('time', 'timetz', 'timestamp', 'timestamptz') THEN t.typname || '(' || a.atttypmod || ')'\n"
+                    + "        ELSE t.typname || '' \n"
+                    + "    END AS full_type_name,\n"
+                    + "    CASE\n"
+                    + "        WHEN a.atttypmod = -1 THEN NULL\n"
+                    + "        WHEN t.typname IN ('varchar', 'bpchar', 'bit', 'bit varying') THEN a.atttypmod - 4\n"
+                    + "        WHEN t.typname IN ('numeric', 'decimal') THEN (a.atttypmod - 4) >> 16\n"
+                    + "        ELSE NULL\n"
+                    + "    END AS column_length,\n"
+                    + "\t\tCASE\n"
+                    + "        WHEN a.atttypmod = -1 THEN NULL\n"
+                    + "        WHEN t.typname IN ('numeric', 'decimal') THEN (a.atttypmod - 4) & 65535\n"
+                    + "        WHEN t.typname IN ('time', 'timetz', 'timestamp', 'timestamptz') THEN a.atttypmod\n"
+                    + "        ELSE NULL\n"
+                    + "    END AS column_scale,\n"
+                    + "\t\td.description AS column_comment,\n"
+                    + "\t\tpg_get_expr(ad.adbin, ad.adrelid) AS default_value,\n"
+                    + "\t\tCASE WHEN a.attnotnull THEN 'NO' ELSE 'YES' END AS is_nullable\n"
+                    + "FROM \n"
+                    + "    pg_class c\n"
+                    + "    JOIN pg_namespace n ON c.relnamespace = n.oid\n"
+                    + "    JOIN pg_attribute a ON a.attrelid = c.oid\n"
+                    + "    JOIN pg_type t ON a.atttypid = t.oid\n"
+                    + "    LEFT JOIN pg_description d ON c.oid = d.objoid AND a.attnum = d.objsubid\n"
+                    + "    LEFT JOIN pg_attrdef ad ON a.attnum = ad.adnum AND a.attrelid = ad.adrelid\n"
+                    + "WHERE \n"
+                    + "    n.nspname = '%s'\n"
+                    + "    AND c.relname = '%s'\n"
+                    + "    AND a.attnum > 0\n"
+                    + "ORDER BY \n"
+                    + "    a.attnum;";
+
+    static {
+        SYS_DATABASES.add("information_schema");
+        SYS_DATABASES.add("pg_catalog");
+        SYS_DATABASES.add("root");
+        SYS_DATABASES.add("pg_toast");
+        SYS_DATABASES.add("pg_temp_1");
+        SYS_DATABASES.add("pg_toast_temp_1");
+        SYS_DATABASES.add("postgres");
+        SYS_DATABASES.add("template0");
+        SYS_DATABASES.add("template1");
+    }
+
+    public PostgresCatalog(
+            String catalogName,
+            String username,
+            String pwd,
+            JdbcUrlUtil.UrlInfo urlInfo,
+            String defaultSchema) {
+        super(catalogName, username, pwd, urlInfo, defaultSchema);
+    }
+
+    @Override
+    protected String getListDatabaseSql() {
+        return "select datname from pg_database;";
+    }
+
+    @Override
+    protected String getListTableSql(String databaseName) {
+        return "SELECT table_schema, table_name FROM information_schema.tables;";
+    }
+
+    @Override
+    protected String getSelectColumnsSql(TablePath tablePath) {
+        return String.format(
+                SELECT_COLUMNS_SQL_TEMPLATE, tablePath.getSchemaName(), tablePath.getTableName());
+    }
+
+    @Override
+    protected Column buildColumn(ResultSet resultSet) throws SQLException {
+        String columnName = resultSet.getString("column_name");
+        String typeName = resultSet.getString("type_name");
+        String fullTypeName = resultSet.getString("full_type_name");
+        long columnLength = resultSet.getLong("column_length");
+        int columnScale = resultSet.getInt("column_scale");
+        String columnComment = resultSet.getString("column_comment");
+        Object defaultValue = resultSet.getObject("default_value");
+        boolean isNullable = resultSet.getString("is_nullable").equals("YES");
+
+        // dealingSpecialNumeric
+        if (typeName.equals(PostgresTypeConverter.PG_NUMERIC) && columnLength < 1) {
+            fullTypeName = "numeric(38,10)";
+            columnLength = 38;
+            columnScale = 10;
+        }
+        if (defaultValue != null && defaultValue.toString().contains("regclass")) {
+            defaultValue = null;
+        }
+
+        BasicTypeDefine typeDefine =
+                BasicTypeDefine.builder()
+                        .name(columnName)
+                        .columnType(fullTypeName)
+                        .dataType(typeName)
+                        .length(columnLength)
+                        .precision(columnLength)
+                        .scale(columnScale)
+                        .nullable(isNullable)
+                        .defaultValue(defaultValue)
+                        .comment(columnComment)
+                        .build();
+        return PostgresTypeConverter.INSTANCE.convert(typeDefine);
+    }
+
+    @Override
+    protected void createTableInternal(TablePath tablePath, CatalogTable table) {
+        PostgresCreateTableSqlBuilder postgresCreateTableSqlBuilder =
+                new PostgresCreateTableSqlBuilder(table);
+        String dbUrl = getUrlFromDatabaseName(tablePath.getDatabaseName());
+        try {
+            String createTableSql = postgresCreateTableSqlBuilder.build(tablePath);
+            executeInternal(dbUrl, createTableSql);
+
+            if (postgresCreateTableSqlBuilder.isHaveConstraintKey) {
+                String alterTableSql =
+                        "ALTER TABLE "
+                                + tablePath.getSchemaAndTableName("\"")
+                                + " REPLICA IDENTITY FULL;";
+                executeInternal(dbUrl, alterTableSql);
+            }
+
+            if (CollectionUtils.isNotEmpty(postgresCreateTableSqlBuilder.getCreateIndexSqls())) {
+                for (String createIndexSql : postgresCreateTableSqlBuilder.getCreateIndexSqls()) {
+                    executeInternal(dbUrl, createIndexSql);
+                }
+            }
+
+        } catch (Exception ex) {
+            throw new AresException(
+                    String.format("Failed creating table %s", tablePath.getFullName()), ex);
+        }
+    }
+
+    @Override
+    protected String getCreateTableSql(TablePath tablePath, CatalogTable table) {
+        PostgresCreateTableSqlBuilder postgresCreateTableSqlBuilder =
+                new PostgresCreateTableSqlBuilder(table);
+        return postgresCreateTableSqlBuilder.build(tablePath);
+    }
+
+    @Override
+    protected String getDropTableSql(TablePath tablePath) {
+        return "DROP TABLE \""
+                + tablePath.getSchemaName()
+                + "\".\""
+                + tablePath.getTableName()
+                + "\"";
+    }
+
+    @Override
+    protected String getCreateDatabaseSql(String databaseName) {
+        return "CREATE DATABASE \"" + databaseName + "\"";
+    }
+
+    public String getExistDataSql(TablePath tablePath) {
+        String schemaName = tablePath.getSchemaName();
+        String tableName = tablePath.getTableName();
+        return String.format("select * from \"%s\".\"%s\" limit 1", schemaName, tableName);
+    }
+
+    @Override
+    protected String getTruncateTableSql(TablePath tablePath) {
+        String schemaName = tablePath.getSchemaName();
+        String tableName = tablePath.getTableName();
+        return "TRUNCATE TABLE  \"" + schemaName + "\".\"" + tableName + "\"";
+    }
+
+    @Override
+    protected String getDropDatabaseSql(String databaseName) {
+        return "DROP DATABASE \"" + databaseName + "\"";
+    }
+
+    @Override
+    protected void dropDatabaseInternal(String databaseName) {
+        closeDatabaseConnection(databaseName);
+        super.dropDatabaseInternal(databaseName);
+    }
+
+    @Override
+    public boolean tableExists(TablePath tablePath) {
+        try {
+            if (StringUtils.isNotBlank(tablePath.getDatabaseName())) {
+                return databaseExists(tablePath.getDatabaseName())
+                        && listTables(tablePath.getDatabaseName())
+                        .contains(tablePath.getSchemaAndTableName());
+            }
+
+            return listTables(defaultDatabase).contains(tablePath.getSchemaAndTableName());
+        } catch (DatabaseNotExistException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public CatalogTable getTable(String sqlQuery) throws SQLException {
+        Connection defaultConnection = getConnection(defaultUrl);
+        return CatalogUtils.getCatalogTable(defaultConnection, sqlQuery, new PostgresTypeMapper());
+    }
+}
