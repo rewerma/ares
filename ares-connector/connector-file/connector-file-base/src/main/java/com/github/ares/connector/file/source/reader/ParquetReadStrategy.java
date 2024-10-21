@@ -101,7 +101,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
                     fields = new Object[fieldsCount];
                 }
                 for (int i = 0; i < fieldsCount; i++) {
-                    Object data = record.get(indexes[i]);
+                    Object data = record.get(/*indexes[i]*/i);
                     fields[i] = resolveObject(data, aresRowType.getFieldType(i));
                 }
                 AresRow aresRow = new AresRow(fields);

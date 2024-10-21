@@ -10,6 +10,7 @@ import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
@@ -29,7 +30,7 @@ public class PlUpdateSQLVisitor {
     public LogicalOperation visitUpdateSQL(String originalSql, String updateSQL) {
         SQLUpdate sqlUpdate = sqlParser.parseUpdate(updateSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlUpdate.getTable().toLowerCase());
+        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlUpdate.getTable().toLowerCase(Locale.ROOT));
 
         if (sinkTable == null) {
             throw new ParseException(String.format("Sink table name not exists: %s", sqlUpdate.getTable()));

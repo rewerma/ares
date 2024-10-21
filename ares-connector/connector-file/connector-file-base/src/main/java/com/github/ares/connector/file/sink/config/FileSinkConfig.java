@@ -1,7 +1,9 @@
 package com.github.ares.connector.file.sink.config;
 
+import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.com.typesafe.config.Config;
+import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.config.BaseFileSinkConfig;
 import com.github.ares.connector.file.config.BaseSinkConfig;
@@ -30,6 +32,8 @@ public class FileSinkConfig extends BaseFileSinkConfig implements PartitionConfi
     private List<String> sinkColumnList;
 
     private List<String> partitionFieldList;
+
+    private List<String> targetColumnTypeList;
 
     private String partitionDirExpression;
 
@@ -69,6 +73,12 @@ public class FileSinkConfig extends BaseFileSinkConfig implements PartitionConfi
                 && !CollectionUtils.isEmpty(
                 config.getStringList(BaseSinkConfig.SINK_COLUMNS.key()))) {
             this.sinkColumnList = config.getStringList(BaseSinkConfig.SINK_COLUMNS.key());
+        }
+
+        if (config.hasPath(BaseSinkConfig.TARGET_COLUMN_TYPES.key())
+                && !CollectionUtils.isEmpty(
+                config.getStringList(BaseSinkConfig.TARGET_COLUMN_TYPES.key()))) {
+            this.targetColumnTypeList = config.getStringList(BaseSinkConfig.TARGET_COLUMN_TYPES.key());
         }
 
         // if the config sink_columns is empty, all fields in AresRowTypeInfo will being write
@@ -149,25 +159,50 @@ public class FileSinkConfig extends BaseFileSinkConfig implements PartitionConfi
                     CommonErrorCode.ILLEGAL_ARGUMENT, "sink columns can not be empty");
         }
 
-        Map<String, Integer> columnsMap =
-                new HashMap<>(aresRowTypeInfo.getFieldNames().length);
+        if (!config.hasPath(CommonOptions.HAS_TARGET_COLUMNS.key()) ||
+                !config.getBoolean(CommonOptions.HAS_TARGET_COLUMNS.key())) {
+            // if (this.sinkColumnList.size() != aresRowTypeInfo.getFieldNames().length) {
+            //     throw new AresException("Sink columns number not equal to target columns number");
+            // }
+            aresRowTypeInfo.setFieldNames(this.sinkColumnList.toArray(new String[0]));
+        }
+
+        this.sinkColumnsIndexInRow = new ArrayList<>();
         String[] fieldNames = aresRowTypeInfo.getFieldNames();
-        for (int i = 0; i < fieldNames.length; i++) {
-            columnsMap.put(fieldNames[i].toLowerCase(), i);
+
+
+        LABEL:
+        for (String sinkColumn : this.sinkColumnList) {
+            for (int i = 0; i < fieldNames.length; i++) {
+                String fieldName = fieldNames[i];
+                if (this.partitionFieldList.contains(fieldName.toLowerCase())) {
+                    continue;
+                }
+                if (fieldName.equalsIgnoreCase(sinkColumn)) {
+                    this.sinkColumnsIndexInRow.add(i);
+                    continue LABEL;
+                }
+            }
+            throw new AresException(String.format("Target column not found in sink columns: %s", sinkColumn));
+
         }
 
         // init sink column index and partition field index, we will use the column index to found
         // the data in AresRow
-        this.sinkColumnsIndexInRow =
-                this.sinkColumnList.stream()
-                        .map(column -> columnsMap.get(column.toLowerCase()))
-                        .collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(this.partitionFieldList)) {
-            this.partitionFieldsIndexInRow =
-                    this.partitionFieldList.stream()
-                            .map(columnsMap::get)
-                            .collect(Collectors.toList());
+        this.partitionFieldsIndexInRow = new ArrayList<>();
+        LABEL:
+        for (String partitionField : this.partitionFieldList) {
+            for (int i = 0; i < fieldNames.length; i++) {
+                String fieldName = fieldNames[i];
+                if (!this.partitionFieldList.contains(fieldName.toLowerCase())) {
+                    continue;
+                }
+                if (fieldName.equalsIgnoreCase(partitionField)) {
+                    this.partitionFieldsIndexInRow.add(i);
+                    continue LABEL;
+                }
+            }
+            throw new AresException(String.format("Target partition column not found in sink partitions: %s", partitionField));
         }
 
         if (config.hasPath(BaseSinkConfig.MAX_ROWS_IN_MEMORY.key())) {

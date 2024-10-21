@@ -76,6 +76,13 @@
             </includes>
             <outputDirectory>/thirdparty/hadoop</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>../ares-shade/ares-hive2/target/lib</directory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <outputDirectory>/thirdparty/hive</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

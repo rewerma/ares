@@ -58,6 +58,9 @@ public abstract class RowConverter<T> implements Serializable {
             return true;
         }
         SqlType sqlType = dataType.getSqlType();
+        if (field instanceof Boolean && (sqlType == SqlType.BOOLEAN || sqlType == SqlType.INT)) {
+            return true;
+        }
         switch (sqlType) {
             case BOOLEAN:
             case TINYINT:

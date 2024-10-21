@@ -13,6 +13,7 @@ import com.github.ares.parser.sqlparser.model.SQLInsert;
 import com.github.ares.parser.sqlparser.model.SQLMerge;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
@@ -34,7 +35,7 @@ public class PlMergeSQLVisitor {
     public LogicalOperation visitMergeSQL(String originalSql, String mergeSQL) {
         SQLMerge sqlMerge = sqlParser.parseMerge(mergeSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlMerge.getTable().toLowerCase());
+        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlMerge.getTable().toLowerCase(Locale.ROOT));
         if (sinkTable == null) {
             throw new ParseException(String.format("sink table name not exists: %s", sqlMerge.getTable()));
         }

@@ -1,7 +1,12 @@
 package com.github.ares.parser.visitor;
 
+import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
+import com.github.ares.com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.ares.com.google.inject.Inject;
+import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.datasource.SourceConfigPatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
@@ -47,9 +52,8 @@ public class PlCreateTableWithVisitor {
     public List<LogicalOperation> visitCreateTableWith(PlSqlParser.Create_tableContext createTableContext,
                                                        PlSqlParser.Create_withContext createWithContext, List<LogicalOperation> setConfigs) {
         // create table ... with ...
-        Map<String, String> withOptions = new LinkedHashMap<>();
-        visitCreateWithOptions(createWithContext, withOptions, setConfigs);
-        String tableType = withOptions.get("type");
+        Map<String, Object> withOptions = visitCreateWithOptions(createWithContext, setConfigs);
+        String tableType = (String) withOptions.get("type");
         if (tableType == null) {
             throw new IllegalArgumentException("The type of create table option must not be null");
         }
@@ -87,17 +91,13 @@ public class PlCreateTableWithVisitor {
         return result;
     }
 
-    private String visitCreateWithOptions(PlSqlParser.Create_withContext create_withContext,
-                                          Map<String, String> withOptions, List<LogicalOperation> setConfigs) {
+    private Map<String, Object> visitCreateWithOptions(PlSqlParser.Create_withContext create_withContext,
+                                                       List<LogicalOperation> setConfigs) {
+        Map<String, String> withOptions = new LinkedHashMap<>();
         PlSqlParser.Create_optionsContext create_optionsContext = create_withContext.create_options();
         visitCreateWithOptions(create_optionsContext, withOptions);
-        if (!StringUtils.isEmpty(withOptions.get(CONNECTOR.key()))) {
-            return null;
-        }
-        // TODO move
-        // patch jdbc properties
         String datasource = withOptions.get(DATA_SOURCE.key());
-        if (!StringUtils.isEmpty(datasource)) {
+        if (StringUtils.isEmpty(withOptions.get(CONNECTOR.key())) && !StringUtils.isEmpty(datasource)) {
             Properties properties = new Properties();
             for (LogicalOperation operation : setConfigs) {
                 if (operation instanceof LogicalSetConfig) {
@@ -113,7 +113,31 @@ public class PlCreateTableWithVisitor {
                 withOptions.putAll(sourceConfig);
             }
         }
-        return withOptions.remove(DATA_SOURCE.key());
+        withOptions.remove(DATA_SOURCE.key());
+
+        Map<String, Object> resultOptions = new LinkedHashMap<>(withOptions.size());
+        withOptions.forEach((key, value) -> {
+            try {
+                if (value != null && value.trim().startsWith("[") && value.endsWith("]")){
+                    List<Object> arrayList = JsonUtils.OBJECT_MAPPER.readValue(value, new TypeReference<ArrayList<Object>>() {
+                    });
+                    resultOptions.put(key, arrayList);
+                } else if (value != null && value.trim().startsWith("{") && value.endsWith("}")){
+                    Map<String, Object> map = JsonUtils.OBJECT_MAPPER.readValue(value, new TypeReference<LinkedHashMap<String, Object>>() {
+                    });
+                    resultOptions.put(key, map);
+                } else {
+                    resultOptions.put(key, value);
+                }
+            } catch (JsonProcessingException e) {
+                throw new AresException("Create table with option json parse error: " + value);
+            }
+        });
+        return resultOptions;
+    }
+
+    private Object visitCreateOption(PlSqlParser.Option_Context option_context) {
+        return null;
     }
 
     public void visitCreateWithOptions(PlSqlParser.Create_optionsContext create_optionsContext, Map<String, String> withOptions) {

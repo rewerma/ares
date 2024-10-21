@@ -98,5 +98,10 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
                         classLoader);
         AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
+
+        // reload target table
+        if (executorManager.getSourceTables().containsKey(usSql.getSinkTable().getTableName().toLowerCase())) {
+            executorManager.getReloadFunctionExecutor().reloadSourceTable(usSql.getSinkTable().getTableName());
+        }
     }
 }

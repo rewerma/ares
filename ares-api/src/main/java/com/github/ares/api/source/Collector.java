@@ -1,10 +1,13 @@
 package com.github.ares.api.source;
 
 import com.github.ares.api.table.event.SchemaChangeEvent;
+import com.github.ares.api.table.type.AresDataType;
 
 public interface Collector<T> {
 
     void collect(T record);
+
+    void resetRowType(AresDataType<?> dataType);
 
     default void markSchemaChangeBeforeCheckpoint() {
     }

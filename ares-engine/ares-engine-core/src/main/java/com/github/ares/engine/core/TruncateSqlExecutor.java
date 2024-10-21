@@ -61,5 +61,10 @@ public class TruncateSqlExecutor extends AbstractBaseExecutor implements Seriali
         AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
 
         aresSink.truncateTable(truncateSQL.getSinkTable().getTableName());
+
+        // reload target table
+        if (executorManager.getSourceTables().containsKey(truncateSQL.getSinkTable().getTableName().toLowerCase())) {
+            executorManager.getReloadFunctionExecutor().reloadSourceTable(truncateSQL.getSinkTable().getTableName());
+        }
     }
 }

@@ -14,6 +14,7 @@ import com.github.ares.parser.utils.PLParserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class PlCreateSourceTableVisitor {
@@ -27,13 +28,13 @@ public class PlCreateSourceTableVisitor {
     }
 
     public LogicalOperation visitCreateSourceTable(PlSqlParser.Create_tableContext create_tableContext,
-                                                   Map<String, String> withOptions) {
+                                                   Map<String, Object> withOptions) {
         String createTableName = create_tableContext.table_name().getText();
         if (sourceTables.containsKey(createTableName.toLowerCase())) {
             throw new ParseException(String.format("Source table name exists: %s", createTableName));
         }
         LogicalCreateSourceTable sourceTable = new LogicalCreateSourceTable();
-        sourceTable.setTableName(createTableName);
+        sourceTable.setTableName(createTableName.toLowerCase(Locale.ROOT));
         sourceTable.getOptions().putAll(withOptions);
         String connector = (String) sourceTable.getOptions().get("connector");
         sourceTable.setConnector(connector);

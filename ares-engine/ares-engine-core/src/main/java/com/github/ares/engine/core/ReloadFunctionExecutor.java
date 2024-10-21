@@ -7,7 +7,7 @@ public class ReloadFunctionExecutor extends AbstractBaseExecutor {
 
     public void reloadSourceTable(String sourceTable) {
         traceLogger.info("Reload source table: {}", sourceTable);
-        SourceTableInfo sourceTableInfo = executorManager.getSourceTables().get(sourceTable);
+        SourceTableInfo sourceTableInfo = executorManager.getSourceTables().get(sourceTable.toLowerCase());
         if (sourceTableInfo == null) {
             throw new AresException(String.format("Source table undefined %s", sourceTable));
         }

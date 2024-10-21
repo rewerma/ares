@@ -36,7 +36,7 @@ import static com.github.ares.com.fasterxml.jackson.databind.MapperFeature.REQUI
 public class JsonUtils {
 
     /** can use static singleton, inject: just make sure to reuse! */
-    private static final ObjectMapper OBJECT_MAPPER =
+    public static final ObjectMapper OBJECT_MAPPER =
             new ObjectMapper()
                     .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .configure(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)

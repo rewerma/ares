@@ -13,6 +13,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>ares-format-text</module>
+        <module>ares-format-json</module>
+        <module>ares-format-arvo</module>
     </modules>
 
     <properties>

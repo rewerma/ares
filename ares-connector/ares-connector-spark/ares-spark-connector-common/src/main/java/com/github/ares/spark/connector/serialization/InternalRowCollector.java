@@ -14,10 +14,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InternalRowCollector implements Collector<AresRow> {
     private final Handover<InternalRow> handover;
     private final Object checkpointLock;
-    private final InternalRowConverter rowSerialization;
     private final AtomicLong collectTotalCount;
     private final Map<String, Object> envOptions;
     private volatile boolean emptyThisPollNext;
+
+    private InternalRowConverter rowSerialization;
 
     public InternalRowCollector(
             Handover<InternalRow> handover,
@@ -42,6 +43,10 @@ public class InternalRowCollector implements Collector<AresRow> {
         } catch (Exception e) {
             throw new AresException(e);
         }
+    }
+
+    public void resetRowType(AresDataType<?> dataType) {
+        this.rowSerialization = new InternalRowConverter(dataType);
     }
 
     public long collectTotalCount() {

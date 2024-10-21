@@ -70,4 +70,7 @@ public interface CommonOptions {
 
     Option<CriteriaClause> WHERE_CLAUSE =
             Options.key("where_clause").objectType(CriteriaClause.class).noDefaultValue().withDescription("where clause");
+
+    Option<Boolean> HAS_TARGET_COLUMNS =
+            Options.key("has_target_columns").booleanType().defaultValue(Boolean.FALSE).withDescription("has target columns flag");
 }

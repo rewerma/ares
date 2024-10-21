@@ -16,6 +16,7 @@
         <module>connector-file-local</module>
         <module>connector-file-hadoop</module>
         <module>connector-file-ftp</module>
+        <module>connector-file-sftp</module>
     </modules>
 
     <properties>

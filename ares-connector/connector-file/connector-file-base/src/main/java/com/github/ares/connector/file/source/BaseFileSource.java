@@ -47,7 +47,6 @@ public abstract class BaseFileSource
     @Override
     public SourceSplitEnumerator<FileSourceSplit, FileSourceState> createEnumerator(
             SourceSplitEnumerator.Context<FileSourceSplit> enumeratorContext) throws Exception {
-        refreshFilePaths();
         return new FileSourceSplitEnumerator(enumeratorContext, filePaths);
     }
 
@@ -56,10 +55,7 @@ public abstract class BaseFileSource
             SourceSplitEnumerator.Context<FileSourceSplit> enumeratorContext,
             FileSourceState checkpointState)
             throws Exception {
-        refreshFilePaths();
         return new FileSourceSplitEnumerator(enumeratorContext, filePaths, checkpointState);
     }
 
-    public void refreshFilePaths() {
-    }
 }

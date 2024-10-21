@@ -13,10 +13,12 @@ import com.github.ares.api.table.factory.TableSinkFactoryContext;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.common.exceptions.AresException;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.InsertSelectSqlExecutor;
 import com.github.ares.engine.core.PlParams;
 import com.github.ares.engine.core.AresSinkFactory;
+import com.github.ares.engine.core.ReloadFunctionExecutor;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import org.apache.spark.sql.Dataset;
@@ -28,7 +30,9 @@ import org.apache.spark.sql.types.StructType;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,10 +53,6 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
     }
 
     @Override
-    public void commonFunction() {
-    }
-
-    @Override
     public void execute(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory, LogicalInsertSelectSQL isSql, PlParams plParams) {
         if (isSql.getOriginSQL() != null) {
             traceLogger.info("SQL: {}; Params: {}", isSql.getOriginSQL(), plParams);
@@ -61,7 +61,6 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
         sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.INSERT.name());
         sinkConfig.put(CommonOptions.INSERT_COLUMNS.key(), isSql.getTargetColumns());
 
-        commonFunction();
         String selectSql = replaceParams(isSql.getSelectSQL(), plParams);
         Dataset<Row> resultDf = sparkSession.sql(selectSql);
         if (isSql.getRepartitionNums() != null) {
@@ -85,21 +84,45 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
         TableSchema tableSchema = builder.columns(columns).build();
 
         TableIdentifier tableIdentifier = TableIdentifier.of("default", "default", "default");
-        CatalogTable catalogTable = CatalogTable.of(
-                tableIdentifier,
-                tableSchema,
-                new HashMap<>(),
-                new ArrayList<>(),
-                "");
-
+        CatalogTable catalogTable = CatalogTable.of(tableIdentifier, tableSchema, new HashMap<>(), new ArrayList<>(), "");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         TableSinkFactoryContext context =
-                new TableSinkFactoryContext(
-                        catalogTable,
-                        ReadonlyConfig.fromMap(sinkConfig),
-                        classLoader);
+                new TableSinkFactoryContext(catalogTable, ReadonlyConfig.fromMap(sinkConfig), classLoader);
+        List<Column> columns2 = new ArrayList<>();
+        AresSink<?, ?, ?, ?> aresSink;
+        if (!isSql.getTargetColumns().isEmpty()) {
+            List<String> targetColumns = isSql.getTargetColumns();
 
-        AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
+            StructField[] structFields = structType.fields();
+
+            if (targetColumns.size() != structFields.length) {
+                throw new AresException("Target columns number not match select columns number");
+            }
+
+            int i = 0;
+            for (StructField structField : structFields) {
+                AresDataType<?> aresDataType = TypeConverterUtils.convert(structField.dataType());
+                Column column = PhysicalColumn.of(targetColumns.get(i), aresDataType, 0, true, null, null);
+                columns2.add(column);
+                i++;
+            }
+
+            TableSchema.Builder builder2 = TableSchema.builder();
+            TableSchema tableSchema2 = builder2.columns(columns2).build();
+
+            CatalogTable catalogTable2 = CatalogTable.of(tableIdentifier, tableSchema2, new HashMap<>(), new ArrayList<>(), "");
+            sinkConfig = new LinkedHashMap<>(sinkConfig);
+            sinkConfig.put(CommonOptions.HAS_TARGET_COLUMNS.key(), Boolean.TRUE);
+            aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable2, context);
+        } else {
+            aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
+        }
+
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
+
+        // reload target table
+        if (executorManager.getSourceTables().containsKey(isSql.getSinkTable().getTableName().toLowerCase(Locale.ROOT))) {
+            executorManager.getReloadFunctionExecutor().reloadSourceTable(isSql.getSinkTable().getTableName());
+        }
     }
 }

@@ -10,6 +10,7 @@ import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLDelete;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
@@ -29,7 +30,7 @@ public class PlDeleteSQLVisitor {
     public LogicalOperation visitDeleteSQL(String originalSql, String deleteSQL) {
         SQLDelete sqlDelete = sqlParser.parseDelete(deleteSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlDelete.getTable().toLowerCase());
+        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlDelete.getTable().toLowerCase(Locale.ROOT));
         if (sinkTable == null) {
             throw new ParseException(String.format("Sink table name not exists: %s", sqlDelete.getTable()));
         }

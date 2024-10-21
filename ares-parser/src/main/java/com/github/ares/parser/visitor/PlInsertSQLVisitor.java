@@ -10,6 +10,7 @@ import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLInsert;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
@@ -30,7 +31,7 @@ public class PlInsertSQLVisitor {
         SQLInsert sqlInsert = sqlParser.parseInsert(insertSQL);
 
         LogicalInsertSelectSQL insertSelectSQL = new LogicalInsertSelectSQL();
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlInsert.getTable());
+        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlInsert.getTable().toLowerCase(Locale.ROOT));
         if (sinkTable == null) {
             throw new ParseException(String.format("Sink table name not exists: %s", sqlInsert.getTable()));
         }

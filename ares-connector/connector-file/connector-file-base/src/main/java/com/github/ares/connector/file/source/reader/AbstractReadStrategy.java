@@ -18,12 +18,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.github.ares.connector.file.config.BaseSourceConfigOptions.TARGET_PARTITIONS;
 
 @Slf4j
 public abstract class AbstractReadStrategy implements ReadStrategy {
@@ -62,8 +66,12 @@ public abstract class AbstractReadStrategy implements ReadStrategy {
     @Override
     public void setAresRowTypeInfo(AresRowType aresRowType) {
         this.aresRowType = aresRowType;
-        this.aresRowTypeWithPartition =
-                mergePartitionTypes(fileNames.get(0), aresRowType);
+        if (fileNames.isEmpty()) {
+            this.aresRowTypeWithPartition = mergePartitionTypes("", aresRowType);
+        } else {
+            this.aresRowTypeWithPartition =
+                    mergePartitionTypes(fileNames.get(0), aresRowType);
+        }
     }
 
     boolean checkFileType(String path) {
@@ -83,7 +91,7 @@ public abstract class AbstractReadStrategy implements ReadStrategy {
                 // filter '_SUCCESS' file
                 if (!fileStatus.getPath().getName().equals("_SUCCESS")
                         && !fileStatus.getPath().getName().startsWith(".")
-                        && (fileFormat==null || fileStatus.getPath().getName().toLowerCase(Locale.ROOT).endsWith(fileFormat.getSuffix()))) {
+                        && (fileFormat == null || fileStatus.getPath().getName().toLowerCase(Locale.ROOT).endsWith(fileFormat.getSuffix()))) {
                     String filePath = fileStatus.getPath().toString();
                     if (!readPartitions.isEmpty()) {
                         for (String readPartition : readPartitions) {
@@ -146,12 +154,18 @@ public abstract class AbstractReadStrategy implements ReadStrategy {
     }
 
     protected AresRowType mergePartitionTypes(String path, AresRowType aresRowType) {
+        Set<String> partitionNameSet = new LinkedHashSet<>();
+        if (pluginConfig.hasPath(TARGET_PARTITIONS.key())) {
+            partitionNameSet.addAll(pluginConfig.getStringList(TARGET_PARTITIONS.key()));
+        }
         Map<String, String> partitionsMap = parsePartitionsByPath(path);
-        if (partitionsMap.isEmpty()) {
+        partitionNameSet.addAll(partitionsMap.keySet());
+
+        if (partitionNameSet.isEmpty()) {
             return aresRowType;
         }
         // get all names of partitions fields
-        String[] partitionNames = partitionsMap.keySet().toArray(TYPE_ARRAY_STRING);
+        String[] partitionNames = partitionNameSet.toArray(TYPE_ARRAY_STRING);
         // initialize data type for partition fields
         AresDataType<?>[] partitionTypes = new AresDataType<?>[partitionNames.length];
         Arrays.fill(partitionTypes, BasicType.STRING_TYPE);

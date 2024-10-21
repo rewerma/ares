@@ -36,14 +36,16 @@ public class LogicalCreateSourceTable extends TableWith implements Serializable 
         for (PhysicalColumn column : columns) {
             String type = column.getDataType().getSqlType().toString();
             AresDataType<?> aresDataType = column.getDataType();
-            if(aresDataType instanceof DecimalType) {
+            if (aresDataType instanceof DecimalType) {
                 DecimalType decimalType = (DecimalType) aresDataType;
                 type = type + "(" + decimalType.getPrecision() + "," + decimalType.getScale() + ")";
             }
             fields.put(column.getName(), type);
         }
         schema.put("fields", fields);
-        config.put("schema", schema);
+        if (!fields.isEmpty()) {
+            config.put("schema", schema);
+        }
         config.putAll(super.getOptions());
         return config;
     }

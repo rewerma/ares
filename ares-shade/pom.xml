@@ -17,6 +17,7 @@
         <module>ares-jackson</module>
         <module>ares-hadoop3</module>
         <module>ares-config</module>
+        <module>ares-hive2</module>
     </modules>
 
     <properties>
@@ -28,11 +29,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

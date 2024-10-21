@@ -47,12 +47,6 @@ public abstract class BaseFileSourceConfig implements Serializable {
         this.catalogTable = parseCatalogTable(readonlyConfig);
     }
 
-    public List<String> refreshFilePaths() {
-        filePaths = parseFilePaths(baseFileSourceConfig);
-        catalogTable = parseCatalogTable(baseFileSourceConfig);
-        return filePaths;
-    }
-
     private List<String> parseFilePaths(ReadonlyConfig readonlyConfig) {
         String rootPath = null;
         try {
@@ -133,5 +127,11 @@ public abstract class BaseFileSourceConfig implements Serializable {
                 catalogTable.getPartitionKeys(),
                 catalogTable.getComment(),
                 catalogTable.getCatalogName());
+    }
+
+    public List<String> refreshFilePaths() {
+        filePaths = parseFilePaths(baseFileSourceConfig);
+        catalogTable = parseCatalogTable(baseFileSourceConfig);
+        return filePaths;
     }
 }

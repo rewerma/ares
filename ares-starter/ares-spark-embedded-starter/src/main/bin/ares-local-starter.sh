@@ -65,7 +65,7 @@ if [ -e "${CONF_DIR}/log4j2.properties" ]; then
   JAVA_OPTS="${JAVA_OPTS} -Dares.logs.file_name=${name}"
 fi
 
-CLASS_PATH="${APP_DIR}/starter/logging/*:${APP_DIR}/connectors/*:${APP_DIR}/thirdparty/hadoop/*:${APP_DIR}/starter/ares-spark3-starter.jar:${APP_DIR}/starter/ares-spark-embedded-starter.jar"
+CLASS_PATH="${APP_DIR}/starter/logging/*:${APP_DIR}/lib/*:${APP_DIR}/connectors/*:${APP_DIR}/thirdparty/hadoop/*:${APP_DIR}/thirdparty/hive/*:${APP_DIR}/starter/ares-spark3-starter.jar:${APP_DIR}/starter/ares-spark-embedded-starter.jar"
 
 echo "java ${jvm_args} ${JAVA_OPTS} -cp ${CLASS_PATH} ${APP_MAIN} ${other_args}"
 

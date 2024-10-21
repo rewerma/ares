@@ -19,8 +19,6 @@
         <module>ares-dist</module>
         <module>ares-test</module>
         <module>ares-formats</module>
-        <module>ares-formats/ares-format-json</module>
-        <module>ares-formats/ares-format-arvo</module>
     </modules>
 
     <properties>

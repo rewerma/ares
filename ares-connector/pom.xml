@@ -17,6 +17,7 @@
         <module>connector-jdbc</module>
         <module>connector-example</module>
         <module>connector-file</module>
+        <module>connector-hive</module>
     </modules>
 
     <properties>

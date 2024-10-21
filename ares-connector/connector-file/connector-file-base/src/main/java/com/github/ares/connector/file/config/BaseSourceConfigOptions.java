@@ -107,6 +107,12 @@ public class BaseSourceConfigOptions {
                     .noDefaultValue()
                     .withDescription("The partitions that the user want to read");
 
+    public static final Option<List<String>> TARGET_PARTITIONS =
+            Options.key("target_partitions")
+                    .listType()
+                    .noDefaultValue()
+                    .withDescription("The target partitions");
+
     public static final Option<List<String>> READ_COLUMNS =
             Options.key("read_columns")
                     .listType()

@@ -48,7 +48,6 @@ public class SparkDeleteSelectSqlExecutor extends DeleteSelectSqlExecutor implem
         super.init(executorManager);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void execute(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
                         LogicalDeleteSelectSQL dsSql, PlParams plParams) {
@@ -98,5 +97,9 @@ public class SparkDeleteSelectSqlExecutor extends DeleteSelectSqlExecutor implem
         AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
 
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
+
+        if (executorManager.getSourceTables().containsKey(dsSql.getSinkTable().getTableName().toLowerCase())) {
+            executorManager.getReloadFunctionExecutor().reloadSourceTable(dsSql.getSinkTable().getTableName());
+        }
     }
 }

@@ -5,9 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.ares</groupId>
-        <artifactId>ares</artifactId>
+        <artifactId>ares-formats</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>ares-format-arvo</artifactId>

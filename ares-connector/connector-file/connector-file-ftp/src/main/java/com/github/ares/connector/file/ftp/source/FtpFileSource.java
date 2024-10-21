@@ -35,7 +35,6 @@ public class FtpFileSource extends BaseFileSource {
 
     @Override
     public void prepare(Config pluginConfig) {
-        this.pluginConfig = pluginConfig;
         CheckResult result =
                 CheckConfigUtil.checkAllExists(
                         pluginConfig,
@@ -115,21 +114,6 @@ public class FtpFileSource extends BaseFileSource {
                 throw new FileConnectorException(
                         CommonErrorCode.TABLE_SCHEMA_GET_FAILED, errorMsg, e);
             }
-        }
-    }
-
-    @Override
-    public void refreshFilePaths() {
-        if (pluginConfig == null) {
-            return;
-        }
-        String path = pluginConfig.getString(FtpConfigOptions.FILE_PATH.key());
-        try {
-            filePaths = readStrategy.getFileNamesByPath(path);
-        } catch (IOException e) {
-            String errorMsg = String.format("Get file list from this path [%s] failed", path);
-            throw new FileConnectorException(
-                    FileConnectorErrorCode.FILE_LIST_GET_FAILED, errorMsg, e);
         }
     }
 }

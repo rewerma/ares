@@ -11,6 +11,7 @@ import com.github.ares.parser.sqlparser.model.SQLSelect;
 import com.github.ares.parser.sqlparser.model.SQLTruncate;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.RowConstructor;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -36,6 +37,8 @@ import net.sf.jsqlparser.statement.values.ValuesStatement;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ares.parser.sqlparser.SQLHintParser.parseHints;
@@ -95,13 +98,20 @@ public class JSQLParser implements SQLParser {
                 ValuesStatement valuesStatement = (ValuesStatement) setOperationList.getSelects().get(0);
                 ExpressionList expressionList = (ExpressionList) valuesStatement.getExpressions();
                 for (Expression expression : expressionList.getExpressions()) {
-                    RowConstructor rowConstructor = (RowConstructor) expression;
-                    List<Expression> expressions = rowConstructor.getExprList().getExpressions();
-                    List<String> values = new ArrayList<>();
-                    for (Expression expression1 : expressions) {
-                        values.add(expression1.toString());
+                    if (expression instanceof RowConstructor) {
+                        RowConstructor rowConstructor = (RowConstructor) expression;
+                        List<Expression> expressions = rowConstructor.getExprList().getExpressions();
+                        List<String> values = new ArrayList<>();
+                        for (Expression expression1 : expressions) {
+                            values.add(expression1.toString());
+                        }
+                        valuesArray.add(values);
+                    } else if (expression instanceof Parenthesis) {
+                        Parenthesis parenthesis = (Parenthesis) expression;
+                        valuesArray.add(Collections.singletonList(parenthesis.getExpression().toString()));
+                    } else {
+                        throw new ParseException("unsupported insert value expression: " + expression.toString());
                     }
-                    valuesArray.add(values);
                 }
                 sqlInsert.setValuesArray(valuesArray);
                 StringBuilder sourceSql = new StringBuilder();

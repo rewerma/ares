@@ -180,6 +180,12 @@ public class BaseSinkConfig {
                     .noDefaultValue()
                     .withDescription("Which columns need be wrote to file");
 
+    public static final Option<List<String>> TARGET_COLUMN_TYPES =
+            Options.key("sink_column_types")
+                    .listType()
+                    .noDefaultValue()
+                    .withDescription("Target column types need be wrote to file");
+
     public static final Option<Boolean> IS_ENABLE_TRANSACTION =
             Options.key("is_enable_transaction")
                     .booleanType()

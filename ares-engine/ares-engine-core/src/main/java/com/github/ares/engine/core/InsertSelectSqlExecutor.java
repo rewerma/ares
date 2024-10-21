@@ -26,9 +26,6 @@ public abstract class InsertSelectSqlExecutor extends AbstractBaseExecutor imple
         });
     }
 
-    public void commonFunction() {
-    }
-
     public abstract void execute(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
                                  LogicalInsertSelectSQL isSql, PlParams plParams);
 }

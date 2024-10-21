@@ -5,13 +5,17 @@ import com.github.ares.com.typesafe.config.Config;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class CheckConfigUtil {
 
-    private CheckConfigUtil() {}
+    private CheckConfigUtil() {
+    }
 
-    /** please using {@link #checkAllExists} instead, since 2.0.5 */
+    /**
+     * please using {@link #checkAllExists} instead, since 2.0.5
+     */
     @Deprecated
     public static CheckResult check(Config config, String... params) {
         return checkAllExists(config, params);
@@ -33,7 +37,9 @@ public final class CheckConfigUtil {
         }
     }
 
-    /** check config if there was at least one usable */
+    /**
+     * check config if there was at least one usable
+     */
     public static CheckResult checkAtLeastOneExists(Config config, String... params) {
         if (params.length == 0) {
             return CheckResult.success();
@@ -67,7 +73,9 @@ public final class CheckConfigUtil {
         return isValidParam;
     }
 
-    /** merge all check result */
+    /**
+     * merge all check result
+     */
     public static CheckResult mergeCheckResults(CheckResult... checkResults) {
         List<CheckResult> notPassConfig =
                 Arrays.stream(checkResults)

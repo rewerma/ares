@@ -23,7 +23,6 @@ public abstract class BaseHdfsFileSource extends BaseFileSource {
 
     @Override
     public void prepare(Config pluginConfig) {
-        this.pluginConfig = pluginConfig;
         CheckResult result =
                 CheckConfigUtil.checkAllExists(
                         pluginConfig,
@@ -77,59 +76,30 @@ public abstract class BaseHdfsFileSource extends BaseFileSource {
                         pluginConfig
                                 .getString(HdfsSourceConfigOptions.FILE_FORMAT_TYPE.key())
                                 .toUpperCase());
-        // only json text csv type support user-defined schema now
-        if (pluginConfig.hasPath(TableSchemaOptions.SCHEMA.key())) {
+
+        if (!filePaths.isEmpty()) {
             switch (fileFormat) {
-                case CSV:
-                case TEXT:
-                case JSON:
-                case EXCEL:
-                case XML:
-                    AresRowType userDefinedSchema =
-                            CatalogTableUtil.buildWithConfig(pluginConfig).getAresRowType();
-                    readStrategy.setAresRowTypeInfo(userDefinedSchema);
-                    rowType = readStrategy.getActualAresRowTypeInfo();
-                    break;
                 case ORC:
                 case PARQUET:
-                    throw new FileConnectorException(
-                            CommonErrorCode.UNSUPPORTED_OPERATION,
-                            "Ares does not support user-defined schema for [parquet, orc] files");
-                default:
-                    // never got in there
-                    throw new FileConnectorException(
-                            CommonErrorCode.ILLEGAL_ARGUMENT,
-                            "Ares does not supported this file format");
-            }
-        } else {
-            if (filePaths.isEmpty()) {
-                // When the directory is empty, distribute default behavior schema
-                rowType = CatalogTableUtil.buildSimpleTextSchema();
-                return;
-            }
-            try {
-                rowType = readStrategy.getAresRowTypeInfo(filePaths.get(0));
-            } catch (FileConnectorException e) {
-                String errorMsg =
-                        String.format("Get table schema from file [%s] failed", filePaths.get(0));
-                throw new FileConnectorException(
-                        CommonErrorCode.TABLE_SCHEMA_GET_FAILED, errorMsg, e);
+                    try {
+                        rowType = readStrategy.getAresRowTypeInfo(filePaths.get(0));
+                    } catch (FileConnectorException e) {
+                        String errorMsg =
+                                String.format("Get table schema from file [%s] failed", filePaths.get(0));
+                        throw new FileConnectorException(
+                                CommonErrorCode.TABLE_SCHEMA_GET_FAILED, errorMsg, e);
+                    }
+                    return;
             }
         }
-    }
-
-    @Override
-    public void refreshFilePaths() {
-        if (pluginConfig == null) {
-            return;
-        }
-        String path = pluginConfig.getString(HdfsSourceConfigOptions.FILE_PATH.key());
-        try {
-            filePaths = readStrategy.getFileNamesByPath(path);
-        } catch (IOException e) {
-            String errorMsg = String.format("Get file list from this path [%s] failed", path);
+        if (!pluginConfig.hasPath(TableSchemaOptions.SCHEMA.key())) {
             throw new FileConnectorException(
-                    FileConnectorErrorCode.FILE_LIST_GET_FAILED, errorMsg, e);
+                    CommonErrorCode.ILLEGAL_ARGUMENT,
+                    "Ares does not supported this file format");
         }
+        AresRowType userDefinedSchema =
+                CatalogTableUtil.buildWithConfig(pluginConfig).getAresRowType();
+        readStrategy.setAresRowTypeInfo(userDefinedSchema);
+        rowType = readStrategy.getActualAresRowTypeInfo();
     }
 }
