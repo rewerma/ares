@@ -15,9 +15,9 @@
         <module>ares-connector-base</module>
         <module>ares-connector-spark</module>
         <module>connector-jdbc</module>
-        <module>connector-example</module>
         <module>connector-file</module>
         <module>connector-hive</module>
+        <module>connector-fake</module>
     </modules>
 
     <properties>
