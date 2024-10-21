@@ -49,4 +49,10 @@ SET spark.cores.max=1
 
 # PL语法
 
-## 匿名过程块 PL语法
+## 匿名过程块PL语法
+
+参考：[匿名过程块](anonymous-block.md)语法
+
+## 存储过程块PL语法
+
+参考：[存储过程块](procedure-block.md)语法

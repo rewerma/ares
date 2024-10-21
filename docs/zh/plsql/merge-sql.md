@@ -61,6 +61,6 @@ WHEN NOT MATCHED THEN
 
 - MERGE语法中不能将目标表的字段作为输入字段
 
-- 部分sink端connectors插件不支持MERGE语法中的更新操作或只支持通过主键进行更新，如：`file` connector，`hbase` connector等。（`jdbc` connector支持通过任意字段进行更新）。
+- 部分sink端connectors插件不支持MERGE语法中的更新操作或只支持通过主键进行更新，如：`file` connector，`hbase` connector等。（`jdbc` connector支持通过任意字段作为插入更新的条件）。
 
 - 使用MERGE语法时，目标表的类型必须同时配置为`source` 

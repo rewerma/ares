@@ -54,7 +54,7 @@ SELECT b.group_name, count(b.group_name) as cnt FROM t_user_v a
 
 ## SELECT变量赋值语法
 
-在[过程语句]()中，可以通过SELECT语句将查询结果赋值给变量：
+在[过程语句](anonymous-block.md)中，可以通过SELECT语句将查询结果赋值给变量：
 
 ```sql
 SET datasource.mytest.connector=jdbc

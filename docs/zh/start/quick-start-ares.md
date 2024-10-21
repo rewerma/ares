@@ -4,7 +4,7 @@
 
 在开始前，请确保您已经按照[部署](deployment.md)中的描述下载并部署了Ares
 
-## 步骤 2: 部署并配置Spark
+## 步骤 2: 部署并配置Spark(可选)
 
 请先[下载Spark](https://spark.apache.org/downloads.html)(**需要版本 >= 2.4.0**)。 更多信息您可以查看[入门: standalone模式](https://spark.apache.org/docs/latest/spark-standalone.html#installing-spark-standalone-to-a-cluster)
 
@@ -53,6 +53,11 @@ END;
 ## 步骤 4: 通过Ares提交作业
 
 在ares-bin目录下执行以下命令提交作业：
+
+Local:
+``` bash
+./bin/ares-local-starter.sh --sql /path/to/sample.sql 
+``` 
 
 Spark3: 
 ``` bash

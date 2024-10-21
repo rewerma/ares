@@ -73,4 +73,4 @@ UPDATE t_user2_v a, (SELECT * FROM t_user_v wher id > 10) b SET a.name = b.name,
 UPDATE t_user2_v a, t_user_v b SET a.name = a.name || b.name, a.age = b.age WHERE a.id = a.id + b.id;
 ```
 
-- 部分sink端connectors插件不支持UPDATE语法或只支持通过主键进行UPDATE，如：`file` connector，`hbase` connector等。（`jdbc` connector支持通过任意字段进行UPDATE）。
+- 部分sink端connectors插件不支持UPDATE语法或只支持通过主键进行UPDATE，如：`file` connector，`hive` connector等。

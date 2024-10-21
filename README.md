@@ -3,7 +3,7 @@
 ## 目录
 
 - [概览](#overview)
-- [Quick Start](docs/zh/start/quick-start-ares.md)
+- [快速开始](docs/zh/start/quick-start-ares.md)
 - [安装](docs/zh/start/deployment.md)
 - [PL-SQL语法](docs/zh/plsql/ares-plsql.md)
 
@@ -147,3 +147,19 @@ BEGIN
     PUT_LINE('Total records: '||:cnt);
 END;
 ```
+## 执行示例
+
+Local:
+``` bash
+./bin/ares-local-starter.sh --sql /path/to/sample.sql 
+``` 
+
+Spark3:
+``` bash
+./bin/start-ares-spark3-connector.sh --sql /path/to/sample.sql --master spark://127.0.0.1:7077 
+``` 
+
+Spark2:
+``` bash
+./bin/start-ares-spark2-connector.sh --sql /path/to/sample.sql --master spark://127.0.0.1:7077 
+``` 
