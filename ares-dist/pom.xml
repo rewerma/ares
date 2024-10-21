@@ -120,6 +120,11 @@
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
+            <artifactId>connector-console</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
             <artifactId>connector-hive</artifactId>
             <version>${project.version}</version>
             <exclusions>

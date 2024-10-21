@@ -8,7 +8,7 @@ import org.junit.Test;
 @Ignore
 public class Spark2FakeTest {
     @Test
-    public void hiveTest() {
+    public void fakeTest() {
         String[] args = new String[]{
                 "--master", Utils.getSparkMaster(),
                 "--sql", "../scripts/spark/connector/fake-test.sql",

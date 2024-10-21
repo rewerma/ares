@@ -74,12 +74,12 @@ public class FakeSourceReader implements SourceReader<AresRow, FakeSourceSplit> 
             if (null != split) {
                 FakeDataGenerator fakeDataGenerator = fakeDataGeneratorMap.get(split.getTableId());
                 // Randomly generated data are sent directly to the downstream operator
-                List<AresRow> seaTunnelRows =
+                List<AresRow> aresRows =
                         fakeDataGenerator.generateFakedRows(split.getRowNum());
-                seaTunnelRows.forEach(output::collect);
+                aresRows.forEach(output::collect);
                 log.info(
                         "{} rows of data have been generated in split({}) for table {}. Generation time: {}",
-                        seaTunnelRows.size(),
+                        aresRows.size(),
                         split.splitId(),
                         split.getTableId(),
                         latestTimestamp);

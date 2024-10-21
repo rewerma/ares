@@ -119,6 +119,11 @@
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
+            <artifactId>connector-console</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
             <artifactId>ares-hadoop3</artifactId>
             <version>${project.version}</version>
             <classifier>optional</classifier>

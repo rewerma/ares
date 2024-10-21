@@ -18,6 +18,7 @@
         <module>connector-file</module>
         <module>connector-hive</module>
         <module>connector-fake</module>
+        <module>connector-console</module>
     </modules>
 
     <properties>

@@ -4,16 +4,16 @@ import com.github.ares.common.exceptions.AresErrorCode;
 import com.github.ares.common.exceptions.AresRuntimeException;
 
 public class HiveConnectorException extends AresRuntimeException {
-    public HiveConnectorException(AresErrorCode seaTunnelErrorCode, String errorMessage) {
-        super(seaTunnelErrorCode, errorMessage);
+    public HiveConnectorException(AresErrorCode aresErrorCode, String errorMessage) {
+        super(aresErrorCode, errorMessage);
     }
 
     public HiveConnectorException(
-            AresErrorCode seaTunnelErrorCode, String errorMessage, Throwable cause) {
-        super(seaTunnelErrorCode, errorMessage, cause);
+            AresErrorCode aresErrorCode, String errorMessage, Throwable cause) {
+        super(aresErrorCode, errorMessage, cause);
     }
 
-    public HiveConnectorException(AresErrorCode seaTunnelErrorCode, Throwable cause) {
-        super(seaTunnelErrorCode, cause);
+    public HiveConnectorException(AresErrorCode aresErrorCode, Throwable cause) {
+        super(aresErrorCode, cause);
     }
 }

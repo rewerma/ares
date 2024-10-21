@@ -43,13 +43,13 @@ public class FakeDataGenerator {
 
     private AresRow convertRow(FakeConfig.RowData rowData) {
         try {
-            AresRow seaTunnelRow =
+            AresRow aresRow =
                     jsonDeserializationSchema.deserialize(rowData.getFieldsJson());
             if (rowData.getKind() != null) {
-                seaTunnelRow.setRowKind(RowKind.valueOf(rowData.getKind()));
+                aresRow.setRowKind(RowKind.valueOf(rowData.getKind()));
             }
-            seaTunnelRow.setTableId(tableId);
-            return seaTunnelRow;
+            aresRow.setTableId(tableId);
+            return aresRow;
         } catch (IOException e) {
             throw CommonError.jsonOperationError("Fake", rowData.getFieldsJson(), e);
         }
@@ -63,9 +63,9 @@ public class FakeDataGenerator {
         for (AresDataType<?> fieldType : fieldTypes) {
             randomRow.add(randomColumnValue(fieldType));
         }
-        AresRow seaTunnelRow = new AresRow(randomRow.toArray());
-        seaTunnelRow.setTableId(tableId);
-        return seaTunnelRow;
+        AresRow aresRow = new AresRow(randomRow.toArray());
+        aresRow.setTableId(tableId);
+        return aresRow;
     }
 
     /**
@@ -74,17 +74,17 @@ public class FakeDataGenerator {
      */
     public List<AresRow> generateFakedRows(int rowNum) {
         // Use manual configuration data preferentially
-        List<AresRow> seaTunnelRows = new ArrayList<>();
+        List<AresRow> aresRows = new ArrayList<>();
         if (fakeConfig.getFakeRows() != null) {
             for (FakeConfig.RowData rowData : fakeConfig.getFakeRows()) {
-                seaTunnelRows.add(convertRow(rowData));
+                aresRows.add(convertRow(rowData));
             }
         } else {
             for (int i = 0; i < rowNum; i++) {
-                seaTunnelRows.add(randomRow());
+                aresRows.add(randomRow());
             }
         }
-        return seaTunnelRows;
+        return aresRows;
     }
 
     @SuppressWarnings("magicnumber")

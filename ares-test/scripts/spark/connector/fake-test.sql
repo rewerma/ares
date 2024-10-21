@@ -8,4 +8,12 @@ WITH (
     'type' = 'source'
 );
 
+CREATE TABLE test2
+WITH (
+    'connector' = 'console',
+    'type' = 'sink'
+);
+
 select * from test1;
+
+insert into test2 select * from test1;
