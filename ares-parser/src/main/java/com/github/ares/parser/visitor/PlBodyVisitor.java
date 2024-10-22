@@ -3,6 +3,7 @@ package com.github.ares.parser.visitor;
 import com.github.ares.common.engine.PlType;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
+import com.github.ares.parser.plan.LogicalContinueLoop;
 import com.github.ares.parser.plan.LogicalExitLoop;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.utils.PLParserUtil;
@@ -32,9 +33,14 @@ public class PlBodyVisitor {
         }
         List<LogicalOperation> result = new ArrayList<>();
         for (PlSqlParser.StatementContext statementContext : statementContextList) {
-            PlSqlParser.Exit_statementContext exit_statementContext = statementContext.exit_statement();
-            if (exit_statementContext != null) {
+            PlSqlParser.Exit_statementContext exitStatementContext = statementContext.exit_statement();
+            if (exitStatementContext != null) {
                 result.add(new LogicalExitLoop());
+                continue;
+            }
+            PlSqlParser.Continue_statementContext continueStatementContext = statementContext.continue_statement();
+            if (continueStatementContext != null) {
+                result.add(new LogicalContinueLoop());
                 continue;
             }
 

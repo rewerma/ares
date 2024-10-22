@@ -8,6 +8,7 @@ public enum OperationType {
     ASSIGNMENT("assignment"),
     DECLARE_PARAMS("declareParams"),
     EXIT_LOOP("exitLoop"),
+    CONTINUE_LOOP("continueLoop"),
     RETURN_VALUE("returnValue"),
     FOR_LOOP("forLoop"),
     FOR_CURSOR_LOOP("forCursorLoop"),

@@ -12,6 +12,7 @@ import com.github.ares.parser.plan.LogicalWhileLoop;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.github.ares.parser.enums.OperationType.CONTINUE_LOOP;
 import static com.github.ares.parser.enums.OperationType.EXIT_LOOP;
 import static com.github.ares.parser.enums.OperationType.RETURN_VALUE;
 
@@ -34,9 +35,11 @@ public class BodyExecutionExecutor extends AbstractBaseExecutor implements IBody
                 case IF_ELSE:
                     int idx = executorManager.getIfElseExecutor().ifElse((LogicalIfElse) operation,
                             plParams, i, operations, this::execute);
-                    if (idx == -1) { // with loop exit
+                    if (idx == IfElseExecutor.BREAK_LOOP_FLAG) { // with loop exit
                         return EXIT_LOOP;
-                    } else if (idx == -2) { // with function return
+                    } else if (idx == IfElseExecutor.CONTINUE_LOOP_FLAG) { // with function return
+                        return CONTINUE_LOOP;
+                    }  else if (idx == IfElseExecutor.RETURN_FUNCTION_FLAG) { // with function return
                         return RETURN_VALUE;
                     } else {
                         i = idx;
@@ -51,6 +54,9 @@ public class BodyExecutionExecutor extends AbstractBaseExecutor implements IBody
                 case EXIT_LOOP:
                     traceLogger.info("Loop: EXIT");
                     return EXIT_LOOP;
+                case CONTINUE_LOOP:
+                    traceLogger.info("Loop: CONTINUE");
+                    return CONTINUE_LOOP;
                 case FOR_CURSOR_LOOP:
                     lastData = executorManager.getForCursorLoopExecutor().execute((LogicalForCursorLoop) operation, plParams, this::execute);
                     break;

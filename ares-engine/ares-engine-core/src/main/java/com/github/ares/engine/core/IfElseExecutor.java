@@ -9,12 +9,18 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.github.ares.engine.utils.EngineUtil.replaceParams;
+import static com.github.ares.parser.enums.OperationType.CONTINUE_LOOP;
 import static com.github.ares.parser.enums.OperationType.EXIT_LOOP;
 import static com.github.ares.parser.enums.OperationType.IF_ELSE;
 import static com.github.ares.parser.enums.OperationType.RETURN_VALUE;
 
 public class IfElseExecutor extends AbstractBaseExecutor implements Serializable {
     private static final long serialVersionUID = 1L;
+
+
+    public static final Integer BREAK_LOOP_FLAG = -1;
+    public static final int RETURN_FUNCTION_FLAG = -2;
+    public static final int CONTINUE_LOOP_FLAG = -3;
 
     public int ifElse(LogicalIfElse ifElse, PlParams plParams, int i,
                       List<LogicalOperation> operations, BodyCallback body) {
@@ -38,10 +44,13 @@ public class IfElseExecutor extends AbstractBaseExecutor implements Serializable
 
         Object exitFlag = ifElse(ifElseOperations, plParams, body);
         if (EXIT_LOOP == exitFlag) {
-            return -1; // with loop exit
+            return BREAK_LOOP_FLAG; // with loop exit
+        }
+        if (CONTINUE_LOOP == exitFlag) {
+            return CONTINUE_LOOP_FLAG; // with loop continue
         }
         if (RETURN_VALUE == exitFlag) {
-            return -2; // with return function
+            return RETURN_FUNCTION_FLAG; // with return function
         }
         return i + ifElseOperations.size() - 1;
     }
