@@ -47,7 +47,7 @@ public class AssertEquals implements UdfInterface {
             if (arg2 instanceof String) {
                 arg2 = "'" + arg2 + "'";
             }
-            throw new AresException("ASSERT_EQUAL failed: " + arg1 + " != " + arg2);
+            throw new AresException("ASSERT_EQUALS failed: " + arg1 + " != " + arg2);
         }
     }
 }

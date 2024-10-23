@@ -185,8 +185,8 @@ public class SimpleSqlFunction implements Serializable {
         if (dataType.equalsIgnoreCase("DECIMAL")) {
             List<String> ps = castExpression.getType().getArgumentsStringList();
             if (ps == null || ps.isEmpty()) {
-                args.add(20);
                 args.add(10);
+                args.add(0);
             } else {
                 args.add(Integer.parseInt(ps.get(0)));
                 if (ps.size() > 1) {

@@ -56,3 +56,15 @@ SET spark.cores.max=1
 ## 存储过程块PL语法
 
 参考：[存储过程块](procedure-block.md)语法
+
+## 函数块PL语法
+
+参考：[函数块](function-block.md)语法
+
+## 内置PL函数
+
+参考：[内置PL函数](pl-function.md)语法
+
+## IF PL语法
+
+参考：[IF PL语法](if-block.md)语法

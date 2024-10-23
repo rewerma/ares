@@ -104,7 +104,7 @@ public class DataTypeConvertor {
             case FLOAT:
                 return Float.parseFloat(objectToString(originValue));
             case NUMERIC:
-                int scale = fieldType.getScale() != null ? fieldType.getScale() : 10;
+                int scale = fieldType.getScale() != null ? fieldType.getScale() : 0;
                 BigDecimal bigDecimal = new BigDecimal(objectToString(originValue));
                 return bigDecimal.setScale(scale, RoundingMode.HALF_UP);
         }

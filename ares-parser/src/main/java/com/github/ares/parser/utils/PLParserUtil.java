@@ -193,12 +193,12 @@ public class PLParserUtil {
                 if (precision != null) {
                     targetType.setPrecision(precision);
                 } else {
-                    targetType.setPrecision(20);
+                    targetType.setPrecision(10);
                 }
                 if (scale != null) {
                     targetType.setScale(scale);
                 } else {
-                    targetType.setScale(10);
+                    targetType.setScale(0);
                 }
                 break;
             case "STRING":

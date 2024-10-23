@@ -25,8 +25,8 @@ public class AresDataTypeHelper {
             case DOUBLE:
                 return BasicType.DOUBLE_TYPE;
             case NUMERIC:
-                int precision = type.getPrecision() == null ? 20 : type.getPrecision();
-                int scale = type.getScale() == null ? 10 : type.getScale();
+                int precision = type.getPrecision() == null ? 10 : type.getPrecision();
+                int scale = type.getScale() == null ? 0 : type.getScale();
                 return new DecimalType(precision, scale);
             case VARCHAR:
                 return BasicType.STRING_TYPE;

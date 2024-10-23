@@ -12,13 +12,16 @@ import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.connector.discovery.AresSinkPluginDiscovery;
 import com.github.ares.connector.discovery.PluginIdentifier;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.github.ares.api.common.CommonOptions.CONNECTOR;
 
 @Singleton
-public class AresSinkFactory {
+public class AresSinkFactory implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public AresSink<?, ?, ?, ?> createSink(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
                                            CatalogTable catalogTable, TableSinkFactoryContext context) {
         boolean fallBack = !sinkFactory.isPresent() || isFallback(sinkFactory.get());
