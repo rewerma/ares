@@ -6,15 +6,19 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 public class SQLParserFactoryLoader {
-    private static final String DEFAULT_TYPE = "JSQLParser";
+    private static final String SPARKSQL_PARSER_TYPE = "SparkSqlParser";
 
     private static volatile SQLParserFactory sqlParserFactory;
 
     public static SQLParserFactory getDefaultFactory() {
+        return getFactory(SPARKSQL_PARSER_TYPE);
+    }
+
+    public static SQLParserFactory getFactory(String type) {
         if (sqlParserFactory == null) {
             synchronized (SQLParserFactoryLoader.class) {
                 if (sqlParserFactory == null) {
-                    sqlParserFactory = loadFactory(DEFAULT_TYPE);
+                    sqlParserFactory = loadFactory(type);
                 }
             }
         }

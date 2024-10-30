@@ -1,4 +1,4 @@
-package com.github.ares.parser.antlr4.plsql;
+package com.github.ares.parser.antlr4;
 
 import com.github.ares.org.antlr.v4.runtime.BaseErrorListener;
 import com.github.ares.org.antlr.v4.runtime.RecognitionException;

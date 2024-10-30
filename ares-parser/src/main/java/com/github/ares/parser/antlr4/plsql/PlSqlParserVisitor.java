@@ -1,4 +1,3 @@
-// Generated from /Users/rewerma/Develop/git_aliyun/ares/ares-parser/src/main/java/com/github/ares/parser/antlr4/plsql/PlSqlParser.g4 by ANTLR 4.12.0
 package com.github.ares.parser.antlr4.plsql;
 import com.github.ares.org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

@@ -35,6 +35,23 @@ public class PLParserUtil {
         return getFullSQLWithParams(o, params, structs, startWithColon, null);
     }
 
+    public static void trimRight(StringBuilder sb) {
+        int start = 0;
+        int end = sb.length() - 1;
+
+        /*while (start <= end && Character.isWhitespace(sb.charAt(start))) {
+            start++;
+        }*/
+
+        while (end >= start && Character.isWhitespace(sb.charAt(end))) {
+            end--;
+        }
+
+        if (start > 0 || end < sb.length() - 1) {
+            sb.delete(end + 1, sb.length());
+            sb.delete(0, start);
+        }
+    }
 
     public static String getFullSQLWithParams(Object o, Map<String, PlType> params, List<String> structs,
                                               boolean startWithColon, StringBuilder resStr) {
@@ -81,7 +98,7 @@ public class PLParserUtil {
                     String text = getFullSQLWithParams(ctx.getChild(i), params, structs, startWithColon, sb);
                     if (NEED_NON_SPACE.contains(text)) {
                         if (sb.length() > 0 && sb.substring(sb.length() - 1).equals(" ")) {
-                            sb.delete(sb.length() - 1, sb.length());
+                            trimRight(sb);
                         }
                     }
                     if (preTNode != null) {
