@@ -23,6 +23,7 @@ public class SQLUpdate implements Serializable {
 
     private CriteriaClause whereClause;
 
+    // for merge into SQL
     private List<String> selectWhereItems;
 
     private String sourceSql;

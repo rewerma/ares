@@ -1,4 +1,4 @@
-package com.github.ares.parser.antlr4.plsql;
+package com.github.ares.parser.antlr4;
 
 import com.github.ares.org.antlr.v4.runtime.CharStream;
 import com.github.ares.org.antlr.v4.runtime.misc.Interval;

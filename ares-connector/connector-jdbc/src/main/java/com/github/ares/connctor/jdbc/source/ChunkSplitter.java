@@ -254,8 +254,8 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
             }
             return Optional.of(
                     new AresRowType(
-                            new String[] {partitionColumn},
-                            new AresDataType[] {column.getDataType()}));
+                            new String[]{partitionColumn},
+                            new AresDataType[]{column.getDataType()}));
         }
 
         PrimaryKey pk = schema.getPrimaryKey();
@@ -265,8 +265,8 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
                 if (isEvenlySplitColumn(column)) {
                     return Optional.of(
                             new AresRowType(
-                                    new String[] {pkField},
-                                    new AresDataType[] {column.getDataType()}));
+                                    new String[]{pkField},
+                                    new AresDataType[]{column.getDataType()}));
                 }
             }
         }
@@ -289,15 +289,17 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
                         if (isEvenlySplitColumn(column)) {
                             return Optional.of(
                                     new AresRowType(
-                                            new String[] {uniqueKeyColumnName},
-                                            new AresDataType[] {column.getDataType()}));
+                                            new String[]{uniqueKeyColumnName},
+                                            new AresDataType[]{column.getDataType()}));
                         }
                     }
                 }
             }
         }
 
-        log.warn("No split key found for table {}", table.getTablePath());
+        if (!"default.default.default".equals(table.getTablePath().toString())) {
+            log.warn("No split key found for table {}", table.getTablePath());
+        }
         return Optional.empty();
     }
 
