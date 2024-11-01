@@ -68,3 +68,11 @@ SET spark.cores.max=1
 ## IF PL语法
 
 参考：[IF PL语法](if-block.md)语法
+
+## 循环 PL语法
+
+参考：[循环 PL语法](loop-block.md)语法
+
+## 异常处理 PL语法
+
+参考：[异常处理 PL语法](exception-block.md)语法
