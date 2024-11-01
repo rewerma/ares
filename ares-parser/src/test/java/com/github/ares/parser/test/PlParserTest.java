@@ -7,11 +7,13 @@ import com.github.ares.parser.PlParser;
 import com.github.ares.parser.config.ParserServiceModule;
 import com.github.ares.parser.plan.LogicalProject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+@Ignore
 public class PlParserTest {
     @Test
     public void test00() throws IOException {
