@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>ares-hive2</artifactId>
-    <packaging>pom</packaging>
 
     <properties>
         <hive.exec.version>2.3.9</hive.exec.version>
