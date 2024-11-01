@@ -138,7 +138,6 @@
             <groupId>com.github.ares</groupId>
             <artifactId>ares-hive2</artifactId>
             <version>${project.version}</version>
-            <classifier>optional</classifier>
         </dependency>
 
         <dependency>
