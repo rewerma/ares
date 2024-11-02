@@ -7,12 +7,12 @@ public class CheckResult {
 
     private static final CheckResult SUCCESS = new CheckResult(true, "");
 
-    private boolean success;
+    private boolean isSuccess;
 
     private String msg;
 
-    private CheckResult(boolean success, String msg) {
-        this.success = success;
+    private CheckResult(boolean isSuccess, String msg) {
+        this.isSuccess = isSuccess;
         this.msg = msg;
     }
 

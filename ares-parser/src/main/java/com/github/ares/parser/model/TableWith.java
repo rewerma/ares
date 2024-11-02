@@ -18,7 +18,7 @@ public abstract class TableWith extends LogicalOperation implements Serializable
 
     protected Map<String, Object> options = new LinkedHashMap<>();
 
-    public TableWith(OperationType plainType) {
+    protected TableWith(OperationType plainType) {
         super(plainType);
     }
 }

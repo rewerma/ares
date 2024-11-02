@@ -71,9 +71,6 @@ public class PLParserUtil {
                         break;
                     }
                 }
-                // if (terminalNode.startsWith(":")) {
-                //     throw new ParseException("param is not defined: " + terminalNode);
-                // }
             }
 
             if (resStr != null && resStr.length() > 2) {

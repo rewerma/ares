@@ -9,6 +9,7 @@ import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.utils.PLParserUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,76 +23,34 @@ public class PlBodyVisitor {
         this.visitorManager = visitorManager;
     }
 
-    public List<LogicalOperation> visitBodyStatements(List<PlSqlParser.StatementContext> statementContextList, Map<String, PlType> inParams,
-                                                      Map<String, PlType> outParams, Map<String, PlType> declaredParams,
-                                                      List<LogicalOperation> baseBody, List<String> structs) {
+    /**
+     * Visits a list of statements in a PL/SQL block.
+     *
+     * @param statementContextList List of statement contexts.
+     * @param inParams             input parameters
+     * @param outParams            output parameters
+     * @param declaredParams       declared parameters
+     * @param baseBody             base body
+     * @param structs              structs
+     * @return List of logical operations.
+     */
+    public List<LogicalOperation> visitBodyStatements(
+            List<PlSqlParser.StatementContext> statementContextList,
+            Map<String, PlType> inParams,
+            Map<String, PlType> outParams,
+            Map<String, PlType> declaredParams,
+            List<LogicalOperation> baseBody,
+            List<String> structs) {
         Map<String, PlType> allParams = new LinkedHashMap<>(inParams);
         declaredParams.putAll(outParams);
         allParams.putAll(declaredParams);
         if (statementContextList == null) {
-            return null;
+            return Collections.emptyList();
         }
         List<LogicalOperation> result = new ArrayList<>();
         for (PlSqlParser.StatementContext statementContext : statementContextList) {
-            PlSqlParser.Exit_statementContext exitStatementContext = statementContext.exit_statement();
-            if (exitStatementContext != null) {
-                result.add(new LogicalExitLoop());
-                continue;
-            }
-            PlSqlParser.Continue_statementContext continueStatementContext = statementContext.continue_statement();
-            if (continueStatementContext != null) {
-                result.add(new LogicalContinueLoop());
-                continue;
-            }
-
-            PlSqlParser.Call_statementContext callStatementContext = statementContext.call_statement();
-            if (callStatementContext != null) {
-                LogicalOperation operation = visitorManager.getCallStatementVisitor()
-                        .visitCallStatement(callStatementContext, allParams, baseBody, result, structs);
-                if (operation != null) {
-                    result.add(operation);
-                }
-                continue;
-            }
-
-            PlSqlParser.Sql_statementContext sqlStatementContext = statementContext.sql_statement();
-            if (sqlStatementContext != null) {
-                LogicalOperation operation = sqlStatementVisitor(sqlStatementContext, declaredParams, allParams, structs);
-                if (operation != null) {
-                    result.add(operation);
-                }
-                continue;
-            }
-
-            PlSqlParser.Assignment_statementContext assignmentStatement = statementContext.assignment_statement();
-            if (assignmentStatement != null) {
-                LogicalOperation operation = visitorManager.getAssignmentVisitor()
-                        .visitAssignment(assignmentStatement, declaredParams, allParams, structs);
-                if (operation != null) {
-                    result.add(operation);
-                }
-                continue;
-            }
-            PlSqlParser.If_statementContext ifStatement = statementContext.if_statement();
-            if (ifStatement != null) {
-                visitorManager.getIfStatementVisitor().ifElseVisitor(
-                        this, ifStatement, baseBody, allParams, result, structs
-                );
-                continue;
-            }
-
-            PlSqlParser.Loop_statementContext loopStatementContext = statementContext.loop_statement();
-            if (loopStatementContext != null) {
-                LogicalOperation operation = visitorManager.getLoopStatementVisitor().loopVisitor(
-                        this, loopStatementContext, baseBody, allParams, structs);
-                if (operation != null) {
-                    result.add(operation);
-                }
-                continue;
-            }
-
-            PlSqlParser.Raise_statementContext raiseStatementContext = statementContext.raise_statement();
-            if (raiseStatementContext != null) {
+            if (visitLogicalControlContext(statementContext, result)
+                    || visitPlContext(statementContext, result, allParams, baseBody, declaredParams, structs)) {
                 continue;
             }
 
@@ -101,18 +60,83 @@ public class PlBodyVisitor {
         return result;
     }
 
-    public List<LogicalOperation> visitBodyStatements(PlSqlParser.Seq_of_statementsContext seq_of_statementsContext, Map<String, PlType> inParams,
-                                                      Map<String, PlType> outParams, Map<String, PlType> declaredParams,
-                                                      List<LogicalOperation> baseBody, List<String> structs) {
+    public List<LogicalOperation> visitBodyStatements(
+            PlSqlParser.Seq_of_statementsContext seq_of_statementsContext,
+            Map<String, PlType> inParams,
+            Map<String, PlType> outParams,
+            Map<String, PlType> declaredParams,
+            List<LogicalOperation> baseBody,
+            List<String> structs) {
         return visitBodyStatements(seq_of_statementsContext.statement(), inParams, outParams, declaredParams, baseBody, structs);
     }
 
-    public LogicalOperation sqlStatementVisitor(PlSqlParser.Sql_statementContext sql_statementContext,
-                                                Map<String, PlType> declaredParams, Map<String, PlType> allParams, List<String> structs) {
-        String originalSql = PLParserUtil.getFullText(sql_statementContext);
+    private boolean visitLogicalControlContext(PlSqlParser.StatementContext statementContext, List<LogicalOperation> result) {
+        boolean resultFlag = false;
+        if (statementContext.exit_statement() != null) {
+            result.add(new LogicalExitLoop());
+            resultFlag = true;
+        } else if (statementContext.continue_statement() != null) {
+            result.add(new LogicalContinueLoop());
+            resultFlag = true;
+        } else if (statementContext.raise_statement() != null) {
+            resultFlag = true;
+        }
+        return resultFlag;
+    }
+
+    private boolean visitPlContext(
+            PlSqlParser.StatementContext statementContext,
+            List<LogicalOperation> result,
+            Map<String, PlType> allParams,
+            List<LogicalOperation> baseBody,
+            Map<String, PlType> declaredParams,
+            List<String> structs) {
+        boolean resultFlag = false;
+        if (statementContext.call_statement() != null) {
+            LogicalOperation operation = visitorManager.getCallStatementVisitor()
+                    .visitCallStatement(statementContext.call_statement(), allParams, result, structs);
+            if (operation != null) {
+                result.add(operation);
+            }
+            resultFlag = true;
+        } else if (statementContext.sql_statement() != null) {
+            LogicalOperation operation = sqlStatementVisitor(statementContext.sql_statement(), declaredParams, allParams, structs);
+            if (operation != null) {
+                result.add(operation);
+            }
+            resultFlag = true;
+        } else if (statementContext.assignment_statement() != null) {
+            LogicalOperation operation = visitorManager.getAssignmentVisitor()
+                    .visitAssignment(statementContext.assignment_statement(), declaredParams, allParams, structs);
+            if (operation != null) {
+                result.add(operation);
+            }
+            resultFlag = true;
+        } else if (statementContext.if_statement() != null) {
+            visitorManager.getIfStatementVisitor().ifElseVisitor(
+                    this, statementContext.if_statement(), baseBody, allParams, result, structs
+            );
+            resultFlag = true;
+        } else if (statementContext.loop_statement() != null) {
+            LogicalOperation operation = visitorManager.getLoopStatementVisitor().loopVisitor(
+                    this, statementContext.loop_statement(), baseBody, allParams, structs);
+            if (operation != null) {
+                result.add(operation);
+            }
+            resultFlag = true;
+        }
+        return resultFlag;
+    }
+
+    public LogicalOperation sqlStatementVisitor(
+            PlSqlParser.Sql_statementContext sqlStatementContext,
+            Map<String, PlType> declaredParams,
+            Map<String, PlType> allParams,
+            List<String> structs) {
+        String originalSql = PLParserUtil.getFullText(sqlStatementContext);
         String sql;
         try {
-            sql = PLParserUtil.getFullSQLWithParams(sql_statementContext, allParams, structs);
+            sql = PLParserUtil.getFullSQLWithParams(sqlStatementContext, allParams, structs);
         } catch (Exception e) {
             throw new ParseException("Failed to parse SQL statement: " + originalSql, e);
         }
@@ -133,19 +157,20 @@ public class PlBodyVisitor {
             case "MERGE ":
                 return visitorManager.getMergeSQLVisitor().visitMergeSQL(originalSql, sql);
             case "CREATE":
-                if (sql_statementContext.data_manipulation_language_statements() != null &&
-                        sql_statementContext.data_manipulation_language_statements().create_table_as2() != null) {
-                    String innerTableName = sql_statementContext.data_manipulation_language_statements()
+                if (sqlStatementContext.data_manipulation_language_statements() != null &&
+                        sqlStatementContext.data_manipulation_language_statements().create_table_as2() != null) {
+                    String innerTableName = sqlStatementContext.data_manipulation_language_statements()
                             .create_table_as2().table_name().getText();
                     return visitorManager.getCreateAsSQLVisitor().visitCreateInnerTable(originalSql, sql, innerTableName);
                 }
+                throw new UnsupportedOperationException("Unsupported SQL syntax: " + sql);
             case "TRUNCA":
                 if ("TRUNCATE".equalsIgnoreCase(sql.substring(0, 8))) {
                     return visitorManager.getTruncateSQLVisitor().visitTruncateSQL(sql);
                 }
+                throw new UnsupportedOperationException("Unsupported SQL syntax: " + sql);
             default:
                 throw new UnsupportedOperationException("Unsupported SQL syntax: " + sql);
         }
-
     }
 }

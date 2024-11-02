@@ -248,7 +248,7 @@ public class Options {
         private final String key;
         private final TypeReference<T> typeReference;
 
-        SingleChoiceOptionBuilder(String key, TypeReference typeReference, List<T> optionValues) {
+        SingleChoiceOptionBuilder(String key, TypeReference<T> typeReference, List<T> optionValues) {
             this.optionValues = optionValues;
             this.key = key;
             this.typeReference = typeReference;

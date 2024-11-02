@@ -17,8 +17,10 @@
 
 package com.github.ares.common.exceptions;
 
+import java.io.Serializable;
+
 /** Ares connector error code interface */
-public interface AresErrorCode {
+public interface AresErrorCode extends Serializable {
     /**
      * Get error code
      *

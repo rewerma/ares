@@ -124,13 +124,13 @@ public class SparkStarter implements Starter {
     /**
      * parse spark configurations from Ares config file
      */
-    private void setSparkConf() throws FileNotFoundException {
+    private void setSparkConf() {
         commandArgs.getVariables().stream()
                 .filter(Objects::nonNull)
                 .map(variable -> variable.split("=", 2))
                 .filter(pair -> pair.length == 2)
                 .forEach(pair -> System.setProperty(pair[0], pair[1]));
-        this.sparkConf = getSparkConf(/* TODO commandArgs.getConfigFile()*/null);
+        this.sparkConf = new LinkedHashMap<>();
         String driverJavaOpts = this.sparkConf.getOrDefault("spark.driver.extraJavaOptions", "");
         String executorJavaOpts =
                 this.sparkConf.getOrDefault("spark.executor.extraJavaOptions", "");
@@ -144,29 +144,6 @@ public class SparkStarter implements Starter {
             this.sparkConf.put("spark.driver.extraJavaOptions", driverJavaOpts.trim());
             this.sparkConf.put("spark.executor.extraJavaOptions", executorJavaOpts.trim());
         }
-    }
-
-    /**
-     * Get spark configurations from Ares job config file.
-     */
-    static Map<String, String> getSparkConf(String configFile) throws FileNotFoundException {
-//        File file = new File(configFile);
-//        if (!file.exists()) {
-//            throw new FileNotFoundException("config file '" + file + "' does not exists!");
-//        }
-//        Config appConfig =
-//                ConfigFactory.parseFile(file)
-//                        .resolve(ConfigResolveOptions.defaults().setAllowUnresolved(true))
-//                        .resolveWith(
-//                                ConfigFactory.systemProperties(),
-//                                ConfigResolveOptions.defaults().setAllowUnresolved(true));
-//
-//        return appConfig.getConfig("env").entrySet().stream()
-//                .collect(
-//                        Collectors.toMap(
-//                                Map.Entry::getKey, e -> e.getValue().unwrapped().toString()));
-        // TODO
-        return new LinkedHashMap<>();
     }
 
     /**

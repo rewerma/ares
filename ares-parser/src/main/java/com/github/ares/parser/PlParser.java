@@ -48,7 +48,7 @@ public class PlParser {
             parser.removeErrorListeners();
             parser.addErrorListener(parserErrorListener);
 
-            Sql_scriptContext sql_scriptContext = parser.sql_script();
+            Sql_scriptContext sqlScriptContext = parser.sql_script();
 
             if (!lexerErrorListener.getErrors().isEmpty()) {
                 throw new ParseException(String.join("\n", lexerErrorListener.getErrors()));
@@ -56,7 +56,7 @@ public class PlParser {
             if (!parserErrorListener.getErrors().isEmpty()) {
                 throw new ParseException(String.join("\n", parserErrorListener.getErrors()));
             }
-            return sql_scriptContext;
+            return sqlScriptContext;
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), e);
         }
