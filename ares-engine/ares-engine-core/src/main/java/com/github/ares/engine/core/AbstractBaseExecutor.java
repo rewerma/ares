@@ -3,7 +3,7 @@ package com.github.ares.engine.core;
 import java.io.Serializable;
 
 public class AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     protected TraceLogger traceLogger;
 

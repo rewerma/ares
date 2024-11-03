@@ -16,7 +16,7 @@ public class CommonDialect implements JdbcDialect {
     @Override
     public JdbcRowConverter getRowConverter() {
         return  new AbstractJdbcRowConverter() {
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -1L;
 
             @Override
             public String converterName() {

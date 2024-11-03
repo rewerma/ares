@@ -48,7 +48,7 @@ public final class JdbcUrlUtil {
     }
 
     public static class UrlInfo implements Serializable {
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -1L;
         private final String origin;
         private final String urlWithoutDatabase;
         private final String host;

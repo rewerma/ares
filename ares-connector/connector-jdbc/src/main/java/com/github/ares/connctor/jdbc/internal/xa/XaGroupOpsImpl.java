@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class XaGroupOpsImpl implements XaGroupOps {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(XaGroupOpsImpl.class);
 

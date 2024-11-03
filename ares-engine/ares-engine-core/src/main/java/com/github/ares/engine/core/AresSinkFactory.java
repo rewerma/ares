@@ -20,7 +20,7 @@ import static com.github.ares.api.common.CommonOptions.CONNECTOR;
 
 @Singleton
 public class AresSinkFactory implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public AresSink<?, ?, ?, ?> createSink(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
                                            CatalogTable catalogTable, TableSinkFactoryContext context) {

@@ -5,19 +5,19 @@ import com.github.ares.common.exceptions.AresException;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CreateSourceTableExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
-    protected Map<String,LogicalCreateSourceTable> createSourceTables = new HashMap<>();
+    protected Map<String, LogicalCreateSourceTable> createSourceTables = new ConcurrentHashMap<>();
 
-    public void execute(LogicalCreateSourceTable sourceTable, Map<String, SourceTableInfo> sourceTables) {
+    public void execute(LogicalCreateSourceTable sourceTable) {
         traceLogger.info("Create source table: {}, connector type: {}",
                 sourceTable.getTableName(), sourceTable.getConnector());
         createSourceTables.put(sourceTable.getTableName(), sourceTable);
-        SourceTableInfo sourceTableInfo = sourceTables.get(sourceTable.getTableName());
+        SourceTableInfo sourceTableInfo = executorManager.getSourceTables().get(sourceTable.getTableName());
         if (sourceTableInfo == null) {
             throw new AresException(String.format("Source table undefined %s", sourceTable.getTableName()));
         }

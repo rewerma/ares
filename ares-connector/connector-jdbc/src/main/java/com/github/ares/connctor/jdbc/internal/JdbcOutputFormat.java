@@ -39,7 +39,7 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
 
     protected final JdbcConnectionProvider connectionProvider;
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcOutputFormat.class);
 

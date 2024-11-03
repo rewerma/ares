@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class LogicalForCursorLoop extends LogicalOperation implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private String cursorName;
     private String selectSQL;

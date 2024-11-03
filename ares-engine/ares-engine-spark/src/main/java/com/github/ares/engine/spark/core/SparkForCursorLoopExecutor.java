@@ -26,7 +26,7 @@ import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 import static com.github.ares.parser.enums.OperationType.EXIT_LOOP;
 
 public class SparkForCursorLoopExecutor extends ForCursorLoopExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 

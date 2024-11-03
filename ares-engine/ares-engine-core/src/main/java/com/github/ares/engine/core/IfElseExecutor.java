@@ -15,7 +15,7 @@ import static com.github.ares.parser.enums.OperationType.IF_ELSE;
 import static com.github.ares.parser.enums.OperationType.RETURN_VALUE;
 
 public class IfElseExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
 
     public static final Integer BREAK_LOOP_FLAG = -1;

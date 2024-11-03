@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class LogicalSelectIntoSQL extends LogicalOperation implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private String originSQL;
     private String sql;

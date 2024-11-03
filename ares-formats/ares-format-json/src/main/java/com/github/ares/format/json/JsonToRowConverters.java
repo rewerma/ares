@@ -40,7 +40,7 @@ import com.github.ares.common.utils.JsonUtils;
  */
 public class JsonToRowConverters implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @SuppressWarnings("MagicNumber")
     public static final DateTimeFormatter TIME_FORMAT =
@@ -438,7 +438,7 @@ public class JsonToRowConverters implements Serializable {
      * Exception which refers to parse errors in converters.
      */
     private static final class JsonParseException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -1L;
 
         public JsonParseException(String message) {
             super(message);

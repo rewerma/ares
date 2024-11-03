@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class LogicalSetConfig extends LogicalOperation implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private String key;
     private String value;

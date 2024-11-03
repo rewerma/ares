@@ -41,7 +41,7 @@ import java.util.Arrays;
  * collide).
  */
 class SemanticXidGenerator implements XidGenerator {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 

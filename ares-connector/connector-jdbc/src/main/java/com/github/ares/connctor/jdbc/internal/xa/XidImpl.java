@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 final class XidImpl implements Xid, Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
     private static final char[] HEX_CHARS = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };

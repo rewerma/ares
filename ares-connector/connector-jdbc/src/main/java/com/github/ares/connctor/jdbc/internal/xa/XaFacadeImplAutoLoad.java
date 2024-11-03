@@ -43,7 +43,7 @@ import static javax.transaction.xa.XAResource.TMSTARTRSCAN;
 
 public class XaFacadeImplAutoLoad implements XaFacade {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(XaFacadeImplAutoLoad.class);
     private static final Set<Integer> TRANSIENT_ERR_CODES =

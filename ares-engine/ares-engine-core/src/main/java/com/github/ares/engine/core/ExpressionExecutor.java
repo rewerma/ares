@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 public class ExpressionExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Getter
     private ExpressionEngine expressionEngine;

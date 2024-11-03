@@ -64,9 +64,6 @@ public class JsonUtils {
         return OBJECT_MAPPER.valueToTree(obj);
     }
 
-//    public static JsonNode stringToJsonNode(String obj) throws JsonProcessingException {
-//        return OBJECT_MAPPER.readTree(obj);
-//    }
 
     /**
      * json representation of object

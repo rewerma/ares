@@ -7,7 +7,7 @@ import java.time.temporal.Temporal;
 import java.util.Objects;
 
 public class LocalTimeType<T extends Temporal> implements AresDataType<T> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final LocalTimeType<LocalDate> LOCAL_DATE_TYPE =
             new LocalTimeType<>(LocalDate.class, SqlType.DATE);

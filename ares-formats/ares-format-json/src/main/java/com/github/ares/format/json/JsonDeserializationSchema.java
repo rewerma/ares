@@ -24,7 +24,7 @@ import java.io.IOException;
 import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
 
 public class JsonDeserializationSchema implements DeserializationSchema<AresRow> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private static final String FORMAT = "Common";
 

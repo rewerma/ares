@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class LogicalAssignment extends LogicalOperation implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private Argument param;
     private String expr;

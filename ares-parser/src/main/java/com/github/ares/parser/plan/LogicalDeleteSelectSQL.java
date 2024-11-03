@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class LogicalDeleteSelectSQL extends BaseSqlOption implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private LogicalCreateSinkTable sinkTable;
     private String deleteSQL;

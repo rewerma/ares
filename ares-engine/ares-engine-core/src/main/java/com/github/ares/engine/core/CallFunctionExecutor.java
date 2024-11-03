@@ -18,7 +18,7 @@ import static com.github.ares.engine.utils.EngineUtil.handleQuoteIdentifier;
 import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 
 public class CallFunctionExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public void execute(LogicalCallFunction callFunction, PlParams plParams) {
         Map<String, CreateProcedureFunc> procedures = executorManager.getProcedures();

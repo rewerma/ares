@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * Represent a physical table schema.
  */
 public final class TableSchema implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
     private final List<Column> columns;
 
     private final List<Column> whereColumns;

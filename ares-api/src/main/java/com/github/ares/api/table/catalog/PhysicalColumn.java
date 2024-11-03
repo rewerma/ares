@@ -33,7 +33,7 @@ import java.util.Map;
 @ToString(callSuper = true)
 public class PhysicalColumn extends Column {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public PhysicalColumn(
             String name, AresDataType<?> dataType, Long columnLength, Integer scale) {

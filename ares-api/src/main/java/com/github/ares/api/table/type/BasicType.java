@@ -3,7 +3,7 @@ package com.github.ares.api.table.type;
 import java.util.Objects;
 
 public class BasicType<T> implements AresDataType<T> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final BasicType<String> STRING_TYPE =
             new BasicType<>(String.class, SqlType.STRING);

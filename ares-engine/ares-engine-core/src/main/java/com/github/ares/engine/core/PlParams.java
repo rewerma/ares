@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Getter
 public class PlParams implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private final Map<String, Serializable> allParams;
 

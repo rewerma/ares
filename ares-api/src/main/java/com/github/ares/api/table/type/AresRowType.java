@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 public class AresRowType implements CompositeType<AresRow> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     /**
      * The field name of the {@link AresRow}.

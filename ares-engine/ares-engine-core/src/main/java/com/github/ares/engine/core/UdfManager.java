@@ -13,7 +13,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class UdfManager extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Getter
     public final Map<String, DynamicFunction> dynamicFunctions = new ConcurrentHashMap<>();

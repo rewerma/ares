@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class TablePath implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final TablePath DEFAULT = TablePath.of("default", "default", "default");
     private final String databaseName;

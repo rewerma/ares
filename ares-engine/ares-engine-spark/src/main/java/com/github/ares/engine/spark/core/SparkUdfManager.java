@@ -33,7 +33,7 @@ import org.apache.spark.sql.api.java.UDF9;
 import static com.github.ares.engine.spark.utils.FunctionHelper.convertType;
 
 public class SparkUdfManager extends UdfManager {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 

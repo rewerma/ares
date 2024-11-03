@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.ares</groupId>
         <artifactId>ares-connector-spark</artifactId>
-        <version>1.0</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ares-spark3-connector</artifactId>

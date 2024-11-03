@@ -40,7 +40,7 @@ import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 
 
 public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 

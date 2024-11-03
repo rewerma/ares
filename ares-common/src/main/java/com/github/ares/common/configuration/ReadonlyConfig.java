@@ -18,7 +18,7 @@ import static com.github.ares.common.configuration.utils.ConfigUtil.convertToJso
 import static com.github.ares.common.configuration.utils.ConfigUtil.convertValue;
 
 public class ReadonlyConfig implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
     /**
      * Stores the concrete key/value pairs of this configuration object.
      */

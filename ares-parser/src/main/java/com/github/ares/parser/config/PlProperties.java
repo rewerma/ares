@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Properties;
 
 public class PlProperties implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private Properties properties;
 

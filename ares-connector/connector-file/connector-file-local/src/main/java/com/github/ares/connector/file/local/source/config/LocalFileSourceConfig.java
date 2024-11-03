@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public class LocalFileSourceConfig extends BaseFileSourceConfig {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Override
     public HadoopConf getHadoopConfig() {

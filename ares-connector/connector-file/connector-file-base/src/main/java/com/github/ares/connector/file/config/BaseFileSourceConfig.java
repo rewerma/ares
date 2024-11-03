@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Getter
 public abstract class BaseFileSourceConfig implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private CatalogTable catalogTable;
     private final FileFormat fileFormat;

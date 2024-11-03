@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrimaryKey implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     // This field is not used now
     private final String primaryKey;

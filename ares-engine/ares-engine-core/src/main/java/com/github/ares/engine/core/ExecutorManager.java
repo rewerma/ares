@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Getter
 public class ExecutorManager implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     protected final Map<String, CreateProcedureFunc> functions = new LinkedHashMap<>();
 

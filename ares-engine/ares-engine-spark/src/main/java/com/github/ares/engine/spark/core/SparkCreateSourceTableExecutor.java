@@ -15,12 +15,12 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.StructType;
 
-
 public class SparkCreateSourceTableExecutor extends CreateSourceTableExecutor {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 
+    @Override
     public void init(ExecutorManager executorManager) {
         this.sparkExecutorManager = (SparkExecutorManager) executorManager;
         super.init(executorManager);

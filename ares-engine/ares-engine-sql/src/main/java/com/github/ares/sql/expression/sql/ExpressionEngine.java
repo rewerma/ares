@@ -24,7 +24,7 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 public class ExpressionEngine implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private Map<String, FunctionInterface> functions;
 

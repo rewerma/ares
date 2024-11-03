@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class TruncateSqlExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Inject
     private AresSinkFactory aresSinkFactory;

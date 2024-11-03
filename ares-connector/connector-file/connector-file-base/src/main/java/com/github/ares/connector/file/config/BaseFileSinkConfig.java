@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Data
 public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
     protected CompressFormat compressFormat = BaseSinkConfig.COMPRESS_CODEC.defaultValue();
     protected String fieldDelimiter = BaseSinkConfig.FIELD_DELIMITER.defaultValue();
     protected String rowDelimiter = BaseSinkConfig.ROW_DELIMITER.defaultValue();

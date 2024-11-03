@@ -3,7 +3,7 @@ package com.github.ares.common.utils;
 import java.io.Serializable;
 
 public class Tuple2<T1, T2> implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private final T1 value1;
     private final T2 value2;

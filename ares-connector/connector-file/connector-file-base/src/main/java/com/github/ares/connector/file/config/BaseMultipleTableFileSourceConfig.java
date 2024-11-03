@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public abstract class BaseMultipleTableFileSourceConfig implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Getter private List<BaseFileSourceConfig> fileSourceConfigs;
 

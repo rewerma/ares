@@ -4,7 +4,7 @@ import com.github.ares.api.source.SourceSplit;
 import lombok.Getter;
 
 public class FileSourceSplit implements SourceSplit {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Getter private final String tableId;
     @Getter private final String filePath;

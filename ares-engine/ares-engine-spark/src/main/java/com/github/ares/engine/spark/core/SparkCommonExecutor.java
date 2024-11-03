@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SparkCommonExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     protected static final Logger logger = LoggerFactory.getLogger("[SQLExecution]");
 

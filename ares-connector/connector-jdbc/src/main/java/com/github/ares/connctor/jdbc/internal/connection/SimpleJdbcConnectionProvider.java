@@ -20,7 +20,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleJdbcConnectionProvider.class);
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     protected final JdbcConnectionConfig jdbcConfig;
 
