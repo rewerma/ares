@@ -94,8 +94,8 @@ public class PlCreateTableWithVisitor {
     private Map<String, Object> visitCreateWithOptions(PlSqlParser.Create_withContext create_withContext,
                                                        List<LogicalOperation> setConfigs) {
         Map<String, String> withOptions = new LinkedHashMap<>();
-        PlSqlParser.Create_optionsContext create_optionsContext = create_withContext.create_options();
-        visitCreateWithOptions(create_optionsContext, withOptions);
+        PlSqlParser.Create_optionsContext createOptionsContext = create_withContext.create_options();
+        visitCreateWithOptions(createOptionsContext, withOptions);
         String datasource = withOptions.get(DATA_SOURCE.key());
         if (StringUtils.isEmpty(withOptions.get(CONNECTOR.key())) && !StringUtils.isEmpty(datasource)) {
             Properties properties = new Properties();

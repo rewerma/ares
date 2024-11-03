@@ -11,7 +11,7 @@ public abstract class LogicalOperation implements Serializable {
 
     private OperationType operationType;
 
-    public LogicalOperation(OperationType operationType) {
+    protected LogicalOperation(OperationType operationType) {
         this.operationType = operationType;
     }
 

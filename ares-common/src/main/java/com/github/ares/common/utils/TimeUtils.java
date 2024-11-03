@@ -2,12 +2,12 @@ package com.github.ares.common.utils;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TimeUtils {
-    private static final Map<Formatter, DateTimeFormatter> FORMATTER_MAP =
-            new HashMap<Formatter, DateTimeFormatter>();
+    private static final Map<Formatter, DateTimeFormatter> FORMATTER_MAP = new EnumMap<>(Formatter.class);
 
     static {
         FORMATTER_MAP.put(

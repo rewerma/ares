@@ -35,33 +35,38 @@ import static com.github.ares.common.exceptions.CommonErrorCode.UNSUPPORTED_DATA
 import static com.github.ares.common.exceptions.CommonErrorCode.WRITE_ARES_ROW_ERROR;
 
 public class CommonError {
+    private static final String KEY_IDENTIFIER = "identifier";
+    private static final String KEY_OPERATION = "operation";
+    private static final String KEY_FILE_NAME = "fileName";
+    private static final String KEY_DATA_TYPE = "dataType";
+    private static final String KEY_FIELD = "field";
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static AresRuntimeException fileOperationFailed(
             String identifier, String operation, String fileName, Throwable cause) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
-        params.put("operation", operation);
-        params.put("fileName", fileName);
+        params.put(KEY_IDENTIFIER, identifier);
+        params.put(KEY_OPERATION, operation);
+        params.put(KEY_FILE_NAME, fileName);
         return new AresRuntimeException(FILE_OPERATION_FAILED, params, cause);
     }
 
     public static AresRuntimeException fileOperationFailed(
             String identifier, String operation, String fileName) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
-        params.put("operation", operation);
-        params.put("fileName", fileName);
+        params.put(KEY_IDENTIFIER, identifier);
+        params.put(KEY_OPERATION, operation);
+        params.put(KEY_FILE_NAME, fileName);
         return new AresRuntimeException(FILE_OPERATION_FAILED, params);
     }
 
     public static AresRuntimeException fileNotExistFailed(
             String identifier, String operation, String fileName) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
-        params.put("operation", operation);
-        params.put("fileName", fileName);
+        params.put(KEY_IDENTIFIER, identifier);
+        params.put(KEY_OPERATION, operation);
+        params.put(KEY_FILE_NAME, fileName);
         return new AresRuntimeException(FILE_NOT_EXISTED, params);
     }
 
@@ -76,18 +81,18 @@ public class CommonError {
     public static AresRuntimeException unsupportedDataType(
             String identifier, String dataType, String field) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
-        params.put("dataType", dataType);
-        params.put("field", field);
+        params.put(KEY_IDENTIFIER, identifier);
+        params.put(KEY_DATA_TYPE, dataType);
+        params.put(KEY_FIELD, field);
         return new AresRuntimeException(UNSUPPORTED_DATA_TYPE, params);
     }
 
     public static AresRuntimeException convertToAresTypeError(
             String identifier, String dataType, String field) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
-        params.put("dataType", dataType);
-        params.put("field", field);
+        params.put(KEY_IDENTIFIER, identifier);
+        params.put(KEY_DATA_TYPE, dataType);
+        params.put(KEY_FIELD, field);
         return new AresRuntimeException(CONVERT_TO_ARES_TYPE_ERROR_SIMPLE, params);
     }
 
@@ -96,9 +101,9 @@ public class CommonError {
     public static AresRuntimeException convertToConnectorTypeError(
             String identifier, String dataType, String field) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
-        params.put("dataType", dataType);
-        params.put("field", field);
+        params.put(KEY_IDENTIFIER, identifier);
+        params.put(KEY_DATA_TYPE, dataType);
+        params.put(KEY_FIELD, field);
         return new AresRuntimeException(CONVERT_TO_CONNECTOR_TYPE_ERROR_SIMPLE, params);
     }
 
@@ -137,7 +142,7 @@ public class CommonError {
     public static AresRuntimeException jsonOperationError(
             String identifier, String payload, Throwable cause) {
         Map<String, String> params = new HashMap<>();
-        params.put("identifier", identifier);
+        params.put(KEY_IDENTIFIER, identifier);
         params.put("payload", payload);
         AresErrorCode code = JSON_OPERATION_FAILED;
 

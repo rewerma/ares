@@ -152,7 +152,7 @@ public class SparkStarter implements Starter {
     /**
      * parse spark configurations from Ares config file
      */
-    private void setSparkConf() throws FileNotFoundException {
+    private void setSparkConf() {
         commandArgs.getVariables().stream()
                 .filter(Objects::nonNull)
                 .map(variable -> variable.split("=", 2))

@@ -5,7 +5,4 @@ import com.github.ares.com.google.inject.Singleton;
 import com.github.ares.com.google.inject.name.Names;
 
 public class ParserServiceModule extends AbstractModule {
-    @Override
-    protected void configure() {
-    }
 }
