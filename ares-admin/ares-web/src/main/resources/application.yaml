@@ -1,0 +1,34 @@
+server:
+  port: 8083
+  servlet:
+    session:
+      timeout: 120m
+    context-path: /ares/
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
+  jetty:
+    max-http-form-post-size: 5000000
+    accesslog:
+      enabled: true
+      custom-format: '%{client}a - %u %t "%r" %s %O %{ms}Tms'
+
+spring:
+  jackson:
+    time-zone: UTC
+    date-format: "yyyy-MM-dd HH:mm:ss"
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/ares?useSSL=false
+    username: root
+    password: 121212
+    hikari:
+      connection-test-query: select 1
+      pool-name: Ares
+  mvc:
+    static-path-pattern: /static/**
+

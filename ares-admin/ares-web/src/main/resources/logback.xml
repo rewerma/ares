@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="120 seconds">
+    <property name="log.base" value="logs"/>
+    <property scope="context" name="log.base.ctx" value="${log.base}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{10}:[%line] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--    <appender name="APILOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+    <!--        <file>${log.base}/dolphinscheduler-api.log</file>-->
+    <!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+    <!--            <fileNamePattern>${log.base}/dolphinscheduler-api.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>-->
+    <!--            <maxHistory>168</maxHistory>-->
+    <!--            <maxFileSize>64MB</maxFileSize>-->
+    <!--            <totalSizeCap>50GB</totalSizeCap>-->
+    <!--            <cleanHistoryOnStart>true</cleanHistoryOnStart>-->
+    <!--        </rollingPolicy>-->
+    <!--        <encoder>-->
+    <!--            <pattern>-->
+    <!--                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{10}:[%line] - %msg%n-->
+    <!--            </pattern>-->
+    <!--            <charset>UTF-8</charset>-->
+    <!--        </encoder>-->
+    <!--    </appender>-->
+
+    <appender name="TASKLOGFILE" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <filter class="com.github.ares.web.utils.TaskLogFilter"/>
+        <Discriminator class="com.github.ares.web.utils.TaskLogDiscriminator">
+            <key>taskInstanceLogFullPath</key>
+        </Discriminator>
+        <sift>
+            <appender name="FILE-${taskInstanceLogFullPath}" class="ch.qos.logback.core.FileAppender">
+                <file>${taskInstanceLogFullPath}</file>
+                <encoder>
+                    <pattern>
+                        %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n
+                    </pattern>
+                    <charset>UTF-8</charset>
+                </encoder>
+                <append>true</append>
+            </appender>
+        </sift>
+    </appender>
+
+    <logger name="com.github.ares.web.shell.ProcessLogCollectTask" level="INFO" additivity="false">
+        <appender-ref ref="TASKLOGFILE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <!--        <appender-ref ref="APILOGFILE"/>-->
+        <appender-ref ref="TASKLOGFILE"/>
+    </root>
+</configuration>
