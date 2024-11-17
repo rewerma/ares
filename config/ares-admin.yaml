@@ -35,6 +35,3 @@ ares:
   worker-thread-pool-size: 50
   engine-type: local # spark2 or spark3
   spark-home:
-  ares-home: /Users/rewerma/Develop/ares-1.0
-
-

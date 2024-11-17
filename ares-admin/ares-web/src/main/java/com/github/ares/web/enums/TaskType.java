@@ -1,7 +1,7 @@
 package com.github.ares.web.enums;
 
 public enum TaskType {
-    ARES("ARES", "shellWorker"),
+    ARES("ARES", "aresWorker"),
     SHELL("ARES", "shellWorker");
 
     String name;

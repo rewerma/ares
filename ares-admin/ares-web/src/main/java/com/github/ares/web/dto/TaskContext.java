@@ -9,6 +9,8 @@ import java.util.Map;
 public class TaskContext {
     private String taskCode;
 
+    private String taskType;
+
     private String taskName;
 
     private Long taskInstanceId;

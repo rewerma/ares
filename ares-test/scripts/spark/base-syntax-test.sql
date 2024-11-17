@@ -12,6 +12,7 @@ DECLARE
     i INT := 0;
     e INT := 5;
 BEGIN
+    select * from test1 where id = 1;
     WHILE i < 5 LOOP
         IF i > 2 THEN
             EXIT;

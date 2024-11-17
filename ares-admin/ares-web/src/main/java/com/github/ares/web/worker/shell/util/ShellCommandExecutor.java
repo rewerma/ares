@@ -52,6 +52,11 @@ public class ShellCommandExecutor {
         // merge error information to standard output stream
         processBuilder.redirectErrorStream(true);
 
+        if (taskRequest.getEnvironments() != null) {
+            processBuilder.environment().putAll(taskRequest.getEnvironments());
+        }
+
+
         command.add(commandInterpreter());
         command.addAll(Collections.emptyList());
         command.add(commandFile);

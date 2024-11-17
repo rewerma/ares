@@ -28,7 +28,6 @@
             <groupId>com.github.ares</groupId>
             <artifactId>ares-format-json</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.auto.service</groupId>

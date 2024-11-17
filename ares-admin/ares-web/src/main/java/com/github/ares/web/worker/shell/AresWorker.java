@@ -4,18 +4,20 @@ import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.web.dto.TaskContext;
 import com.github.ares.web.dto.TaskRequest;
 import com.github.ares.web.dto.TaskResponse;
+import com.github.ares.web.enums.EngineType;
 import com.github.ares.web.enums.StatusType;
 import com.github.ares.web.utils.ServiceException;
 import com.github.ares.web.worker.Callback;
 import com.github.ares.web.worker.TaskWorker;
+import com.github.ares.web.worker.WorkerExecution;
 import com.github.ares.web.worker.shell.util.ShellCommandExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,59 +26,58 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
+
+import static com.github.ares.web.utils.Constants.EXECUTION_TASK_DIR;
+import static com.github.ares.web.utils.Constants.LOG_EXT;
+import static com.github.ares.web.utils.Constants.SCRIPT_SQL_FILE;
 
 @Slf4j
-@Component("shellWorker")
-public class ShellWorker implements TaskWorker {
-
+@Component("aresWorker")
+public class AresWorker implements TaskWorker {
     private final Map<Long, ShellCommandExecutor> commandExecutors = new ConcurrentHashMap<>();
-
-    private final LinkedBlockingQueue<TaskContext> taskExecutionQueue = new LinkedBlockingQueue<>();
-
-    private final ExecutorService taskExecutorPool = Executors.newFixedThreadPool(50);
 
     private Callback callback;
 
-    private volatile boolean isRunning = false;
+    @Autowired
+    private WorkerExecution workerExecution;
+
+    @Value("${ares.ares-home:}")
+    private String aresHome;
+
+    @Value("${ares.engine-type:}")
+    private String engineType;
+
+    @Value("${ares.spark-home:}")
+    private String sparkHome;
+
+    private String rootPath;
 
     @PostConstruct
     public void init() {
-        isRunning = true;
-        run();
-    }
-
-    private void run() {
-        CompletableFuture.runAsync(() -> {
-            while (isRunning) {
-                try {
-                    TaskContext taskContext = taskExecutionQueue.take();
-                    // execute task
-                    taskExecutorPool.submit(() -> {
-                        executeTask(taskContext);
-                    });
-
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        if (StringUtils.isNotBlank(aresHome)) {
+            if (!new File(aresHome).exists()) {
+                throw new ServiceException("ares home path not found");
             }
-        }, Executors.newSingleThreadExecutor());
+            rootPath = aresHome;
+        } else {
+            File currentDir = new File("");
+            File configDir = new File(currentDir.getAbsolutePath() + "/config");
+            if (configDir.exists()) {
+                rootPath = currentDir.getAbsolutePath();
+            } else {
+                throw new ServiceException("ares home path not found");
+            }
+        }
     }
 
-    private void executeTask(TaskContext taskContext) {
+    public void executeTask(TaskContext taskContext) {
         TaskResponse taskResponse = null;
-        String rootPath = "/Users/rewerma/Develop/ares-1.0";
         try {
-
             TaskRequest taskRequest = new TaskRequest();
             taskRequest.setTaskInstanceId(taskContext.getTaskInstanceId());
-            String executePath = rootPath + "/task/" + taskContext.getTaskInstanceId();
-            String logPath = executePath + File.separator + taskContext.getTaskInstanceId() + ".log";
+            String executePath = rootPath + EXECUTION_TASK_DIR + taskContext.getTaskInstanceId();
+            String logPath = executePath + File.separator + taskContext.getTaskInstanceId() + LOG_EXT;
 
             if (callback != null) {
                 callback.running(logPath);
@@ -84,9 +85,16 @@ public class ShellWorker implements TaskWorker {
 
             taskRequest.setExecutePath(executePath);
             taskRequest.setLogPath(logPath);
+
+            if (StringUtils.isNotBlank(sparkHome)) {
+                Map<String, String> environment = new LinkedHashMap<>();
+                environment.put("SPARK_HOME", sparkHome);
+                taskRequest.setEnvironments(environment);
+            }
+
             ShellCommandExecutor executor = new ShellCommandExecutor(taskRequest);
 
-            String scriptFile = executePath + File.separator + "script.sql";
+            String scriptFile = executePath + File.separator + SCRIPT_SQL_FILE;
             Path scriptPath = new File(scriptFile).toPath();
             if (!scriptPath.getParent().toFile().exists()) {
                 scriptPath.getParent().toFile().mkdirs();
@@ -96,9 +104,7 @@ public class ShellWorker implements TaskWorker {
 
             StringBuilder execCommand = new StringBuilder();
             execCommand.append("cd ").append(rootPath).append("\n");
-            execCommand.append("./bin/ares-local-starter.sh");
-            execCommand.append(" --sql ");
-            execCommand.append(scriptFile);
+
             Map<String, Object> envParams = null;
             if (StringUtils.isNotBlank(taskContext.getEnvParams())) {
                 envParams = JsonUtils.parseObject(taskContext.getEnvParams(), Map.class);
@@ -109,9 +115,22 @@ public class ShellWorker implements TaskWorker {
             if (!envParams.containsKey("--name")) {
                 envParams.put("--name", taskContext.getTaskName() + "-" + taskContext.getTaskInstanceId());
             }
-            envParams.forEach((k, v) -> execCommand.append(" ").append(k).append(" ").append(v).append(" "));
+
+            EngineType engineTypeEnum = EngineType.fromValue(this.engineType);
+            execCommand.append("./bin/").append(engineTypeEnum.getScriptFile());
+            execCommand.append(" --sql ");
+            execCommand.append(scriptFile);
+
+
+            envParams.forEach((k, v) -> {
+                if (k.startsWith("--")) {
+                    execCommand.append(" ").append(k).append(" ").append(v).append(" ");
+                }
+            });
 
             commandExecutors.put(taskContext.getTaskInstanceId(), executor);
+
+
             taskResponse = executor.run(execCommand.toString());
             taskResponse.setLogPath(logPath);
 
@@ -148,7 +167,7 @@ public class ShellWorker implements TaskWorker {
 
     @Override
     public void start(TaskContext taskContext) {
-        taskExecutionQueue.add(taskContext);
+        workerExecution.start(taskContext);
     }
 
     @Override
@@ -180,11 +199,5 @@ public class ShellWorker implements TaskWorker {
     @Override
     public void registerCallback(Callback callback) {
         this.callback = callback;
-    }
-
-    @PreDestroy
-    public void destroy() {
-        isRunning = false;
-        taskExecutorPool.shutdownNow();
     }
 }

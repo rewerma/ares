@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 public interface TaskWorker {
     void start(TaskContext taskContext);
 
+    void executeTask(TaskContext taskContext);
+
     void stop(TaskContext taskContext);
 
     String getFullLog(TaskContext taskContext);

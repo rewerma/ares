@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static com.github.ares.common.utils.Constants.DEPLOY_MODE_KEY;
+import static com.github.ares.common.utils.StringUtils.println;
 import static com.github.ares.core.starter.utils.FileUtils.checkSqlScriptExist;
 
 public class SparkTaskExecuteCommand implements Command<SparkCommandArgs> {
@@ -51,6 +52,7 @@ public class SparkTaskExecuteCommand implements Command<SparkCommandArgs> {
             SparkExecution aresTaskExecution = new SparkExecution(engineTypeVersion, sqlFile, jobConfig);
             aresTaskExecution.execute();
         } catch (Exception e) {
+            println("[ARES-FAILED] Execution failed, caused by: " + e.getMessage());
             throw new AresException("Run Ares on spark failed", e);
         }
     }

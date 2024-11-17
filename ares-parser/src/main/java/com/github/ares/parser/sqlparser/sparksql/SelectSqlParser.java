@@ -25,6 +25,8 @@ public class SelectSqlParser {
             SqlBaseParser parser = CommonParser.parseSql(in);
             SqlBaseParser.QueryContext queryContext = parser.query();
 
+            //TODO unsupported select union yet
+
             if (!(queryContext.queryTerm() instanceof SqlBaseParser.QueryTermDefaultContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }

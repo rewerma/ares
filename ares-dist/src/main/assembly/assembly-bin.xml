@@ -47,6 +47,11 @@
             <outputDirectory>/bin</outputDirectory>
             <fileMode>0755</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../ares-admin/ares-web/src/main/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
 
         <fileSet>
             <directory>../ares-starter/ares-spark2-starter/target/</directory>
@@ -66,6 +71,13 @@
             <directory>../ares-starter/ares-spark-embedded-starter/target/</directory>
             <includes>
                 <include>ares-spark-embedded-starter*.jar</include>
+            </includes>
+            <outputDirectory>/starter</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>../ares-admin/ares-web/target/</directory>
+            <includes>
+                <include>ares-admin-starter*.jar</include>
             </includes>
             <outputDirectory>/starter</outputDirectory>
         </fileSet>

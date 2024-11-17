@@ -16,9 +16,10 @@
         <module>ares-parser</module>
         <module>ares-engine</module>
         <module>ares-starter</module>
+        <module>ares-formats</module>
+        <module>ares-admin</module>
         <module>ares-dist</module>
         <module>ares-test</module>
-        <module>ares-formats</module>
     </modules>
 
     <properties>

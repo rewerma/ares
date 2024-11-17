@@ -48,6 +48,7 @@ public class TaskExecutionService {
 
         TaskContext taskContext = new TaskContext();
         taskContext.setTaskCode(taskDefinition.getCode());
+        taskContext.setTaskType(taskDefinition.getTaskType());
         taskContext.setTaskName(taskDefinition.getName());
         taskContext.setTaskInstanceId(taskInstance.getId());
         String taskContent = handleDatasource(taskDefinition.getDsCode(), taskDefinition.getTaskContent());
