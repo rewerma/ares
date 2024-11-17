@@ -1,7 +1,8 @@
-package com.github.ares.web.shell;
+package com.github.ares.web.worker.shell.util;
 
 import com.github.ares.web.dto.TaskRequest;
 import com.github.ares.web.dto.TaskResponse;
+import com.github.ares.web.enums.StatusType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,6 +34,8 @@ public class ShellCommandExecutor {
     protected Process process;
 
     protected TaskRequest taskRequest;
+
+    private volatile boolean isKilled = false;
 
     public ShellCommandExecutor(TaskRequest taskRequest) {
         this.taskRequest = taskRequest;
@@ -102,6 +105,7 @@ public class ShellCommandExecutor {
         response.setLastResult(logCollectTask.getTaskLastResult());
         if (logCollectTask.getErrorMessage() != null) {
             response.setErrorMessage(logCollectTask.getErrorMessage());
+            response.setStatus(StatusType.FAILED);
         }
 
         response.setExitStatusCode(process.exitValue());
@@ -116,6 +120,7 @@ public class ShellCommandExecutor {
             return;
         }
 
+        isKilled = true;
         killProcess(taskRequest);
 
         log.info("Kill shell process: {} successfully", taskRequest.getProcessId());
@@ -227,4 +232,7 @@ public class ShellCommandExecutor {
         log.info("kill process : {}, output : {}", relatedProcessIds, killOutput);
     }
 
+    public boolean isKilled() {
+        return isKilled;
+    }
 }

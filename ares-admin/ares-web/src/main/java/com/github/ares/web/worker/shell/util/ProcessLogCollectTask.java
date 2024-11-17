@@ -1,4 +1,4 @@
-package com.github.ares.web.shell;
+package com.github.ares.web.worker.shell.util;
 
 import com.github.ares.web.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;

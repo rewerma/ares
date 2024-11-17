@@ -1,4 +1,4 @@
-package com.github.ares.web.shell;
+package com.github.ares.web.worker.shell.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

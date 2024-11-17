@@ -27,6 +27,9 @@ public class TaskDefinition extends BaseModel<TaskDefinition> {
 
     private String name;
 
+    @Column(name = "task_type")
+    private String taskType;
+
     @Column(name = "ds_code")
     private String dsCode;
 

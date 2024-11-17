@@ -31,4 +31,6 @@ spring:
       pool-name: Ares
   mvc:
     static-path-pattern: /static/**
+network:
+  interface-preferred: en0
 

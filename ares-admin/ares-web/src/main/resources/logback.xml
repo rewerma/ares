@@ -48,7 +48,7 @@
         </sift>
     </appender>
 
-    <logger name="com.github.ares.web.shell.ProcessLogCollectTask" level="INFO" additivity="false">
+    <logger name="com.github.ares.web.worker.shell.util.ProcessLogCollectTask" level="INFO" additivity="false">
         <appender-ref ref="TASKLOGFILE"/>
     </logger>
 

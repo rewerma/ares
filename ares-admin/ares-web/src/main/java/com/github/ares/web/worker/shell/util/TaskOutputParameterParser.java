@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.ares.web.shell;
+package com.github.ares.web.worker.shell.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;

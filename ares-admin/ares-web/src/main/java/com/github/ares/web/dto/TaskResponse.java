@@ -1,5 +1,6 @@
 package com.github.ares.web.dto;
 
+import com.github.ares.web.enums.StatusType;
 import lombok.Data;
 
 import java.util.List;
@@ -15,5 +16,9 @@ public class TaskResponse {
 
     private List<Map<String, Object>> lastResult;
 
+    private String logPath;
+
     private String errorMessage;
+
+    private StatusType status;
 }
