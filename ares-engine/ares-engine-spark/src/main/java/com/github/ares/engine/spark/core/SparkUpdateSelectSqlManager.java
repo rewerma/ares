@@ -55,7 +55,7 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
             traceLogger.info("SQL: {}; Params: {}", usSql.getOriginSQL(), plParams);
         }
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
-        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.UPDATE.name());
+        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.UPDATE);
         ArrayList<String> updateColumns = new ArrayList<>(usSql.getUpdateItems());
         sinkConfig.put(CommonOptions.UPDATE_COLUMNS.key(), updateColumns);
         sinkConfig.put(CommonOptions.WHERE_CLAUSE.key(), usSql.getWhereClause());
