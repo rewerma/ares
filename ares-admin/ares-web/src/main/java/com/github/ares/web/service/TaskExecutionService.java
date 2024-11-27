@@ -17,9 +17,16 @@ import com.github.ares.web.worker.Callback;
 import com.github.ares.web.worker.TaskWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -130,13 +137,9 @@ public class TaskExecutionService {
         return taskWorker;
     }
 
-    private TaskWorker getTaskWorkerByTaskInstanceId(Long taskInstanceId) {
-        TaskInstance taskInstance = BaseModel.query(TaskInstance.class).where().eq("id", taskInstanceId).findOne();
-        if (taskInstance == null) {
-            throw new ServiceException("task instance not found");
-        }
+    private TaskWorker getTaskWorkerByTaskCode(String taskCode) {
         TaskDefinition taskDefinition = BaseModel.query(TaskDefinition.class).where()
-                .eq("code", taskInstance.getTaskCode()).findOne();
+                .eq("code", taskCode).findOne();
         if (taskDefinition == null) {
             throw new ServiceException("task definition not found");
         }
@@ -167,10 +170,39 @@ public class TaskExecutionService {
     }
 
     public void stop(Long taskInstanceId) {
-        TaskWorker taskWorker = getTaskWorkerByTaskInstanceId(taskInstanceId);
+        TaskInstance taskInstance = BaseModel.query(TaskInstance.class).where().eq("id", taskInstanceId).findOne();
+        if (taskInstance == null) {
+            throw new ServiceException("task instance not found");
+        }
+//        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
+        TaskWorker taskWorker = getTaskWorkerByTaskCode(taskInstance.getTaskCode());
         TaskContext taskContext = new TaskContext();
         taskContext.setTaskInstanceId(taskInstanceId);
         taskWorker.stop(taskContext);
+//        } else {
+//            // 创建 HttpClient 实例
+//            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+//                String url = "https://"+taskInstance.getExecutorHost()+"/task/execution/"+taskInstanceId+"/stop";
+//                HttpPost postRequest = new HttpPost(url);
+//                postRequest.setHeader("Content-Type", "application/json");
+//
+////                // 设置请求体
+////                String jsonBody = "{ \"key\": \"value\" }";
+////                StringEntity entity = new StringEntity(jsonBody);
+////                postRequest.setEntity(entity);
+//
+//                try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
+//                    // 打印响应状态码
+//                    System.out.println("Status Code: " + response.getStatusLine());
+//
+//                    // 打印响应体
+//                    String responseBody = EntityUtils.toString(response.getEntity());
+//                    System.out.println("Response Body: " + responseBody);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//    }
     }
 
     public String getFullLog(Long taskInstanceId) {
@@ -178,7 +210,7 @@ public class TaskExecutionService {
         if (taskInstance == null) {
             throw new ServiceException("task instance not found");
         }
-        TaskWorker taskWorker = getTaskWorkerByTaskInstanceId(taskInstanceId);
+        TaskWorker taskWorker = getTaskWorkerByTaskCode(taskInstance.getTaskCode());
         TaskContext taskContext = new TaskContext();
         taskContext.setTaskInstanceId(taskInstanceId);
         taskContext.setLogPath(taskInstance.getLogPath());
