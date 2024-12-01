@@ -1,8 +1,8 @@
-package com.github.ares.web.worker.shell.util;
+package com.github.ares.worker.shell.util;
 
-import com.github.ares.web.dto.TaskRequest;
-import com.github.ares.web.dto.TaskResponse;
-import com.github.ares.web.enums.StatusType;
+import com.github.ares.common.enums.StatusType;
+import com.github.ares.worker.model.TaskRequest;
+import com.github.ares.worker.model.TaskResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,12 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -100,7 +95,7 @@ public class ShellCommandExecutor {
 
         // if timeout occurs, exit directly
         // waiting for the run to finish
-        process.waitFor();
+        int exitCode = process.waitFor();
         log.info("Process: {} is finished exit: {}, wait ProcessTaskLogCollectTask finish", processId, process.exitValue());
 
         logCollectTask.waitFinish();
@@ -110,6 +105,8 @@ public class ShellCommandExecutor {
         response.setLastResult(logCollectTask.getTaskLastResult());
         if (logCollectTask.getErrorMessage() != null) {
             response.setErrorMessage(logCollectTask.getErrorMessage());
+            response.setStatus(StatusType.FAILED);
+        } else if (exitCode != 0) {
             response.setStatus(StatusType.FAILED);
         }
 

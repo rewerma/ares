@@ -20,6 +20,7 @@
         <module>ares-admin</module>
         <module>ares-dist</module>
         <module>ares-test</module>
+        <module>ares-worker</module>
     </modules>
 
     <properties>

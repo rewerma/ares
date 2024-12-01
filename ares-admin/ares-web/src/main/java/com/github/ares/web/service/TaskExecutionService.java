@@ -1,42 +1,36 @@
 package com.github.ares.web.service;
 
+import com.github.ares.common.enums.StatusType;
 import com.github.ares.common.utils.JsonUtils;
-import com.github.ares.web.dto.TaskContext;
-import com.github.ares.web.dto.TaskResponse;
 import com.github.ares.web.entity.BaseModel;
 import com.github.ares.web.entity.Datasource;
 import com.github.ares.web.entity.TaskDefinition;
 import com.github.ares.web.entity.TaskInstance;
-import com.github.ares.web.enums.StatusType;
-import com.github.ares.web.enums.TaskType;
 import com.github.ares.web.utils.CodeGenerator;
 import com.github.ares.web.utils.NetUtils;
 import com.github.ares.web.utils.ServiceException;
-import com.github.ares.web.utils.SpringContext;
-import com.github.ares.web.worker.Callback;
-import com.github.ares.web.worker.TaskWorker;
+import com.github.ares.worker.Callback;
+import com.github.ares.worker.TaskWorker;
+import com.github.ares.worker.model.TaskContext;
+import com.github.ares.worker.model.TaskResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 @Slf4j
 @Service
 public class TaskExecutionService {
     @Value("${server.port:8080}")
     private Integer serverPort;
+
+    @Autowired
+    private TaskWorker taskWorker;
 
     public Long start(String code) {
         TaskDefinition taskDefinition = BaseModel.query(TaskDefinition.class).where().eq("code", code).findOne();
@@ -64,8 +58,8 @@ public class TaskExecutionService {
         taskContext.setInParams(taskDefinition.getInParams());
         taskContext.setOutParams(taskDefinition.getOutParams());
 
-        TaskWorker taskWorker = getTaskWorker(taskDefinition.getTaskType());
-        taskWorker.registerCallback(new CallbackHandler(taskDefinition, taskInstance));
+        taskWorker.registerCallback(taskInstance.getId(),
+                new CallbackHandler(taskDefinition, taskInstance));
 
         taskInstance.setStatus(StatusType.SUBMIT.getValue());
         taskInstance.update("status");
@@ -126,26 +120,6 @@ public class TaskExecutionService {
         }
     }
 
-    private TaskWorker getTaskWorker(String taskType) {
-        TaskWorker taskWorker = null;
-        if (TaskType.ARES.getName().equals(taskType)) {
-            taskWorker = SpringContext.getBean(TaskType.ARES.getBeanName());
-        }
-        if (taskWorker == null) {
-            throw new ServiceException("task type not defined: " + taskType);
-        }
-        return taskWorker;
-    }
-
-    private TaskWorker getTaskWorkerByTaskCode(String taskCode) {
-        TaskDefinition taskDefinition = BaseModel.query(TaskDefinition.class).where()
-                .eq("code", taskCode).findOne();
-        if (taskDefinition == null) {
-            throw new ServiceException("task definition not found");
-        }
-        return getTaskWorker(taskDefinition.getTaskType());
-    }
-
     private String handleDatasource(String dsCode, String taskContent) {
         if (StringUtils.isBlank(dsCode)) {
             return taskContent;
@@ -175,7 +149,6 @@ public class TaskExecutionService {
             throw new ServiceException("task instance not found");
         }
 //        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
-        TaskWorker taskWorker = getTaskWorkerByTaskCode(taskInstance.getTaskCode());
         TaskContext taskContext = new TaskContext();
         taskContext.setTaskInstanceId(taskInstanceId);
         taskWorker.stop(taskContext);
@@ -210,7 +183,6 @@ public class TaskExecutionService {
         if (taskInstance == null) {
             throw new ServiceException("task instance not found");
         }
-        TaskWorker taskWorker = getTaskWorkerByTaskCode(taskInstance.getTaskCode());
         TaskContext taskContext = new TaskContext();
         taskContext.setTaskInstanceId(taskInstanceId);
         taskContext.setLogPath(taskInstance.getLogPath());

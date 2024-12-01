@@ -1,4 +1,4 @@
-package com.github.ares.web.enums;
+package com.github.ares.common.enums;
 
 public enum StatusType {
     READY(1),
@@ -8,7 +8,7 @@ public enum StatusType {
     FAILED(5),
     STOPPED(6);
 
-    int value;
+    final int value;
 
     StatusType(int value) {
         this.value = value;

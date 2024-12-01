@@ -1,9 +1,6 @@
-package com.github.ares.web.worker;
+package com.github.ares.worker;
 
-import com.github.ares.web.dto.TaskContext;
-import com.github.ares.web.dto.TaskResponse;
-
-import java.util.function.Consumer;
+import com.github.ares.worker.model.TaskContext;
 
 public interface TaskWorker {
     void start(TaskContext taskContext);
@@ -14,5 +11,5 @@ public interface TaskWorker {
 
     String getFullLog(TaskContext taskContext);
 
-    void registerCallback(Callback callback);
+    void registerCallback(Long key, Callback callback);
 }

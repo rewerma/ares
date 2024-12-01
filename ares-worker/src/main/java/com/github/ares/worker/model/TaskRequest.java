@@ -1,4 +1,4 @@
-package com.github.ares.web.dto;
+package com.github.ares.worker.model;
 
 import lombok.Data;
 

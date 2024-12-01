@@ -1,4 +1,4 @@
-package com.github.ares.web.worker.shell.util;
+package com.github.ares.worker.shell.util;
 
 import java.io.BufferedReader;
 import java.io.File;

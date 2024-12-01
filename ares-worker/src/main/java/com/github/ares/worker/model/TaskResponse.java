@@ -1,6 +1,6 @@
-package com.github.ares.web.dto;
+package com.github.ares.worker.model;
 
-import com.github.ares.web.enums.StatusType;
+import com.github.ares.common.enums.StatusType;
 import lombok.Data;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.github.ares.web.enums;
+package com.github.ares.common.enums;
 
 import lombok.Getter;
 
