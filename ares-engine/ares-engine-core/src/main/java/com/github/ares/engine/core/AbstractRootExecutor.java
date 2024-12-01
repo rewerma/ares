@@ -1,5 +1,6 @@
 package com.github.ares.engine.core;
 
+import com.github.ares.common.exceptions.AresException;
 import com.github.ares.engine.utils.JsonUtil;
 import com.github.ares.parser.plan.LogicalProject;
 import org.slf4j.Logger;
@@ -14,8 +15,6 @@ import static com.github.ares.common.utils.StringUtils.println;
 public abstract class AbstractRootExecutor extends AbstractBaseExecutor implements Serializable {
     private static final long serialVersionUID = -1L;
 
-    private static final Logger logger = LoggerFactory.getLogger("[ARES-LOGGER]");
-
     public void execute(LogicalProject baseBody) {
         try {
             Object lastRes = executorManager.projectExecutor.execute(baseBody.getLogicalOperations());
@@ -25,8 +24,8 @@ public abstract class AbstractRootExecutor extends AbstractBaseExecutor implemen
                 println("[LAST_RESULT]: " + jsonStr);
             }
         } catch (Exception e) {
-            logger.error("[ERROR] Execution failed, caused by: {}", e.getMessage(), e);
             println("[ARES-FAILED] Execution failed, caused by: " + e.getMessage());
+            throw new AresException(e);
         }
     }
 
