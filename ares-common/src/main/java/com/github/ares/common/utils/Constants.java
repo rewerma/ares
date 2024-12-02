@@ -19,7 +19,8 @@ public final class Constants {
 
     public static final String NOW = "now";
 
-    public static final String EXECUTION_TASK_DIR = "/task/";
+    public static final String EXECUTION_LOGS_DIR = "logs";
+    public static final String EXECUTION_TASK_DIR = "task";
 
     public static final String LOG_EXT = ".log";
 

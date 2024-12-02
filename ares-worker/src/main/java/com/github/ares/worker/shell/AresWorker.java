@@ -26,7 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.github.ares.common.utils.Constants.*;
+import static com.github.ares.common.utils.Constants.EXECUTION_LOGS_DIR;
+import static com.github.ares.common.utils.Constants.EXECUTION_TASK_DIR;
+import static com.github.ares.common.utils.Constants.LOG_EXT;
+import static com.github.ares.common.utils.Constants.SCRIPT_SQL_FILE;
+import static com.github.ares.common.utils.DateTimeUtils.getCurrentDateStr;
+import static java.io.File.separator;
 
 @Slf4j
 public class AresWorker implements TaskWorker {
@@ -70,9 +75,9 @@ public class AresWorker implements TaskWorker {
         try {
             TaskRequest taskRequest = new TaskRequest();
             taskRequest.setTaskInstanceId(taskContext.getTaskInstanceId());
-            String executePath = rootPath + File.separator + taskContext.getBatchCode()
-                    + EXECUTION_TASK_DIR + taskContext.getTaskInstanceId();
-            String logPath = executePath + File.separator + taskContext.getTaskInstanceId() + LOG_EXT;
+            String executePath = rootPath + separator + EXECUTION_LOGS_DIR + separator + getCurrentDateStr() +
+                    separator + taskContext.getBatchCode() + separator + taskContext.getTaskInstanceId();
+            String logPath = executePath + separator + taskContext.getTaskInstanceId() + LOG_EXT;
 
             if (callback != null) {
                 callback.running(logPath);
@@ -93,7 +98,7 @@ public class AresWorker implements TaskWorker {
 
             ShellCommandExecutor executor = new ShellCommandExecutor(taskRequest);
 
-            String scriptFile = executePath + File.separator + SCRIPT_SQL_FILE;
+            String scriptFile = executePath + separator + SCRIPT_SQL_FILE;
             Path scriptPath = new File(scriptFile).toPath();
             if (!scriptPath.getParent().toFile().exists()) {
                 scriptPath.getParent().toFile().mkdirs();
@@ -142,22 +147,26 @@ public class AresWorker implements TaskWorker {
             taskResponse = executor.run(execCommand.toString());
             taskResponse.setLogPath(logPath);
 
-            if (taskResponse.getStatus() == StatusType.FAILED) {
-                return;
-            }
+
             if (executor.isKilled()) {
                 taskResponse.setStatus(StatusType.STOPPED);
-            } else {
+            } else if (taskResponse.getStatus() != StatusType.FAILED) {
                 taskResponse.setStatus(StatusType.SUCCESS);
 
                 List<Map<String, Object>> resultJson = taskResponse.getLastResult();
                 if (resultJson != null) {
-                    Path resultFile = new File(executePath + File.separator + "result.json").toPath();
+                    Path resultFile = new File(executePath + separator + "result.json").toPath();
                     String result = JsonUtils.toJsonString(resultJson);
                     Files.createFile(resultFile);
                     Files.write(resultFile, result.getBytes());
                 }
             }
+
+            // write status to file
+            Path resultFile = new File(executePath + separator + "result").toPath();
+            Files.createFile(resultFile);
+            Files.write(resultFile, taskResponse.getStatus().name().getBytes());
+
         } catch (Exception e) {
             log.error("task execution error: {}", e.getMessage(), e);
             if (taskResponse == null) {

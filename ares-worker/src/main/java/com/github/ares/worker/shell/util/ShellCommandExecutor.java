@@ -122,7 +122,6 @@ public class ShellCommandExecutor {
             return;
         }
 
-        isKilled = true;
         killProcess(taskRequest);
 
         log.info("Kill shell process: {} successfully", taskRequest.getProcessId());
@@ -202,7 +201,7 @@ public class ShellCommandExecutor {
         return childPidList;
     }
 
-    public static void killProcess(TaskRequest taskRequest) throws IOException {
+    public void killProcess(TaskRequest taskRequest) throws IOException {
         int processId = taskRequest.getProcessId();
         if (processId <= 0) {
             log.info("The processId: {} is not a active process, no need to kill", processId);
@@ -231,6 +230,7 @@ public class ShellCommandExecutor {
             cmdArray[i] = st.nextToken();
         }
         String killOutput = ShellExecutor.execCommand(cmdArray);
+        isKilled = true;
         log.info("kill process : {}, output : {}", relatedProcessIds, killOutput);
     }
 

@@ -151,7 +151,13 @@ public class DateTimeUtils {
     }
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public static final DateTimeFormatter DATE_FORMATTER2 = DateTimeFormatter.ofPattern("yyyyMMdd");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+    public static final DateTimeFormatter TIME_FORMATTER2 = DateTimeFormatter.ofPattern("HHmmss");
     public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
     public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
     public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS3 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
@@ -550,5 +556,13 @@ public class DateTimeUtils {
             String errorMsg = String.format("Illegal format [%s]", format);
             throw new IllegalArgumentException(errorMsg);
         }
+    }
+
+    public static String getCurrentDateStr() {
+        return LocalDateTime.now().format(DATE_FORMATTER2);
+    }
+
+    public static String getCurrentTimeStr() {
+        return LocalDateTime.now().format(TIME_FORMATTER2);
     }
 }
