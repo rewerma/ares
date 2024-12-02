@@ -17,12 +17,19 @@ public class TaskExecutionController {
     @Autowired
     private TaskExecutionService taskExecutionService;
 
+    @PostMapping("/start")
+    public Result<Long> startTask(@RequestBody(required = false) TaskExecutionDto taskExecutionDto) {
+        Long instanceId = taskExecutionService.start(taskExecutionDto);
+
+        return Result.success(instanceId);
+    }
+
     @PostMapping("/{code}/start")
     public Result<Long> startTask(@PathVariable("code") String code,
                                   @RequestBody(required = false) TaskExecutionDto taskExecutionDto) {
         Long instanceId = taskExecutionService.start(code, taskExecutionDto);
 
-        return Result.success(instanceId); // task instance id
+        return Result.success(instanceId);
     }
 
     @PostMapping("/{instanceId}/stop")

@@ -8,8 +8,6 @@ import java.util.Map;
 
 @Data
 public class TaskContext {
-    private String taskCode;
-
     private String batchCode = "0";
 
     private String taskType;

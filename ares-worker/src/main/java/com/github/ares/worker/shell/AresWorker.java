@@ -117,7 +117,11 @@ public class AresWorker implements TaskWorker {
                 envParams = new LinkedHashMap<>();
             }
             if (!envParams.containsKey("--name")) {
-                envParams.put("--name", taskContext.getTaskName() + "-" + taskContext.getTaskInstanceId());
+                if(StringUtils.isNotBlank(taskContext.getTaskName())) {
+                    envParams.put("--name", taskContext.getTaskName() + "-" + taskContext.getTaskInstanceId());
+                } else {
+                    envParams.put("--name", "ARES-" + taskContext.getTaskInstanceId());
+                }
             }
 
             String engineType = taskContext.getEngineType();

@@ -1,6 +1,7 @@
 package com.github.ares.web.service;
 
 import com.github.ares.common.enums.StatusType;
+import com.github.ares.common.enums.TaskType;
 import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.parser.PlParser;
 import com.github.ares.web.config.PLParserConfig;
@@ -40,9 +41,22 @@ public class TaskExecutionService {
         if (taskDefinition == null) {
             throw new ServiceException("task definition not found");
         }
+        return start(taskDefinition, taskExecutionDto);
+    }
+
+    public Long start(TaskExecutionDto taskExecutionDto) {
+        TaskDefinition taskDefinition = new TaskDefinition();
+        taskDefinition.setName("test-exe");
+        taskDefinition.setTaskType(TaskType.ARES.getName());
+        taskDefinition.setInParams(taskExecutionDto.getInParams());
+        taskDefinition.setTaskContent(taskExecutionDto.getTaskContent());
+        return start(taskDefinition, taskExecutionDto);
+    }
+
+    public Long start(TaskDefinition taskDefinition, TaskExecutionDto taskExecutionDto) {
         // generate task instance
         TaskInstance taskInstance = new TaskInstance();
-        taskInstance.setBatchCode(CodeGenerator.generateCode());
+        taskInstance.setBatchCode(taskExecutionDto.getBatchCode() == null ? "0" : taskExecutionDto.getBatchCode());
         taskInstance.setTaskCode(taskDefinition.getCode());
         taskInstance.setTaskName(taskDefinition.getName());
         taskInstance.setStartTime(LocalDateTime.now());
@@ -52,8 +66,7 @@ public class TaskExecutionService {
 
         try {
             TaskContext taskContext = new TaskContext();
-            taskContext.setTaskCode(taskDefinition.getCode());
-            if (taskExecutionDto != null && taskExecutionDto.getBatchCode() != null) {
+            if (taskExecutionDto.getBatchCode() != null) {
                 taskContext.setBatchCode(taskExecutionDto.getBatchCode());
             }
             taskContext.setTaskType(taskDefinition.getTaskType());
@@ -87,8 +100,8 @@ public class TaskExecutionService {
 
             taskContext.setTaskContent(taskContent);
             taskContext.setEnvParams(taskDefinition.getEnvParams());
-            taskContext.setInParams(taskDefinition.getInParams());
-            taskContext.setOutParams(taskDefinition.getOutParams());
+            // taskContext.setInParams(taskDefinition.getInParams());
+            // taskContext.setOutParams(taskDefinition.getOutParams());
 
             taskWorker.registerCallback(taskInstance.getId(),
                     new CallbackHandler(taskDefinition, taskInstance));
