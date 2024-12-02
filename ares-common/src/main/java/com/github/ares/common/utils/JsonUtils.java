@@ -35,7 +35,9 @@ import static com.github.ares.com.fasterxml.jackson.databind.MapperFeature.REQUI
 
 public class JsonUtils {
 
-    /** can use static singleton, inject: just make sure to reuse! */
+    /**
+     * can use static singleton, inject: just make sure to reuse!
+     */
     public static final ObjectMapper OBJECT_MAPPER =
             new ObjectMapper()
                     .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -68,7 +70,7 @@ public class JsonUtils {
     /**
      * json representation of object
      *
-     * @param object object
+     * @param object  object
      * @param feature feature
      * @return object to json string
      */
@@ -89,9 +91,9 @@ public class JsonUtils {
      * any of the fields of the specified object are generics, just the object itself should not be
      * a generic type.
      *
-     * @param json the string from which the object is to be deserialized
+     * @param json  the string from which the object is to be deserialized
      * @param clazz the class of T
-     * @param <T> T
+     * @param <T>   T
      * @return an object of type T from the string classOfT
      */
     public static <T> T parseObject(String json, Class<T> clazz) {
@@ -109,9 +111,9 @@ public class JsonUtils {
     /**
      * json to list
      *
-     * @param json json string
+     * @param json  json string
      * @param clazz class
-     * @param <T> T
+     * @param <T>   T
      * @return list
      */
     public static <T> List<T> toList(String json, Class<T> clazz) {
@@ -133,7 +135,7 @@ public class JsonUtils {
      * and returning value it has. If no matching field is found in this node or its descendants,
      * returns null.
      *
-     * @param jsonNode json node
+     * @param jsonNode  json node
      * @param fieldName Name of field to look for
      * @return Value of first matching node found, if any; null if none
      */
@@ -154,12 +156,30 @@ public class JsonUtils {
      * @return json to map
      */
     public static Map<String, String> toMap(String json) {
-        return parseObject(json, new TypeReference<Map<String, String>>() {});
+        return parseObject(json, new TypeReference<Map<String, String>>() {
+        });
+    }
+
+    /**
+     * json to map {@link #toMap(String, Class, Class)}
+     *
+     * @param json json
+     * @return json to map
+     */
+    public static Map<String, Object> toMap2(String json) {
+        Map<String, Object> map = parseObject(json, new TypeReference<Map<String, Object>>() {
+        });
+        if (map == null) {
+            return new LinkedHashMap<>();
+        } else {
+            return map;
+        }
     }
 
     public static Map<String, Object> toMap(JsonNode jsonNode) {
         return DEFAULT_OBJECT_MAPPER.convertValue(
-                jsonNode, new TypeReference<Map<String, Object>>() {});
+                jsonNode, new TypeReference<Map<String, Object>>() {
+                });
     }
 
     public static Map<String, String> toStringMap(JsonNode jsonNode) {
@@ -181,11 +201,11 @@ public class JsonUtils {
     /**
      * json to map
      *
-     * @param json json
+     * @param json   json
      * @param classK classK
      * @param classV classV
-     * @param <K> K
-     * @param <V> V
+     * @param <K>    K
+     * @param <V>    V
      * @return to map
      */
     public static <K, V> Map<K, V> toMap(String json, Class<K> classK, Class<V> classV) {
@@ -194,7 +214,8 @@ public class JsonUtils {
         }
 
         try {
-            return OBJECT_MAPPER.readValue(json, new TypeReference<Map<K, V>>() {});
+            return OBJECT_MAPPER.readValue(json, new TypeReference<Map<K, V>>() {
+            });
         } catch (Exception e) {
             throw new RuntimeException("json to map exception!", e);
         }
@@ -205,7 +226,7 @@ public class JsonUtils {
      *
      * @param json json string
      * @param type type reference
-     * @param <T> type
+     * @param <T>  type
      * @return return parse object
      */
     public static <T> T parseObject(String json, TypeReference<T> type) {
@@ -255,7 +276,9 @@ public class JsonUtils {
         }
     }
 
-    /** json serializer */
+    /**
+     * json serializer
+     */
     public static class JsonDataSerializer extends JsonSerializer<String> {
 
         @Override
@@ -265,7 +288,9 @@ public class JsonUtils {
         }
     }
 
-    /** json data deserializer */
+    /**
+     * json data deserializer
+     */
     public static class JsonDataDeserializer extends JsonDeserializer<String> {
 
         @Override

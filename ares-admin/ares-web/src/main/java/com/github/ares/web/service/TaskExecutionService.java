@@ -3,6 +3,8 @@ package com.github.ares.web.service;
 import com.github.ares.common.enums.StatusType;
 import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.parser.PlParser;
+import com.github.ares.web.config.PLParserConfig;
+import com.github.ares.web.dto.TaskExecutionDto;
 import com.github.ares.web.entity.BaseModel;
 import com.github.ares.web.entity.Datasource;
 import com.github.ares.web.entity.TaskDefinition;
@@ -33,10 +35,7 @@ public class TaskExecutionService {
     @Autowired
     private TaskWorker taskWorker;
 
-    @Autowired
-    private PlParser plParser;
-
-    public Long start(String code) {
+    public Long start(String code, TaskExecutionDto taskExecutionDto) {
         TaskDefinition taskDefinition = BaseModel.query(TaskDefinition.class).where().eq("code", code).findOne();
         if (taskDefinition == null) {
             throw new ServiceException("task definition not found");
@@ -51,29 +50,61 @@ public class TaskExecutionService {
         taskInstance.setExecutorHost(NetUtils.getHost() + ":" + serverPort);
         taskInstance.save();
 
-        TaskContext taskContext = new TaskContext();
-        taskContext.setTaskCode(taskDefinition.getCode());
-        taskContext.setTaskType(taskDefinition.getTaskType());
-        taskContext.setTaskName(taskDefinition.getName());
-        taskContext.setTaskInstanceId(taskInstance.getId());
+        try {
+            TaskContext taskContext = new TaskContext();
+            taskContext.setTaskCode(taskDefinition.getCode());
+            if (taskExecutionDto != null && taskExecutionDto.getBatchCode() != null) {
+                taskContext.setBatchCode(taskExecutionDto.getBatchCode());
+            }
+            taskContext.setTaskType(taskDefinition.getTaskType());
+            taskContext.setTaskName(taskDefinition.getName());
+            taskContext.setTaskInstanceId(taskInstance.getId());
 
-        // parse dataSources of task content
-        List<String> usedDataSources = plParser.parseDataSources(taskDefinition.getTaskContent());
-        String taskContent = handleDatasource(usedDataSources, taskDefinition.getTaskContent());
-        taskContext.setTaskContent(taskContent);
-        taskContext.setEnvParams(taskDefinition.getEnvParams());
-        taskContext.setInParams(taskDefinition.getInParams());
-        taskContext.setOutParams(taskDefinition.getOutParams());
+            String taskContent = taskDefinition.getTaskContent();
 
-        taskWorker.registerCallback(taskInstance.getId(),
-                new CallbackHandler(taskDefinition, taskInstance));
+            if (taskDefinition.getInParams() != null) {
+                Map<String, Object> defInParams = JsonUtils.toMap2(taskDefinition.getInParams());
+                if (taskExecutionDto != null && taskExecutionDto.getInParams() != null) {
+                    Map<String, Object> inParams = JsonUtils.toMap2(taskExecutionDto.getInParams());
+                    inParams.forEach((k, v) -> {
+                        if (defInParams.containsKey(k)) {
+                            defInParams.put(k, v);
+                        }
+                    });
+                }
+                for (Map.Entry<String, Object> entry : defInParams.entrySet()) {
+                    String key = "${" + entry.getKey() + "}";
+                    String value = entry.getValue() == null ? "" : entry.getValue().toString();
+                    taskContent = taskContent.replace(key, value);
+                }
+            }
 
-        taskInstance.setStatus(StatusType.SUBMIT.getValue());
-        taskInstance.update("status");
+            PlParser plParser = PLParserConfig.getPlParser();
+            // parse dataSources of task content
+            List<String> usedDataSources = plParser.parseDataSources(taskContent);
+            taskContent = handleDatasource(usedDataSources, taskContent);
 
-        taskWorker.start(taskContext);
+            taskContext.setTaskContent(taskContent);
+            taskContext.setEnvParams(taskDefinition.getEnvParams());
+            taskContext.setInParams(taskDefinition.getInParams());
+            taskContext.setOutParams(taskDefinition.getOutParams());
 
-        return taskInstance.getId();
+            taskWorker.registerCallback(taskInstance.getId(),
+                    new CallbackHandler(taskDefinition, taskInstance));
+
+            taskInstance.setStatus(StatusType.SUBMIT.getValue());
+            taskInstance.update("status");
+
+            taskWorker.start(taskContext);
+
+            return taskInstance.getId();
+        } catch (Exception e) {
+            taskInstance.setStatus(StatusType.FAILED.getValue());
+            taskInstance.setExeResult(e.getMessage());
+            taskInstance.setEndTime(LocalDateTime.now());
+            taskInstance.update("status", "exeResult", "endTime");
+            throw new ServiceException(e);
+        }
     }
 
     private String handleDatasource(List<String> usedDataSources, String taskContent) {

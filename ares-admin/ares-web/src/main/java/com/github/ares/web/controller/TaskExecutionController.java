@@ -1,11 +1,13 @@
 package com.github.ares.web.controller;
 
+import com.github.ares.web.dto.TaskExecutionDto;
 import com.github.ares.web.service.TaskExecutionService;
 import com.github.ares.web.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,8 +18,9 @@ public class TaskExecutionController {
     private TaskExecutionService taskExecutionService;
 
     @PostMapping("/{code}/start")
-    public Result<Long> startTask(@PathVariable("code") String code) {
-        Long instanceId = taskExecutionService.start(code);
+    public Result<Long> startTask(@PathVariable("code") String code,
+                                  @RequestBody(required = false) TaskExecutionDto taskExecutionDto) {
+        Long instanceId = taskExecutionService.start(code, taskExecutionDto);
 
         return Result.success(instanceId); // task instance id
     }

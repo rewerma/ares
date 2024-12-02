@@ -1,5 +1,6 @@
 package com.github.ares.web.service;
 
+import com.github.ares.parser.PlParser;
 import com.github.ares.web.dto.Pager;
 import com.github.ares.web.dto.TaskDefinitionDto;
 import com.github.ares.web.entity.BaseModel;
@@ -8,6 +9,7 @@ import com.github.ares.web.utils.BeanHelper;
 import com.github.ares.web.utils.CodeGenerator;
 import com.github.ares.web.utils.ServiceException;
 import io.ebean.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class TaskDefinitionService {
+
     public String save(TaskDefinitionDto taskDefinitionDto) {
         TaskDefinition taskDefinition = BeanHelper.convert(taskDefinitionDto, TaskDefinition.class);
 
@@ -26,6 +29,7 @@ public class TaskDefinitionService {
             throw new ServiceException("the name of task definition already exists");
         }
         taskDefinition.setCode(CodeGenerator.generateCode());
+        // plParser.parseDataSources(taskDefinition.getTaskContent());
         taskDefinition.save();
         return taskDefinition.getCode();
     }
