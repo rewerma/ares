@@ -19,8 +19,8 @@ import com.github.ares.engine.core.AbstractRootExecutor;
 import com.github.ares.engine.spark.config.SparkInjectorFactory;
 import com.github.ares.parser.PlParser;
 import com.github.ares.parser.config.PlProperties;
-import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
-import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
+import com.github.ares.parser.datasource.PropertiesDataSourceComplement;
+import com.github.ares.parser.datasource.SourceConfigComplementFactory;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -69,8 +69,8 @@ public class MainExecutor {
         ExecutionEngineType.init(EngineType.SPARK, engineTypeVersion);
         this.properties = properties;
         // register datasource patcher
-        SourceConfigPatcherFactory.register(Constants.DEFAULT_DATASOURCE_PATCHER,
-                new PropertiesDataSourcePatcher(properties));
+        SourceConfigComplementFactory.register(Constants.DEFAULT_DATASOURCE_COMPLEMENT,
+                new PropertiesDataSourceComplement(properties));
 
         plParser.init();
 

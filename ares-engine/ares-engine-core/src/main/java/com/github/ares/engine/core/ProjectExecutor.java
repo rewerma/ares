@@ -40,6 +40,9 @@ public class ProjectExecutor extends AbstractBaseExecutor implements Serializabl
                 case CREATE_FUNCTION:
                     executorManager.createFunctionExecutor.execute((LogicalCreateFunction) operation);
                     break;
+                case SET_CONFIGS:
+                case SET_CONFIG:
+                    break;
                 default: {
                     Object lastResult = executorManager.directExecutionExecutor.execute(operation, new PlParams(), lastData);
                     if (lastResult != null) {

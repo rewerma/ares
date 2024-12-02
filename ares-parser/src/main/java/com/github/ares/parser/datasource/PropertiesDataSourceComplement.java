@@ -5,19 +5,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class PropertiesDataSourcePatcher implements SourceConfigPatcher {
+public class PropertiesDataSourceComplement implements SourceConfigComplement {
     private final Properties properties;
 
-    public PropertiesDataSourcePatcher(Properties properties) {
+    public PropertiesDataSourceComplement(Properties properties) {
         this.properties = properties;
     }
 
     @Override
-    public Map<String, String> patchSourceConf(String datasource) {
-        return patchSourceConf(datasource, this.properties);
+    public Map<String, String> completeSourceConf(String datasource) {
+        return completeSourceConf(datasource, this.properties);
     }
 
-    public Map<String, String> patchSourceConf(String datasource, Properties properties) {
+    @Override
+    public Map<String, String> completeSourceConf(String datasource, Properties properties) {
         Map<String, String> result = new LinkedHashMap<>();
         String prefix = "datasource." + datasource + ".";
         properties.forEach((k, v) -> {
@@ -32,7 +33,7 @@ public class PropertiesDataSourcePatcher implements SourceConfigPatcher {
     }
 
     @Override
-    public List<String> patchColumns(String datasource, String tableName, String sql) {
+    public List<String> completeSourceColumns(String datasource, String tableName, String sql) {
         return null;
     }
 }

@@ -161,7 +161,7 @@ public class PlBodyVisitor {
                         sqlStatementContext.data_manipulation_language_statements().create_table_as2() != null) {
                     String innerTableName = sqlStatementContext.data_manipulation_language_statements()
                             .create_table_as2().table_name().getText();
-                    return visitorManager.getCreateAsSQLVisitor().visitCreateInnerTable(originalSql, sql, innerTableName);
+                    return visitorManager.getCreateAsSQLVisitor().visitCreateTableAsSQL(originalSql, sql, innerTableName);
                 }
                 throw new UnsupportedOperationException("Unsupported SQL syntax: " + sql);
             case "TRUNCA":

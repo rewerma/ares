@@ -2,14 +2,13 @@ package com.github.ares.parser.visitor;
 
 import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
-import com.github.ares.com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
-import com.github.ares.parser.datasource.SourceConfigPatcher;
-import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
+import com.github.ares.parser.datasource.SourceConfigComplement;
+import com.github.ares.parser.datasource.SourceConfigComplementFactory;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalSetConfig;
@@ -23,7 +22,7 @@ import java.util.Properties;
 
 import static com.github.ares.api.common.CommonOptions.CONNECTOR;
 import static com.github.ares.api.common.CommonOptions.DATA_SOURCE;
-import static com.github.ares.parser.utils.Constants.DEFAULT_DATASOURCE_PATCHER;
+import static com.github.ares.parser.utils.Constants.DEFAULT_DATASOURCE_COMPLEMENT;
 
 public class PlCreateTableWithVisitor {
     private static final String SOURCE_TYPE = "source";
@@ -107,13 +106,12 @@ public class PlCreateTableWithVisitor {
             }
 
             datasource = datasource.trim();
-            SourceConfigPatcher sourceConfigPatcher = SourceConfigPatcherFactory.getSourceConfigPatcher(DEFAULT_DATASOURCE_PATCHER);
-            Map<String, String> sourceConfig = sourceConfigPatcher.patchSourceConf(datasource, properties);
+            SourceConfigComplement sourceConfigComplement = SourceConfigComplementFactory.getSourceConfigComplement(DEFAULT_DATASOURCE_COMPLEMENT);
+            Map<String, String> sourceConfig = sourceConfigComplement.completeSourceConf(datasource, properties);
             if (sourceConfig != null) {
                 withOptions.putAll(sourceConfig);
             }
         }
-        withOptions.remove(DATA_SOURCE.key());
 
         Map<String, Object> resultOptions = new LinkedHashMap<>(withOptions.size());
         withOptions.forEach((key, value) -> {

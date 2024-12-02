@@ -8,6 +8,7 @@ import com.github.ares.parser.plan.LogicalDeclareParams;
 import com.github.ares.parser.plan.LogicalExceptionHandler;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalSetConfig;
+import com.github.ares.parser.plan.LogicalSetConfigs;
 import com.github.ares.parser.utils.PLParserUtil;
 
 import java.util.ArrayList;
@@ -15,6 +16,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.github.ares.parser.enums.OperationType.SET_CONFIGS;
 
 public class PlBaseVisitor {
     private PlVisitorManager visitorManager;
@@ -35,9 +40,10 @@ public class PlBaseVisitor {
             return Collections.emptyList();
         }
         List<LogicalOperation> result = new ArrayList<>();
+        visitSetConfigs(sqlScriptContext, result);
         for (PlSqlParser.Unit_statementContext unitStatementContext : unitStatementContexts) {
-            if (visitPlContext(unitStatementContext, sqlScriptContext, result)
-                    || visitSqlContext(unitStatementContext, result)) {
+            if (visitPlContext(unitStatementContext, result) ||
+                    visitSqlContext(unitStatementContext, result)) {
                 continue;
             }
             throw new ParseException(String.format("Unsupported syntax: %s", PLParserUtil.getFullText(unitStatementContext)));
@@ -69,9 +75,18 @@ public class PlBaseVisitor {
         result.add(anonymousBody);
     }
 
-    private void visitCreateAsSQL(PlSqlParser.Create_tableContext createTableContext,
-                                  PlSqlParser.Sql_scriptContext sqlScriptContext, List<LogicalOperation> result) {
-        List<LogicalOperation> setConfigs = visit4SetConfig(sqlScriptContext);
+    private void visitCreateWithSQL(PlSqlParser.Create_tableContext createTableContext, List<LogicalOperation> result) {
+        List<LogicalOperation> setConfigs;
+        Optional<LogicalOperation> logicalSetConfigsOp = result.stream()
+                .filter(op -> op.getOperationType() == SET_CONFIGS).findFirst();
+        if (logicalSetConfigsOp.isPresent()) {
+            LogicalSetConfigs logicalSetConfigs = (LogicalSetConfigs) logicalSetConfigsOp.get();
+            setConfigs = logicalSetConfigs.getLogicalSetConfigs().stream()
+                    .map(v -> (LogicalOperation) v).collect(Collectors.toList());
+        } else {
+            setConfigs = new ArrayList<>();
+        }
+
         PlSqlParser.Create_withContext createWithContext = createTableContext.create_with();
         if (createWithContext != null) {
             List<LogicalOperation> operations = visitorManager.getCreateTableWithVisitor()
@@ -147,11 +162,11 @@ public class PlBaseVisitor {
         }
     }
 
-    private void visitCreateTableAs(PlSqlParser.Create_table_asContext createTableAsContext, List<LogicalOperation> result) {
+    private void visitCreateTableAsSQL(PlSqlParser.Create_table_asContext createTableAsContext, List<LogicalOperation> result) {
         String createSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(createTableAsContext));
         String innerTableName = createTableAsContext.table_name().getText();
         LogicalOperation operation = visitorManager.getCreateAsSQLVisitor()
-                .visitCreateInnerTable(createSQL, createSQL, innerTableName);
+                .visitCreateTableAsSQL(createSQL, createSQL, innerTableName);
         if (operation != null) {
             result.add(operation);
         }
@@ -165,12 +180,12 @@ public class PlBaseVisitor {
         }
     }
 
-    public List<LogicalOperation> visit4SetConfig(PlSqlParser.Sql_scriptContext sqlScriptContext) {
+    public List<LogicalSetConfig> visit4SetConfig(PlSqlParser.Sql_scriptContext sqlScriptContext) {
         List<PlSqlParser.Unit_statementContext> unitStatementContexts = sqlScriptContext.unit_statement();
         if (unitStatementContexts == null) {
             return Collections.emptyList();
         }
-        List<LogicalOperation> setConfigs = new ArrayList<>();
+        List<LogicalSetConfig> setConfigs = new ArrayList<>();
         for (PlSqlParser.Unit_statementContext unitStatementContext : unitStatementContexts) {
             if (unitStatementContext.set_bleck() != null) {
                 String setBlock = unitStatementContext.set_bleck().getText();
@@ -192,14 +207,23 @@ public class PlBaseVisitor {
         return setConfigs;
     }
 
-    private boolean visitPlContext(PlSqlParser.Unit_statementContext unitStatementContext,
-                                   PlSqlParser.Sql_scriptContext sqlScriptContext, List<LogicalOperation> result) {
+    private void visitSetConfigs(PlSqlParser.Sql_scriptContext sqlScriptContext, List<LogicalOperation> result) {
+        if (sqlScriptContext.unit_statement() == null) {
+            return;
+        }
+        List<LogicalSetConfig> setConfigs = visit4SetConfig(sqlScriptContext);
+        LogicalSetConfigs logicalSetConfigs = new LogicalSetConfigs();
+        logicalSetConfigs.setLogicalSetConfigs(setConfigs);
+        result.add(logicalSetConfigs);
+    }
+
+    private boolean visitPlContext(PlSqlParser.Unit_statementContext unitStatementContext, List<LogicalOperation> result) {
         boolean resultFlag = false;
         if (unitStatementContext.anonymous_body() != null) {
             visitAnonymousBody(unitStatementContext.anonymous_body(), result);
             resultFlag = true;
         } else if (unitStatementContext.create_table() != null) {
-            visitCreateAsSQL(unitStatementContext.create_table(), sqlScriptContext, result);
+            visitCreateWithSQL(unitStatementContext.create_table(), result);
             resultFlag = true;
         } else if (unitStatementContext.create_procedure_body() != null) {
             visitCreateProcedure(unitStatementContext.create_procedure_body(), result);
@@ -234,7 +258,7 @@ public class PlBaseVisitor {
             visitMergeSQL(unitStatementContext.merge_block(), result);
             resultFlag = true;
         } else if (unitStatementContext.create_table_as() != null) {
-            visitCreateTableAs(unitStatementContext.create_table_as(), result);
+            visitCreateTableAsSQL(unitStatementContext.create_table_as(), result);
             resultFlag = true;
         } else if (unitStatementContext.truncate_table_block() != null) {
             visitTruncateTable(unitStatementContext.truncate_table_block(), result);

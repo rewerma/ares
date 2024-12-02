@@ -2,6 +2,7 @@ package com.github.ares.web.service;
 
 import com.github.ares.common.enums.StatusType;
 import com.github.ares.common.utils.JsonUtils;
+import com.github.ares.parser.PlParser;
 import com.github.ares.web.entity.BaseModel;
 import com.github.ares.web.entity.Datasource;
 import com.github.ares.web.entity.TaskDefinition;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -29,6 +32,9 @@ public class TaskExecutionService {
 
     @Autowired
     private TaskWorker taskWorker;
+
+    @Autowired
+    private PlParser plParser;
 
     public Long start(String code) {
         TaskDefinition taskDefinition = BaseModel.query(TaskDefinition.class).where().eq("code", code).findOne();
@@ -50,7 +56,10 @@ public class TaskExecutionService {
         taskContext.setTaskType(taskDefinition.getTaskType());
         taskContext.setTaskName(taskDefinition.getName());
         taskContext.setTaskInstanceId(taskInstance.getId());
-        String taskContent = handleDatasource(taskDefinition.getDsCode(), taskDefinition.getTaskContent());
+
+        // parse dataSources of task content
+        List<String> usedDataSources = plParser.parseDataSources(taskDefinition.getTaskContent());
+        String taskContent = handleDatasource(usedDataSources, taskDefinition.getTaskContent());
         taskContext.setTaskContent(taskContent);
         taskContext.setEnvParams(taskDefinition.getEnvParams());
         taskContext.setInParams(taskDefinition.getInParams());
@@ -67,14 +76,13 @@ public class TaskExecutionService {
         return taskInstance.getId();
     }
 
-    private String handleDatasource(String dsCode, String taskContent) {
-        if (StringUtils.isBlank(dsCode)) {
+    private String handleDatasource(List<String> usedDataSources, String taskContent) {
+        if (usedDataSources == null || usedDataSources.isEmpty()) {
             return taskContent;
         }
-        String[] dsCodes = dsCode.split(",");
         StringBuilder dsContent = new StringBuilder();
-        for (String code : dsCodes) {
-            Datasource datasource = BaseModel.query(Datasource.class).where().eq("code", code).findOne();
+        for (String dsName : usedDataSources) {
+            Datasource datasource = BaseModel.query(Datasource.class).where().eq("name", dsName).findOne();
             if (datasource == null) {
                 continue;
             }

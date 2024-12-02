@@ -33,10 +33,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.0.0-jre</version>
+            <groupId>com.github.ares</groupId>
+            <artifactId>ares-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>ares-parser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>ares-worker</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.aventrix.jnanoid</groupId>
             <artifactId>jnanoid</artifactId>
@@ -46,18 +57,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.ares</groupId>
-            <artifactId>ares-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.ares</groupId>
-            <artifactId>ares-worker</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>

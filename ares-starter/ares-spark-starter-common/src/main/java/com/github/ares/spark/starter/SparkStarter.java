@@ -15,8 +15,8 @@ import com.github.ares.core.starter.enums.PluginType;
 import com.github.ares.core.starter.utils.CommandLineUtils;
 import com.github.ares.parser.PlParser;
 import com.github.ares.parser.config.ParserServiceModule;
-import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
-import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
+import com.github.ares.parser.datasource.PropertiesDataSourceComplement;
+import com.github.ares.parser.datasource.SourceConfigComplementFactory;
 import com.github.ares.parser.model.TableWith;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalProject;
@@ -26,7 +26,6 @@ import com.github.ares.spark.starter.args.SparkCommandArgs;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -240,8 +239,8 @@ public class SparkStarter implements Starter {
             return Collections.emptyList();
         }
         Properties innerProperties = new Properties();
-        SourceConfigPatcherFactory.register(Constants.DEFAULT_DATASOURCE_PATCHER,
-                new PropertiesDataSourcePatcher(innerProperties));
+        SourceConfigComplementFactory.register(Constants.DEFAULT_DATASOURCE_COMPLEMENT,
+                new PropertiesDataSourceComplement(innerProperties));
 
         LogicalProject logicalProject;
         try (InputStream in = Files.newInputStream(Paths.get(commandArgs.getSqlFile()))) {

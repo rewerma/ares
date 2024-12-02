@@ -27,7 +27,7 @@ public class PlCreateAsSQLVisitor {
         sqlParser = sqlParserFactory.getParser();
     }
 
-    public LogicalOperation visitCreateInnerTable(String originalSql, String createSQL, String innerTableName) {
+    public LogicalOperation visitCreateTableAsSQL(String originalSql, String createSQL, String innerTableName) {
         if (sourceTables.containsKey(innerTableName.toLowerCase())) {
             throw new ParseException(String.format("Source table: %s exists, SQL: %s", innerTableName, createSQL));
         }
