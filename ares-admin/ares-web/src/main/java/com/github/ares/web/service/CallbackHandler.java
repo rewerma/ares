@@ -34,7 +34,17 @@ public class CallbackHandler implements Callback {
         if (taskResponse.getStatus() == StatusType.SUCCESS) {
             Map<String, Object> outputParams = taskResponse.getOutputParams();
             if (taskDefinition.getOutParams() != null && outputParams != null) {
-                taskInstance.setOutParams(JsonUtils.toJsonString(outputParams));
+                try {
+                    Map<String, Object> defOutParams = JsonUtils.toMap2(taskDefinition.getOutParams());
+                    outputParams.forEach((k, v) -> {
+                        if (defOutParams.containsKey(k)) {
+                            defOutParams.put(k, v);
+                        }
+                    });
+                    taskInstance.setOutParams(JsonUtils.toJsonString(defOutParams));
+                } catch (Exception e) {
+                    log.error("outParams format error: {}", e.getMessage());
+                }
             }
             List<Map<String, Object>> resultJson = taskResponse.getLastResult();
             if (resultJson != null) {

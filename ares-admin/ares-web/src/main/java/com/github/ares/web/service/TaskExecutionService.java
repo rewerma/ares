@@ -77,6 +77,7 @@ public class TaskExecutionService {
                     String value = entry.getValue() == null ? "" : entry.getValue().toString();
                     taskContent = taskContent.replace(key, value);
                 }
+                taskInstance.setInParams(JsonUtils.toJsonString(defInParams));
             }
 
             PlParser plParser = PLParserConfig.getPlParser();
@@ -93,7 +94,7 @@ public class TaskExecutionService {
                     new CallbackHandler(taskDefinition, taskInstance));
 
             taskInstance.setStatus(StatusType.SUBMIT.getValue());
-            taskInstance.update("status");
+            taskInstance.update("status", "inParams");
 
             taskWorker.start(taskContext);
 
