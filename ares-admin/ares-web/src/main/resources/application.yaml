@@ -37,4 +37,5 @@ ares:
   spark-home:
   ares-home: /Users/rewerma/Develop/ares-1.0
 
+network.interface.preferred: en0
 

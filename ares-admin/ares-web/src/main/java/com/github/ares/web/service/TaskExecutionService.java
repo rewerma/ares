@@ -12,11 +12,18 @@ import com.github.ares.web.entity.TaskDefinition;
 import com.github.ares.web.entity.TaskInstance;
 import com.github.ares.web.utils.CodeGenerator;
 import com.github.ares.web.utils.NetUtils;
+import com.github.ares.web.utils.Result;
 import com.github.ares.web.utils.ServiceException;
 import com.github.ares.worker.TaskWorker;
 import com.github.ares.worker.model.TaskContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -100,8 +107,6 @@ public class TaskExecutionService {
 
             taskContext.setTaskContent(taskContent);
             taskContext.setEnvParams(taskDefinition.getEnvParams());
-            // taskContext.setInParams(taskDefinition.getInParams());
-            // taskContext.setOutParams(taskDefinition.getOutParams());
 
             taskWorker.registerCallback(taskInstance.getId(),
                     new CallbackHandler(taskDefinition, taskInstance));
@@ -148,34 +153,37 @@ public class TaskExecutionService {
         if (taskInstance == null) {
             throw new ServiceException("task instance not found");
         }
-//        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
-        TaskContext taskContext = new TaskContext();
-        taskContext.setTaskInstanceId(taskInstanceId);
-        taskWorker.stop(taskContext);
-//        } else {
-//            // 创建 HttpClient 实例
-//            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-//                String url = "https://"+taskInstance.getExecutorHost()+"/task/execution/"+taskInstanceId+"/stop";
-//                HttpPost postRequest = new HttpPost(url);
-//                postRequest.setHeader("Content-Type", "application/json");
-//
-////                // 设置请求体
-////                String jsonBody = "{ \"key\": \"value\" }";
-////                StringEntity entity = new StringEntity(jsonBody);
-////                postRequest.setEntity(entity);
-//
-//                try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
-//                    // 打印响应状态码
-//                    System.out.println("Status Code: " + response.getStatusLine());
-//
-//                    // 打印响应体
-//                    String responseBody = EntityUtils.toString(response.getEntity());
-//                    System.out.println("Response Body: " + responseBody);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//    }
+        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
+            TaskContext taskContext = new TaskContext();
+            taskContext.setTaskInstanceId(taskInstanceId);
+            taskWorker.stop(taskContext);
+        } else {
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                String url = "http://" + taskInstance.getExecutorHost() + "/ares/task/execution/" + taskInstanceId + "/stop";
+                HttpPost postRequest = new HttpPost(url);
+                postRequest.setHeader("Content-Type", "application/json");
+
+                // String jsonBody = "{ \"key\": \"value\" }";
+                // StringEntity entity = new StringEntity(jsonBody);
+                // postRequest.setEntity(entity);
+
+                try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
+                    // System.out.println("Status Code: " + response.getStatusLine());
+                    String responseBody = EntityUtils.toString(response.getEntity());
+                    if (StringUtils.isBlank(responseBody)) {
+                        throw new ServiceException("stop task failed from executor host: " + taskInstance.getExecutorHost());
+                    }
+                    Result result = JsonUtils.parseObject(responseBody, Result.class);
+                    if (result.getCode() == null || result.getCode() != 200) {
+                        throw new ServiceException("stop task failed from executor host: " + taskInstance.getExecutorHost());
+                    }
+                }
+            } catch (ServiceException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new ServiceException(e);
+            }
+        }
     }
 
     public String getFullLog(Long taskInstanceId) {
@@ -183,9 +191,30 @@ public class TaskExecutionService {
         if (taskInstance == null) {
             throw new ServiceException("task instance not found");
         }
-        TaskContext taskContext = new TaskContext();
-        taskContext.setTaskInstanceId(taskInstanceId);
-        taskContext.setLogPath(taskInstance.getLogPath());
-        return taskWorker.getFullLog(taskContext);
+        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
+            TaskContext taskContext = new TaskContext();
+            taskContext.setTaskInstanceId(taskInstanceId);
+            taskContext.setLogPath(taskInstance.getLogPath());
+            return taskWorker.getFullLog(taskContext);
+        } else {
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                String url = "http://" + taskInstance.getExecutorHost() + "/ares/task/execution/" + taskInstanceId + "/log";
+                HttpGet getRequest = new HttpGet(url);
+                getRequest.setHeader("Content-Type", "application/json");
+
+                try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
+                    String responseBody = EntityUtils.toString(response.getEntity());
+                    if (StringUtils.isBlank(responseBody)) {
+                        throw new ServiceException("get log failed from executor host: " + taskInstance.getExecutorHost());
+                    }
+                    Result result = JsonUtils.parseObject(responseBody, Result.class);
+                    return (String) result.getData();
+                }
+            } catch (ServiceException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new ServiceException(e);
+            }
+        }
     }
 }
