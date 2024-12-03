@@ -47,6 +47,6 @@ public class TaskDefinition extends BaseModel<TaskDefinition> {
 
     @WhenCreated
     @Column(name = "c_time")
-    private LocalDateTime cTime;
+    private LocalDateTime createTime;
 
 }

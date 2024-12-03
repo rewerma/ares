@@ -57,5 +57,5 @@ public class TaskInstance extends BaseModel<TaskInstance> {
 
     @WhenCreated
     @Column(name = "c_time")
-    private LocalDateTime cTime;
+    private LocalDateTime createTime;
 }

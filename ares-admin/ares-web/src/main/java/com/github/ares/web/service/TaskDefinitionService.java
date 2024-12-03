@@ -80,7 +80,7 @@ public class TaskDefinitionService {
             query.where().ilike("taskContent", "%" + params.getTaskContent() + "%");
         }
         Query<TaskDefinition> queryCount = query.copy();
-        List<TaskDefinition> list = query.select("id, code,name, dsCode, envParams, inParams, outParams, cTime")
+        List<TaskDefinition> list = query.select("id, code,name, dsCode, envParams, inParams, outParams, createTime")
                 .orderBy().desc("id").setFirstRow(pager.getOffset()).setMaxRows(pager.getSize()).findList();
 
         int count = queryCount.select("id").findCount();
