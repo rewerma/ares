@@ -4,12 +4,7 @@ import com.github.ares.web.dto.TaskExecutionDto;
 import com.github.ares.web.service.TaskExecutionService;
 import com.github.ares.web.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/task/execution")
@@ -33,13 +28,15 @@ public class TaskExecutionController {
     }
 
     @PostMapping("/{instanceId}/stop")
-    public Result<Long> stopTask(@PathVariable("instanceId") Long instanceId) {
-        taskExecutionService.stop(instanceId);
+    public Result<Long> stopTask(@PathVariable("instanceId") Long instanceId,
+                                 @RequestParam(value = "from-rpc", required = false) Boolean fromRpc) {
+        taskExecutionService.stop(instanceId, fromRpc);
         return Result.success();
     }
 
     @GetMapping("/{instanceId}/log")
-    public Result<String> taskLog(@PathVariable("instanceId") Long instanceId) {
-        return Result.success(taskExecutionService.getFullLog(instanceId));
+    public Result<String> taskLog(@PathVariable("instanceId") Long instanceId,
+                                  @RequestParam(value = "from-rpc", required = false) Boolean fromRpc) {
+        return Result.success(taskExecutionService.getFullLog(instanceId, fromRpc));
     }
 }

@@ -150,18 +150,20 @@ public class TaskExecutionService {
         return dsContent + taskContent;
     }
 
-    public void stop(Long taskInstanceId) {
+    public void stop(Long taskInstanceId, Boolean fromRPC) {
         TaskInstance taskInstance = BaseModel.query(TaskInstance.class).where().eq("id", taskInstanceId).findOne();
         if (taskInstance == null) {
             throw new ServiceException("task instance not found");
         }
-        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
+        if ((fromRPC != null && fromRPC)
+                || StringUtils.isBlank(taskInstance.getExecutorHost())
+                || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
             TaskContext taskContext = new TaskContext();
             taskContext.setTaskInstanceId(taskInstanceId);
             taskWorker.stop(taskContext);
         } else {
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-                String url = "http://" + taskInstance.getExecutorHost() + "/ares/task/execution/" + taskInstanceId + "/stop";
+                String url = "http://" + taskInstance.getExecutorHost() + "/ares/task/execution/" + taskInstanceId + "/stop?from-rpc=true";
                 HttpPost postRequest = new HttpPost(url);
                 postRequest.setHeader("Content-Type", "application/json");
 
@@ -184,12 +186,14 @@ public class TaskExecutionService {
         }
     }
 
-    public String getFullLog(Long taskInstanceId) {
+    public String getFullLog(Long taskInstanceId, Boolean fromRPC) {
         TaskInstance taskInstance = BaseModel.query(TaskInstance.class).where().eq("id", taskInstanceId).findOne();
         if (taskInstance == null) {
             throw new ServiceException("task instance not found");
         }
-        if (StringUtils.isBlank(taskInstance.getExecutorHost()) || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
+        if ((fromRPC != null && fromRPC)
+                || StringUtils.isBlank(taskInstance.getExecutorHost())
+                || taskInstance.getExecutorHost().startsWith(NetUtils.getHost())) {
             TaskContext taskContext = new TaskContext();
             taskContext.setTaskInstanceId(taskInstanceId);
             taskContext.setLogPath(taskInstance.getLogPath());
