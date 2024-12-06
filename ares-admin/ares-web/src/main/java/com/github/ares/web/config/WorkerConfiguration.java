@@ -3,14 +3,10 @@ package com.github.ares.web.config;
 import com.github.ares.worker.TaskWorker;
 import com.github.ares.worker.WorkerExecution;
 import com.github.ares.worker.model.TaskConfig;
-import com.github.ares.worker.model.TaskContext;
 import com.github.ares.worker.shell.AresWorker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PreDestroy;
-import java.util.function.Consumer;
 
 @Configuration
 public class WorkerConfiguration {
