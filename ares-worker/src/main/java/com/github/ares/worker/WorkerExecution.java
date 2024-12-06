@@ -1,10 +1,7 @@
 package com.github.ares.worker;
 
-import com.github.ares.common.enums.TaskType;
-import com.github.ares.common.exceptions.AresException;
 import com.github.ares.worker.model.TaskConfig;
 import com.github.ares.worker.model.TaskContext;
-import com.github.ares.worker.shell.AresWorker;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
@@ -43,8 +40,6 @@ public class WorkerExecution {
                     TaskContext taskContext = taskExecutionQueue.take();
                     // execute task
                     taskExecutorPool.submit(() -> {
-//                        TaskWorker taskWorker = getTaskWorker(taskContext.getTaskType());
-//                        taskWorker.executeTask(taskContext);
                         taskContextConsumer.accept(taskContext);
                     });
                 } catch (InterruptedException e) {
@@ -57,17 +52,6 @@ public class WorkerExecution {
     public void start(TaskContext taskContext) {
         taskExecutionQueue.add(taskContext);
     }
-
-//    private TaskWorker getTaskWorker(String taskType) {
-//        TaskWorker taskWorker = null;
-//        // if (TaskType.ARES.getName().equals(taskType)) {
-//        // }
-//        taskWorker = new AresWorker(taskConfig);
-//        // if (taskWorker == null) {
-//        //     throw new AresException("task type not defined: " + taskType);
-//        // }
-//        return taskWorker;
-//    }
 
     public void destroy() {
         isRunning = false;

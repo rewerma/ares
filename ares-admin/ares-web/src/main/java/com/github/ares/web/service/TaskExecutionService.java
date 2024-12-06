@@ -10,11 +10,11 @@ import com.github.ares.web.entity.BaseModel;
 import com.github.ares.web.entity.Datasource;
 import com.github.ares.web.entity.TaskDefinition;
 import com.github.ares.web.entity.TaskInstance;
-import com.github.ares.web.utils.CodeGenerator;
 import com.github.ares.web.utils.NetUtils;
 import com.github.ares.web.utils.Result;
 import com.github.ares.web.utils.ServiceException;
 import com.github.ares.worker.TaskWorker;
+import com.github.ares.worker.WorkerExecution;
 import com.github.ares.worker.model.TaskContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,9 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +38,9 @@ import java.util.Map;
 public class TaskExecutionService {
     @Value("${server.port:8080}")
     private Integer serverPort;
+
+    @Autowired
+    private WorkerExecution workerExecution;
 
     @Autowired
     private TaskWorker taskWorker;
@@ -84,7 +86,7 @@ public class TaskExecutionService {
 
             if (taskDefinition.getInParams() != null) {
                 Map<String, Object> defInParams = JsonUtils.toMap2(taskDefinition.getInParams());
-                if (taskExecutionDto != null && taskExecutionDto.getInParams() != null) {
+                if (taskExecutionDto.getInParams() != null) {
                     Map<String, Object> inParams = JsonUtils.toMap2(taskExecutionDto.getInParams());
                     inParams.forEach((k, v) -> {
                         if (defInParams.containsKey(k)) {
@@ -163,10 +165,6 @@ public class TaskExecutionService {
                 HttpPost postRequest = new HttpPost(url);
                 postRequest.setHeader("Content-Type", "application/json");
 
-                // String jsonBody = "{ \"key\": \"value\" }";
-                // StringEntity entity = new StringEntity(jsonBody);
-                // postRequest.setEntity(entity);
-
                 try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
                     // System.out.println("Status Code: " + response.getStatusLine());
                     String responseBody = EntityUtils.toString(response.getEntity());
@@ -216,5 +214,10 @@ public class TaskExecutionService {
                 throw new ServiceException(e);
             }
         }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        workerExecution.destroy();
     }
 }
