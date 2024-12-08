@@ -68,7 +68,7 @@ public class DatasourceService {
             query.where().ilike("name", "%" + params.getName() + "%");
         }
         Query<Datasource> queryCount = query.copy();
-        List<Datasource> list = query.select("id, code, name, params")
+        List<Datasource> list = query.select("id, code, name, dsType, createTime")
                 .orderBy().desc("id").setFirstRow(pager.getOffset()).setMaxRows(pager.getSize()).findList();
 
         int count = queryCount.select("id").findCount();

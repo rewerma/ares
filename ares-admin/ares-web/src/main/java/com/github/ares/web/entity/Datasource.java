@@ -26,11 +26,14 @@ public class Datasource  extends BaseModel<Datasource> {
 
     private String code;
 
+    @Column(name = "ds_type")
+    private String dsType;
+
     private String name;
 
     private String params;
 
     @WhenCreated
     @Column(name = "c_time")
-    private LocalDateTime cTime;
+    private LocalDateTime createTime;
 }
