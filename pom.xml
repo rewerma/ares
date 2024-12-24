@@ -19,6 +19,7 @@
         <module>ares-dist</module>
         <module>ares-test</module>
         <module>ares-formats</module>
+        <module>ares-flow</module>
     </modules>
 
     <properties>

@@ -9,16 +9,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>ares-starter</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>ares-core-starter</module>
-        <module>ares-spark-starter-common</module>
-        <module>ares-spark3-starter</module>
-        <module>ares-spark2-starter</module>
-        <module>ares-spark-embedded-starter</module>
-        <module>ares-command-starter</module>
-    </modules>
+    <artifactId>ares-flow</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -26,4 +17,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>ares-command-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yomahub</groupId>
+            <artifactId>liteflow-core</artifactId>
+            <version>2.12.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yomahub</groupId>
+            <artifactId>liteflow-script-groovy</artifactId>
+            <version>2.12.4.2</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -18,4 +18,10 @@ public final class Constants {
     public static final String UUID = "uuid";
 
     public static final String NOW = "now";
+
+    public static final String EXECUTION_TASK_DIR = "/task/";
+
+    public static final String LOG_EXT = ".log";
+
+    public static final String SCRIPT_SQL_FILE = "script.sql";
 }
