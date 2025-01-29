@@ -17,10 +17,8 @@
 
 package com.github.ares.spark.connector.sink.writer;
 
-import com.github.ares.api.sink.MultiTableResourceManager;
 import com.github.ares.api.sink.SinkCommitter;
 import com.github.ares.api.sink.SinkWriter;
-import com.github.ares.api.sink.SupportResourceShare;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.connector.serialization.RowConverter;
@@ -45,7 +43,6 @@ public class SparkDataWriter<CommitInfoT, StateT> implements DataWriter<Internal
     private final RowConverter<InternalRow> rowConverter;
     private CommitInfoT latestCommitInfoT;
     private long epochId;
-    private MultiTableResourceManager resourceManager;
 
     SparkDataWriter(
             SinkWriter<AresRow, CommitInfoT, StateT> sinkWriter,
@@ -56,20 +53,11 @@ public class SparkDataWriter<CommitInfoT, StateT> implements DataWriter<Internal
         this.sinkCommitter = sinkCommitter;
         this.rowConverter = new InternalRowConverter(dataType);
         this.epochId = epochId == 0 ? 1 : epochId;
-        initResourceManger();
     }
 
     @Override
     public void write(InternalRow record) throws IOException {
         sinkWriter.write(rowConverter.reconvert(record));
-    }
-
-    private void initResourceManger() {
-        if (sinkWriter instanceof SupportResourceShare) {
-            resourceManager =
-                    ((SupportResourceShare) sinkWriter).initMultiTableResourceManager(1, 1);
-            ((SupportResourceShare) sinkWriter).setMultiTableResourceManager(resourceManager, 0);
-        }
     }
 
     @Override
@@ -96,13 +84,6 @@ public class SparkDataWriter<CommitInfoT, StateT> implements DataWriter<Internal
                 new SparkWriterCommitMessage<>(latestCommitInfoT);
         cleanCommitInfo();
         sinkWriter.close();
-        try {
-            if (resourceManager != null) {
-                resourceManager.close();
-            }
-        } catch (Throwable e) {
-            log.error("close resourceManager error", e);
-        }
         return sparkWriterCommitMessage;
     }
 

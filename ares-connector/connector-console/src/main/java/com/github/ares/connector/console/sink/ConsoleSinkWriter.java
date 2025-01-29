@@ -1,7 +1,6 @@
 package com.github.ares.connector.console.sink;
 
 import com.github.ares.api.sink.SinkWriter;
-import com.github.ares.api.sink.SupportMultiTableSinkWriter;
 import com.github.ares.api.table.event.SchemaChangeEvent;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRow;
@@ -18,8 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-public class ConsoleSinkWriter extends AbstractSinkWriter<AresRow, Void>
-        implements SupportMultiTableSinkWriter<Void> {
+public class ConsoleSinkWriter extends AbstractSinkWriter<AresRow, Void> {
 
     private AresRowType aresRowType;
     private final AtomicLong rowCounter = new AtomicLong(0);

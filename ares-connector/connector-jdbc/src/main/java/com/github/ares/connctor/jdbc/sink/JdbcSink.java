@@ -44,24 +44,16 @@ import java.util.Optional;
 
 public class JdbcSink
         implements AresSink<AresRow, JdbcSinkState, XidInfo, JdbcAggregatedCommitInfo> {
-    private static final Logger log = LoggerFactory.getLogger(JdbcSink.class);
-
     private AresRowType aresRowType;
-
-    private JobContext jobContext;
 
     private final JdbcSinkConfig jdbcSinkConfig;
 
     private final JdbcDialect dialect;
 
-    private final ReadonlyConfig config;
-
     public JdbcSink(
-            ReadonlyConfig config,
             JdbcSinkConfig jdbcSinkConfig,
             JdbcDialect dialect,
             AresRowType rowType) {
-        this.config = config;
         this.jdbcSinkConfig = jdbcSinkConfig;
         this.dialect = dialect;
         this.aresRowType = rowType;
@@ -75,20 +67,8 @@ public class JdbcSink
     @Override
     public SinkWriter<AresRow, XidInfo, JdbcSinkState> createWriter(
             SinkWriter.Context context) {
-        SinkWriter<AresRow, XidInfo, JdbcSinkState> sinkWriter;
-        if (jdbcSinkConfig.isExactlyOnce()) {
-            sinkWriter =
-                    new JdbcExactlyOnceSinkWriter(
-                            context,
-                            jobContext,
-                            dialect,
-                            jdbcSinkConfig,
-                            aresRowType,
-                            new ArrayList<>());
-        } else {
-            sinkWriter =
-                    new JdbcSinkWriter(dialect, jdbcSinkConfig, aresRowType, null);
-        }
+        SinkWriter<AresRow, XidInfo, JdbcSinkState> sinkWriter =
+                new JdbcSinkWriter(dialect, jdbcSinkConfig, aresRowType);
         return sinkWriter;
     }
 

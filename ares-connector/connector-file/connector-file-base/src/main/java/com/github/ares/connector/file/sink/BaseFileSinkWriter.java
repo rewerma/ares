@@ -1,7 +1,6 @@
 package com.github.ares.connector.file.sink;
 
 import com.github.ares.api.sink.SinkWriter;
-import com.github.ares.api.sink.SupportMultiTableSinkWriter;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.exceptions.AresRuntimeException;
 import com.github.ares.common.exceptions.CommonError;
@@ -26,8 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class BaseFileSinkWriter
-        implements SinkWriter<AresRow, FileCommitInfo, FileSinkState>,
-        SupportMultiTableSinkWriter<WriteStrategy> {
+        implements SinkWriter<AresRow, FileCommitInfo, FileSinkState> {
 
     protected final WriteStrategy writeStrategy;
 

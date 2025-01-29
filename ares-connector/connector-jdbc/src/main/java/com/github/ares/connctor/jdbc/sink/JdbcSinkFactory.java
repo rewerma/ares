@@ -65,17 +65,6 @@ public class JdbcSinkFactory implements TableSinkFactory {
         return "Jdbc";
     }
 
-    private ReadonlyConfig getCatalogOptions(TableSinkFactoryContext context) {
-        ReadonlyConfig config = context.getOptions();
-        // TODO Remove obsolete code
-        Optional<Map<String, String>> catalogOptions =
-                config.getOptional(CatalogOptions.CATALOG_OPTIONS);
-        if (catalogOptions.isPresent()) {
-            return ReadonlyConfig.fromMap(new HashMap<>(catalogOptions.get()));
-        }
-        return config;
-    }
-
     @Override
     public TableSink createSink(TableSinkFactoryContext context) {
         ReadonlyConfig config = context.getOptions();
@@ -89,7 +78,6 @@ public class JdbcSinkFactory implements TableSinkFactory {
         }
 
         // always execute
-        final ReadonlyConfig options = config;
         JdbcSinkConfig sinkConfig = JdbcSinkConfig.of(config, columns);
         FieldIdeEnum fieldIdeEnum = config.get(JdbcOptions.FIELD_IDE);
         JdbcDialect dialect =
@@ -103,10 +91,10 @@ public class JdbcSinkFactory implements TableSinkFactory {
                 dialect.defaultParameter());
         final CatalogTable finalCatalogTable = catalogTable;
         if (finalCatalogTable == null) {
-            return () -> new JdbcSink(options, sinkConfig, dialect, null);
+            return () -> new JdbcSink(sinkConfig, dialect, null);
         }
         return () ->
-                new JdbcSink(options, sinkConfig, dialect, finalCatalogTable.getTableSchema().toPhysicalRowDataType());
+                new JdbcSink(sinkConfig, dialect, finalCatalogTable.getTableSchema().toPhysicalRowDataType());
     }
 
     @Override

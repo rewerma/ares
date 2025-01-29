@@ -17,7 +17,6 @@
 
 package com.github.ares.connctor.jdbc.sink;
 
-import com.github.ares.api.sink.MultiTableResourceManager;
 import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
@@ -26,12 +25,10 @@ import com.github.ares.connctor.jdbc.config.JdbcSinkConfig;
 import com.github.ares.connctor.jdbc.internal.JdbcOutputFormat;
 import com.github.ares.connctor.jdbc.internal.JdbcOutputFormatBuilder;
 import com.github.ares.connctor.jdbc.internal.connection.JdbcConnectionProvider;
-import com.github.ares.connctor.jdbc.internal.connection.SimpleJdbcConnectionPoolProviderProxy;
 import com.github.ares.connctor.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connctor.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import com.github.ares.connctor.jdbc.state.JdbcSinkState;
 import com.github.ares.connctor.jdbc.state.XidInfo;
-import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,71 +40,23 @@ import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
 public class JdbcSinkWriter
-        implements SinkWriter<AresRow, XidInfo, JdbcSinkState>,
-        SupportMultiTableSinkWriter<ConnectionPoolManager> {
+        implements SinkWriter<AresRow, XidInfo, JdbcSinkState> {
     private static final Logger log = LoggerFactory.getLogger(JdbcSinkWriter.class);
     private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> outputFormat;
-    private final JdbcDialect dialect;
-    private final AresRowType rowType;
     private JdbcConnectionProvider connectionProvider;
     private transient boolean isOpen;
-    private final Integer primaryKeyIndex;
-    private final JdbcSinkConfig jdbcSinkConfig;
-
     private final LongAdder writeCounter;
 
     public JdbcSinkWriter(
             JdbcDialect dialect,
             JdbcSinkConfig jdbcSinkConfig,
-            AresRowType rowType,
-            Integer primaryKeyIndex) {
-        this.jdbcSinkConfig = jdbcSinkConfig;
-        this.dialect = dialect;
-        this.rowType = rowType;
-        this.primaryKeyIndex = primaryKeyIndex;
+            AresRowType rowType) {
         this.connectionProvider =
                 dialect.getJdbcConnectionProvider(jdbcSinkConfig.getJdbcConnectionConfig());
         this.outputFormat =
                 new JdbcOutputFormatBuilder(dialect, connectionProvider, jdbcSinkConfig, rowType)
                         .build();
         this.writeCounter = new LongAdder();
-    }
-
-    @Override
-    public MultiTableResourceManager<ConnectionPoolManager> initMultiTableResourceManager(
-            int tableSize, int queueSize) {
-        HikariDataSource ds = new HikariDataSource();
-        ds.setIdleTimeout(30 * 1000);
-        ds.setMaximumPoolSize(queueSize);
-        ds.setJdbcUrl(jdbcSinkConfig.getJdbcConnectionConfig().getUrl());
-        if (jdbcSinkConfig.getJdbcConnectionConfig().getUsername().isPresent()) {
-            ds.setUsername(jdbcSinkConfig.getJdbcConnectionConfig().getUsername().get());
-        }
-        if (jdbcSinkConfig.getJdbcConnectionConfig().getPassword().isPresent()) {
-            ds.setPassword(jdbcSinkConfig.getJdbcConnectionConfig().getPassword().get());
-        }
-        ds.setAutoCommit(jdbcSinkConfig.getJdbcConnectionConfig().isAutoCommit());
-        return new JdbcMultiTableResourceManager(new ConnectionPoolManager(ds));
-    }
-
-    @Override
-    public void setMultiTableResourceManager(
-            MultiTableResourceManager<ConnectionPoolManager> multiTableResourceManager,
-            int queueIndex) {
-        connectionProvider.closeConnection();
-        this.connectionProvider =
-                new SimpleJdbcConnectionPoolProviderProxy(
-                        multiTableResourceManager.getSharedResource().get(),
-                        jdbcSinkConfig.getJdbcConnectionConfig(),
-                        queueIndex);
-        this.outputFormat =
-                new JdbcOutputFormatBuilder(dialect, connectionProvider, jdbcSinkConfig, rowType)
-                        .build();
-    }
-
-    @Override
-    public Optional<Integer> primaryKey() {
-        return primaryKeyIndex != null ? Optional.of(primaryKeyIndex) : Optional.empty();
     }
 
     private void tryOpen() throws IOException {
