@@ -1,7 +1,6 @@
 package com.github.ares.connctor.jdbc.internal.dialect.mysql;
 
 import com.github.ares.api.table.catalog.TablePath;
-import com.github.ares.connctor.jdbc.catalog.AbstractJdbcCatalog;
 import com.github.ares.connctor.jdbc.internal.converter.JdbcRowConverter;
 import com.github.ares.connctor.jdbc.internal.dialect.DatabaseIdentifier;
 import com.github.ares.connctor.jdbc.internal.dialect.JdbcDialect;
@@ -96,15 +95,6 @@ public class MysqlDialect implements JdbcDialect {
         HashMap<String, String> map = new HashMap<>();
         map.put("rewriteBatchedStatements", "true");
         return map;
-    }
-
-    @Override
-    public TablePath parse(AbstractJdbcCatalog jdbcCatalog, String tablePath) {
-        TablePath tp = parse(tablePath);
-        if (tp.getDatabaseName() == null && jdbcCatalog.getDefaultDatabase() != null) {
-            return TablePath.of(jdbcCatalog.getDefaultDatabase(), null, tp.getTableName());
-        }
-        return tp;
     }
 
     @Override

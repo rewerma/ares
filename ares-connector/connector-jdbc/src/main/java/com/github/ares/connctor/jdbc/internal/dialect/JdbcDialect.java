@@ -1,9 +1,7 @@
 package com.github.ares.connctor.jdbc.internal.dialect;
 
 import com.github.ares.api.table.catalog.TablePath;
-import com.github.ares.connctor.jdbc.catalog.AbstractJdbcCatalog;
 import com.github.ares.connctor.jdbc.config.JdbcConnectionConfig;
-import com.github.ares.connctor.jdbc.config.JdbcSourceTableConfig;
 import com.github.ares.connctor.jdbc.internal.connection.JdbcConnectionProvider;
 import com.github.ares.connctor.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import com.github.ares.connctor.jdbc.internal.converter.JdbcRowConverter;
@@ -252,10 +250,6 @@ public interface JdbcDialect extends Serializable {
                         info.put(key, value);
                     }
                 });
-    }
-
-    default TablePath parse(AbstractJdbcCatalog jdbcCatalog, String tablePath) {
-        throw new UnsupportedOperationException("Not supported by this dialect");
     }
 
     default TablePath parse(String tablePath) {

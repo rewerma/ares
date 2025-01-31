@@ -1,6 +1,5 @@
 package com.github.ares.connctor.jdbc.utils;
 
-import com.github.ares.api.table.catalog.Catalog;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.catalog.Column;
 import com.github.ares.api.table.catalog.ConstraintKey;
@@ -8,11 +7,6 @@ import com.github.ares.api.table.catalog.PrimaryKey;
 import com.github.ares.api.table.catalog.TableIdentifier;
 import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.api.table.catalog.TableSchema;
-import com.github.ares.api.table.factory.FactoryUtil;
-import com.github.ares.common.configuration.ReadonlyConfig;
-import com.github.ares.common.exceptions.AresException;
-import com.github.ares.connctor.jdbc.catalog.AbstractJdbcCatalog;
-import com.github.ares.connctor.jdbc.catalog.JdbcCatalogOptions;
 import com.github.ares.connctor.jdbc.config.JdbcConnectionConfig;
 import com.github.ares.connctor.jdbc.config.JdbcSourceTableConfig;
 import com.github.ares.connctor.jdbc.internal.connection.JdbcConnectionProvider;
@@ -24,16 +18,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -103,51 +94,6 @@ public class JdbcCatalogUtils {
                     jdbcConnectionConfig.getUrl());
             return tables;
         }
-    }
-
-    private static CatalogTable getCatalogTable(
-            JdbcSourceTableConfig tableConfig,
-            AbstractJdbcCatalog jdbcCatalog,
-            JdbcDialect jdbcDialect)
-            throws SQLException {
-        if (Strings.isNullOrEmpty(tableConfig.getTablePath())
-                && Strings.isNullOrEmpty(tableConfig.getQuery())) {
-            throw new IllegalArgumentException(
-                    "Either table path or query must be specified in source configuration.");
-        }
-
-        if (StringUtils.isNotEmpty(tableConfig.getTablePath())
-                && StringUtils.isNotEmpty(tableConfig.getQuery())) {
-            TablePath tablePath = jdbcDialect.parse(jdbcCatalog, tableConfig.getTablePath());
-            CatalogTable tableOfPath = null;
-            try {
-                tableOfPath = jdbcCatalog.getTable(tablePath);
-            } catch (Exception e) {
-                // ignore
-                log.debug("User-defined table path: {}", tablePath);
-            }
-            CatalogTable tableOfQuery = jdbcCatalog.getTable(tableConfig.getQuery());
-            if (tableOfPath == null) {
-                String catalogName =
-                        tableOfQuery.getTableId() == null
-                                ? DEFAULT_CATALOG_NAME
-                                : tableOfQuery.getTableId().getCatalogName();
-                TableIdentifier tableIdentifier =
-                        TableIdentifier.of(
-                                catalogName,
-                                tablePath.getDatabaseName(),
-                                tablePath.getSchemaName(),
-                                tablePath.getTableName());
-                return CatalogTable.of(tableIdentifier, tableOfQuery);
-            }
-            return mergeCatalogTable(tableOfPath, tableOfQuery);
-        }
-        if (StringUtils.isNotEmpty(tableConfig.getTablePath())) {
-            TablePath tablePath = jdbcDialect.parse(jdbcCatalog, tableConfig.getTablePath());
-            return jdbcCatalog.getTable(tablePath);
-        }
-
-        return jdbcCatalog.getTable(tableConfig.getQuery());
     }
 
     static CatalogTable mergeCatalogTable(CatalogTable tableOfPath, CatalogTable tableOfQuery) {
@@ -312,24 +258,5 @@ public class JdbcCatalogUtils {
             throws SQLException, ClassNotFoundException {
         JdbcConnectionProvider connectionProvider = jdbcDialect.getJdbcConnectionProvider(config);
         return connectionProvider.getOrEstablishConnection();
-    }
-
-    public static Optional<Catalog> findCatalog(JdbcConnectionConfig config, JdbcDialect dialect) {
-        ReadonlyConfig catalogConfig = extractCatalogConfig(config);
-        return FactoryUtil.createOptionalCatalog(
-                dialect.dialectName(),
-                catalogConfig,
-                JdbcCatalogUtils.class.getClassLoader(),
-                dialect.dialectName());
-    }
-
-    private static ReadonlyConfig extractCatalogConfig(JdbcConnectionConfig config) {
-        Map<String, Object> catalogConfig = new HashMap<>();
-        catalogConfig.put(JdbcCatalogOptions.BASE_URL.key(), config.getUrl());
-        config.getUsername()
-                .ifPresent(val -> catalogConfig.put(JdbcCatalogOptions.USERNAME.key(), val));
-        config.getPassword()
-                .ifPresent(val -> catalogConfig.put(JdbcCatalogOptions.PASSWORD.key(), val));
-        return ReadonlyConfig.fromMap(catalogConfig);
     }
 }
