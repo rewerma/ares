@@ -11,7 +11,7 @@ DELETE FROM table_name WHERE condition;
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
@@ -41,7 +41,7 @@ DELETE FROM table_name a, (SELECT * FROM table_name2) b WHERE a.column1 = b.colu
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
@@ -73,4 +73,4 @@ DELETE FROM t_user2_v a, (SELECT * FROM t_user_v wher id > 10) b WHERE a.id = b.
 DELETE FROM t_user2_v a, t_user_v b WHERE a.id = a.id + b.id;
 ```
 
-- 部分sink端connectors插件不支持DELETE语法或只支持通过主键进行DELETE，如：`file` connector，`hbase` connector等。（`jdbc` connector支持通过任意字段进行DELETE）。
+- 部分sink端connectors插件不支持DELETE语法或只支持通过主键进行DELETE，如：`file` connector，`hbase` connector等。（`jdbc` 相关 connector支持通过任意字段进行DELETE）。

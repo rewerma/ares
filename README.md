@@ -26,7 +26,7 @@ Ares-Access 是基于 `PL-SQL` 语法的 ETL、跨源计算、数据分析、存
 ### 语法示例1
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;

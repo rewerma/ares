@@ -11,7 +11,7 @@ UPDATE table_name SET column1 = value1, column2 = value2,... WHERE condition;
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
@@ -41,7 +41,7 @@ UPDATE table_name a, (SELECT * FROM table_name2) b SET a.column1 = b.column1, a.
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;

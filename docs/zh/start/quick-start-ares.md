@@ -18,7 +18,7 @@
 ```sql
 CREATE TABLE t_user_v
 WITH (
-    'connector'='jdbc',
+    'connector'='mysql',
     'url'='jdbc:mysql://127.0.0.1:3306/mytest',
     'driver'='com.mysql.cj.jdbc.Driver',
     'user'='root',
@@ -29,7 +29,7 @@ WITH (
 
 CREATE TABLE t_user2_v
 WITH (
-    'connector'='jdbc',
+    'connector'='mysql',
     'url'='jdbc:postgresql://127.0.0.1:5432/postgres',
     'driver'='org.postgresql.Driver',
     'user'='root',
@@ -83,8 +83,8 @@ Ares控制台将会打印一些如下日志信息:
 
 ```shell
 INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load Factory Plugin from /Users/rewerma/Develop/git_aliyun/ares/connectors
-INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='source', pluginName='jdbc'} from classpath
-INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='sink', pluginName='jdbc'} from classpath
+INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='source', pluginName='mysql'} from classpath
+INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='sink', pluginName='mysql'} from classpath
 INFO  [SQLExecution] - Execute SQL: INSERT INTO t_user2 (id, name, age, c_time) SELECT id + 1, UPPER(name), age, c_time FROM t_user; Params: {v_cnt=0}
 INFO  [SQLExecution] - Executed SQL: INSERT INTO t_user2 (id, name, age, c_time) SELECT id + 1, UPPER(name), age, c_time FROM t_user; elapsed time: 1.06s
 ```

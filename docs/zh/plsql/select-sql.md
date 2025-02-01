@@ -14,13 +14,13 @@ SELECT column1, column2,...
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=123456;
    
-SET datasource.pg_test.connector=jdbc;
+SET datasource.pg_test.connector=mysql;
 SET datasource.pg_test.url=jdbc:postgresql://127.0.0.1:5432/postgres;
 SET datasource.pg_test.driver=org.postgresql.Driver;
 SET datasource.pg_test.user=postgres;
@@ -57,11 +57,11 @@ SELECT b.group_name, count(b.group_name) as cnt FROM t_user_v a
 在[过程语句](anonymous-block.md)中，可以通过SELECT语句将查询结果赋值给变量：
 
 ```sql
-SET datasource.mytest.connector=jdbc
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest
-SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver
-SET datasource.mytest.user=root
-SET datasource.mytest.password=123456
+SET datasource.mytest.connector=mysql;
+SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
+SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
+SET datasource.mytest.user=root;
+SET datasource.mytest.password=123456;
 
 
 CREATE TABLE t_user_v

@@ -12,7 +12,7 @@ VALUES (value1, value2,...)
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
@@ -42,7 +42,7 @@ SELECT column1, column2,...
 示例：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;

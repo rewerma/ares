@@ -7,7 +7,7 @@
 ```sql
 CREATE TABLE t_user2_v
 WITH (
-    'connector'='jdbc',
+    'connector'='mysql',
     'url'='jdbc:postgresql://127.0.0.1:5432/postgres',
     'driver'='org.postgresql.Driver',
     'user'='root',
@@ -26,7 +26,7 @@ WITH (
 数据源公共部分可以提取配置在执行参数中：
 
 ```sql
-SET datasource.mytest.connector=jdbc;
+SET datasource.mytest.connector=mysql;
 SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;

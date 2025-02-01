@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc</artifactId>
+            <artifactId>connector-jdbc-mysql</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

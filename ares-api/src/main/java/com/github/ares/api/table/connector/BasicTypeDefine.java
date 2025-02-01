@@ -31,6 +31,7 @@ public class BasicTypeDefine<T> implements Serializable {
     protected String columnType;
     // e.g. `varchar` for MySQL
     protected String dataType;
+    protected int sqlType;
     protected T nativeType;
     // e.g. `varchar` length is 10
     protected Long length;

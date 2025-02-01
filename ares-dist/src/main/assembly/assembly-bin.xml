@@ -93,6 +93,9 @@
             <includes>
                 <include>com.github.ares:connector-*:jar</include>
             </includes>
+            <excludes>
+                <exclude>com.github.ares:connector-*-base:jar</exclude>
+            </excludes>
             <outputDirectory>/connectors</outputDirectory>
         </dependencySet>
 

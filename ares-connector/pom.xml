@@ -14,11 +14,11 @@
     <modules>
         <module>ares-connector-base</module>
         <module>ares-connector-spark</module>
-        <module>connector-jdbc</module>
         <module>connector-file</module>
         <module>connector-hive</module>
         <module>connector-fake</module>
         <module>connector-console</module>
+        <module>connector-jdbc</module>
     </modules>
 
     <properties>

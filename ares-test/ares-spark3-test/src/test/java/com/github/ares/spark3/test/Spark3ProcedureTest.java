@@ -14,7 +14,6 @@ public class Spark3ProcedureTest {
                 "--sql", "../scripts/spark/procedure-test.sql",
                 "--conf", "spark.jars="
                 + "../../ares-starter/ares-spark3-starter/target/ares-spark3-starter.jar;"
-                + "../../ares-dist/target/ares-dist-test/ares-dist/connectors/connector-jdbc.jar;"
                 + "../../ares-dist/target/ares-dist-test/ares-dist/lib/mysql-connector-j-8.3.0.jar",
         };
         AresSparkStarter.main(args);
