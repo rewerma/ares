@@ -12,7 +12,7 @@ import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 import static com.github.ares.parser.utils.PLParserUtil.getOriginalType;
 
 public class AssignmentExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public void execute(LogicalAssignment assignment, PlParams plParams) {
         if (!plParams.containsKey(assignment.getParam().getName())) {

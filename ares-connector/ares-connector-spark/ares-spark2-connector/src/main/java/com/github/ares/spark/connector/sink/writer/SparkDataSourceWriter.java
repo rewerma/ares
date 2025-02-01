@@ -18,9 +18,7 @@
 package com.github.ares.spark.connector.sink.writer;
 
 import com.github.ares.api.sink.AresSink;
-import com.github.ares.api.sink.MultiTableResourceManager;
 import com.github.ares.api.sink.SinkAggregatedCommitter;
-import com.github.ares.api.sink.SupportResourceShare;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import org.apache.spark.sql.catalyst.InternalRow;
@@ -47,7 +45,6 @@ public class SparkDataSourceWriter<StateT, CommitInfoT, AggregatedCommitInfoT>
 
     protected final CatalogTable catalogTable;
 
-    private MultiTableResourceManager resourceManager;
 
     public SparkDataSourceWriter(
             AresSink<AresRow, StateT, CommitInfoT, AggregatedCommitInfoT> sink,
@@ -57,17 +54,7 @@ public class SparkDataSourceWriter<StateT, CommitInfoT, AggregatedCommitInfoT>
         this.catalogTable = catalogTable;
         this.sinkAggregatedCommitter = sink.createAggregatedCommitter().orElse(null);
         if (sinkAggregatedCommitter != null) {
-            // TODO close it
-            if (this.sinkAggregatedCommitter instanceof SupportResourceShare) {
-                resourceManager =
-                        ((SupportResourceShare) this.sinkAggregatedCommitter)
-                                .initMultiTableResourceManager(1, 1);
-            }
             sinkAggregatedCommitter.init();
-            if (resourceManager != null) {
-                ((SupportResourceShare) this.sinkAggregatedCommitter)
-                        .setMultiTableResourceManager(resourceManager, 0);
-            }
         }
     }
 

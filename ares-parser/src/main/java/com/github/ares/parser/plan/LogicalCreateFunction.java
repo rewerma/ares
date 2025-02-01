@@ -17,7 +17,7 @@ import static com.github.ares.parser.utils.PLParserUtil.getOriginalType;
 @Getter
 @Setter
 public class LogicalCreateFunction extends CreateMethod implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private String functionName;
     private LogicalDeclareParams declareParams;

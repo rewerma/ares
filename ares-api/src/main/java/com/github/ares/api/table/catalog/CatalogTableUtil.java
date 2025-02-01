@@ -58,91 +58,9 @@ public class CatalogTableUtil implements Serializable {
                 "It is converted from RowType and only has column information.");
     }
 
-    /**
-     * Get catalog table from config, if schema is specified, return a catalog table with specified
-     * schema, otherwise, return a catalog table with schema from catalog.
-     *
-     * @deprecated DO NOT invoke it in any new TableSourceFactory/TableSinkFactory, please directly
-     *     use TableSourceFactory/TableSinkFactory instance to get CatalogTable. We just use it to
-     *     transition the old CatalogTable creation logic. Details please <a
-     *     href="https://cwiki.apache.org/confluence/display/ARES/STIP5-Refactor+Catalog+and+CatalogTable">check
-     *     </a>
-     */
-    @Deprecated
-    public static List<CatalogTable> getCatalogTables(
-            ReadonlyConfig readonlyConfig, ClassLoader classLoader) {
-
-        // We use plugin_name as factoryId, so MySQL-CDC should be MySQL
-        String factoryId = readonlyConfig.get(CommonOptions.PLUGIN_NAME).replace("-CDC", "");
-        return getCatalogTables(factoryId, readonlyConfig, classLoader);
-    }
-
-    @Deprecated
-    public static List<CatalogTable> getCatalogTables(
-            String factoryId, ReadonlyConfig readonlyConfig, ClassLoader classLoader) {
-        // Highest priority: specified schema
-        Map<String, Object> schemaMap = readonlyConfig.get(TableSchemaOptions.SCHEMA);
-        if (schemaMap != null) {
-            if (schemaMap.isEmpty()) {
-                throw new AresException("Schema config can not be empty");
-            }
-            CatalogTable catalogTable = CatalogTableUtil.buildWithConfig(factoryId, readonlyConfig);
-            return Collections.singletonList(catalogTable);
-        }
-
-        Optional<Catalog> optionalCatalog =
-                FactoryUtil.createOptionalCatalog(
-                        factoryId, readonlyConfig, classLoader, factoryId);
-        return optionalCatalog
-                .map(
-                        c -> {
-                            try (Catalog catalog = c) {
-                                long startTime = System.currentTimeMillis();
-                                catalog.open();
-                                List<CatalogTable> catalogTables =
-                                        catalog.getTables(readonlyConfig);
-                                log.info(
-                                        String.format(
-                                                "Get catalog tables, cost time: %d ms",
-                                                System.currentTimeMillis() - startTime));
-                                if (catalogTables.isEmpty()) {
-                                    throw new AresException(
-                                            String.format(
-                                                    "Can not find catalog table with factoryId [%s]",
-                                                    factoryId));
-                                }
-                                return catalogTables;
-                            }
-                        })
-                .orElseThrow(
-                        () ->
-                                new AresException(
-                                        String.format(
-                                                "Can not find catalog with factoryId [%s]",
-                                                factoryId)));
-    }
-
     public static CatalogTable buildWithConfig(Config config) {
         ReadonlyConfig readonlyConfig = ReadonlyConfig.fromConfig(config);
         return buildWithConfig(readonlyConfig);
-    }
-
-    public static AresDataType<AresRow> convertToDataType(
-            List<CatalogTable> catalogTables) {
-        if (catalogTables.size() == 1) {
-            return catalogTables.get(0).getTableSchema().toPhysicalRowDataType();
-        } else {
-            return convertToMultipleRowType(catalogTables);
-        }
-    }
-
-    public static MultipleRowType convertToMultipleRowType(List<CatalogTable> catalogTables) {
-        Map<String, AresRowType> rowTypeMap = new HashMap<>();
-        for (CatalogTable catalogTable : catalogTables) {
-            String tableId = catalogTable.getTableId().toTablePath().toString();
-            rowTypeMap.put(tableId, catalogTable.getTableSchema().toPhysicalRowDataType());
-        }
-        return new MultipleRowType(rowTypeMap);
     }
 
     // We need to use buildWithConfig(String catalogName, ReadonlyConfig readonlyConfig);

@@ -3,7 +3,7 @@ package com.github.ares.api.table.catalog;
 import java.io.Serializable;
 
 public final class TableIdentifier implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private final String catalogName;
 

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class DeleteSelectSqlExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public void execute(LogicalDeleteSelectSQL deleteSelectSQL, PlParams plParams) {
         Map<String, Optional<? extends Factory>> sinkPlugins = executorManager.getSinkPlugins();

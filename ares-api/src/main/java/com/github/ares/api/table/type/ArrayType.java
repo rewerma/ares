@@ -3,7 +3,7 @@ package com.github.ares.api.table.type;
 import java.util.Objects;
 
 public class ArrayType <T, E> implements AresDataType<T> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final ArrayType<String[], String> STRING_ARRAY_TYPE =
             new ArrayType<>(String[].class, BasicType.STRING_TYPE);

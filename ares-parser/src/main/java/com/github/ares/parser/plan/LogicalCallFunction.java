@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 @Getter
 @Setter
 public class LogicalCallFunction extends LogicalOperation implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private String funcName;
 

@@ -13,7 +13,7 @@ import java.util.Map;
 import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 
 public class CallProcedureExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public List<Serializable> evaluate(LogicalCallFunction callFunction, Map<String, CreateProcedureFunc> functions, PlParams plParams) {
         CreateProcedureFunc createProcedureFunc = functions.get(callFunction.getFuncName().toLowerCase());

@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class DirectExecutionExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public Object execute(List<LogicalOperation> operations) {
         PlParams plParams = new PlParams();

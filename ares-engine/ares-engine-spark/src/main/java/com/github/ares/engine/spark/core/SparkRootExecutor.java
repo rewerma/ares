@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SparkRootExecutor extends AbstractRootExecutor {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Override
     public void execute(LogicalProject baseBody) {
@@ -22,6 +22,9 @@ public class SparkRootExecutor extends AbstractRootExecutor {
     @Override
     protected List<Map<String, Object>> lastDataHandler(Object lastRes) {
         List<Map<String, Object>> lines = new ArrayList<>();
+        if (!(lastRes instanceof Dataset)) {
+            return lines;
+        }
         Dataset<Row> lastDf = (Dataset<Row>) lastRes;
         String[] columns = lastDf.columns();
         Row[] rows = (Row[]) lastDf.collect();

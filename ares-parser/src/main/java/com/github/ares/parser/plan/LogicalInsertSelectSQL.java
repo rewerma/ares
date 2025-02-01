@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @Getter
 @Setter
 public class LogicalInsertSelectSQL extends BaseSqlOption implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private LogicalCreateSinkTable sinkTable;
     private ArrayList<String> targetColumns;

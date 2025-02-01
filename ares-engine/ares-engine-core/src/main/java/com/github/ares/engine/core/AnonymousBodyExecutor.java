@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static com.github.ares.engine.utils.EngineUtil.handleQuoteIdentifier;
 
 public class AnonymousBodyExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Inject
     private ExceptionMessageHandler exceptionMessageHandler;

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 
 public class ReturnFunctionExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final String RETURN_PARAM_NAME = "$function_return";
 

@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.ares</groupId>
         <artifactId>ares</artifactId>
-        <version>1.0</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ares-connector</artifactId>
@@ -14,11 +14,11 @@
     <modules>
         <module>ares-connector-base</module>
         <module>ares-connector-spark</module>
-        <module>connector-jdbc</module>
         <module>connector-file</module>
         <module>connector-hive</module>
         <module>connector-fake</module>
         <module>connector-console</module>
+        <module>connector-jdbc</module>
     </modules>
 
     <properties>

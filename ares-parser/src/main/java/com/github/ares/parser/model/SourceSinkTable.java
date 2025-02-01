@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Getter
 public class SourceSinkTable implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private final Map<String, LogicalCreateSourceTable> sourceTables = new LinkedHashMap<>();
     private final Map<String, LogicalCreateSinkTable> sinkTables = new LinkedHashMap<>();

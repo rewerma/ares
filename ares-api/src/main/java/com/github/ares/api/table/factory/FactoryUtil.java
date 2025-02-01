@@ -16,34 +16,6 @@ import java.util.stream.Collectors;
 public class FactoryUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FactoryUtil.class);
 
-    public static Optional<Catalog> createOptionalCatalog(
-            String catalogName,
-            ReadonlyConfig options,
-            ClassLoader classLoader,
-            String factoryIdentifier) {
-        Optional<CatalogFactory> optionalFactory =
-                discoverOptionalFactory(classLoader, CatalogFactory.class, factoryIdentifier);
-        return optionalFactory.map(
-                catalogFactory -> catalogFactory.createCatalog(catalogName, options));
-    }
-
-    public static <T extends Factory> Optional<T> discoverOptionalFactory(
-            ClassLoader classLoader, Class<T> factoryClass, String factoryIdentifier) {
-        final List<T> foundFactories = discoverFactories(classLoader, factoryClass);
-        if (foundFactories.isEmpty()) {
-            return Optional.empty();
-        }
-        final List<T> matchingFactories =
-                foundFactories.stream()
-                        .filter(f -> f.factoryIdentifier().equalsIgnoreCase(factoryIdentifier))
-                        .collect(Collectors.toList());
-        if (matchingFactories.isEmpty()) {
-            return Optional.empty();
-        }
-        checkMultipleMatchingFactories(factoryIdentifier, factoryClass, matchingFactories);
-        return Optional.of(matchingFactories.get(0));
-    }
-
     public static <T extends Factory> List<T> discoverFactories(
             ClassLoader classLoader, Class<T> factoryClass) {
         return discoverFactories(classLoader).stream()

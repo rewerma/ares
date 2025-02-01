@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SimpleSqlType implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final String DECIMAL = "DECIMAL";
     public static final String VARCHAR = "VARCHAR";

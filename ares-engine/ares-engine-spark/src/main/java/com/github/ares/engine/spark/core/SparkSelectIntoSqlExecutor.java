@@ -22,7 +22,7 @@ import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 
 
 public class SparkSelectIntoSqlExecutor extends SelectIntoSqlExecutor {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 

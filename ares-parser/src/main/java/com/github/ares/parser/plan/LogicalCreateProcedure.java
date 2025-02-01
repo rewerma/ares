@@ -18,7 +18,7 @@ import static com.github.ares.parser.utils.PLParserUtil.getOriginalType;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class LogicalCreateProcedure extends CreateMethod implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private String procedureName;
 

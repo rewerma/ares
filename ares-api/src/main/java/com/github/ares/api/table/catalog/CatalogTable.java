@@ -11,7 +11,7 @@ import java.util.Map;
 /** Represent the table metadata in Ares. */
 public final class CatalogTable implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     /** Used to identify the table. */
     private final TableIdentifier tableId;

@@ -12,7 +12,7 @@ import static com.github.ares.engine.utils.EngineUtil.replaceParams;
 
 
 public class SparkCreateTableAsSqlExecutor extends CreateTableAsSqlExecutor {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
     private SparkExecutorManager sparkExecutorManager;
 
     public void init(ExecutorManager executorManager) {

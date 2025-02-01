@@ -5,7 +5,7 @@ import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.sql.function.DynamicFunction;
 
 public class SparkCreateFunctionExecutor extends CreateFunctionExecutor {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 

@@ -66,6 +66,6 @@ public final class Handover<T> implements Closeable {
     }
 
     public static final class ClosedException extends Exception {
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -1L;
     }
 }

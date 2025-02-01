@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public final class DecimalType extends BasicType<BigDecimal> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private final int precision;
 

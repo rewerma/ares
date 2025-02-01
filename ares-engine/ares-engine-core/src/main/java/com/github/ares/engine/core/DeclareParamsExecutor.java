@@ -8,7 +8,7 @@ import java.io.Serializable;
 import static com.github.ares.parser.utils.PLParserUtil.getOriginalType;
 
 public class DeclareParamsExecutor extends AbstractBaseExecutor implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public void execute(LogicalDeclareParams declareParams, PlParams plParams) {
         for (Argument argument : declareParams.getDeclareParams()) {

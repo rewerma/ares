@@ -43,7 +43,7 @@ import static com.github.ares.sql.function.utils.Utils.toNumber;
 
 
 public class SimpleSqlFunction implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     public static final String CURRENT_DATE = "CURRENT_DATE";
     public static final String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AresRow implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
     /** Table identifier. */
     private String tableId = "";
     /** The kind of change that a row describes in a changelog. */

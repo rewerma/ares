@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 @Getter
 public class SparkExecutorManager extends ExecutorManager implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     @Inject
     private SparkSessionManager sparkSessionManager;
