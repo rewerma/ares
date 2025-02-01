@@ -56,8 +56,8 @@ public interface CommonOptions {
                             "When parallelism is not specified, the parallelism in env is used by default. "
                                     + "When parallelism is specified, it will override the parallelism in env.");
 
-    Option<String> SINK_TYPE =
-            Options.key("sink_type").stringType().noDefaultValue().withDescription("INSERT, UPDATE, DELETE, MERGE ...");
+    Option<SinkType> SINK_TYPE =
+            Options.key("sink_type").enumType(SinkType.class).noDefaultValue().withDescription("INSERT, UPDATE, DELETE, MERGE ...");
 
     Option<List<String>> INSERT_COLUMNS =
             Options.key("insert_columns").listType().noDefaultValue().withDescription("insert columns");

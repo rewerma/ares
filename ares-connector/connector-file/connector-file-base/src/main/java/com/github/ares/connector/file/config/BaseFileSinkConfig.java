@@ -33,9 +33,8 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
     protected Boolean enableHeaderWriter = false;
 
     public BaseFileSinkConfig(@NonNull Config config) {
-        String sinkType = config.getString(CommonOptions.SINK_TYPE.key());
-        if (!SinkType.INSERT.name().equalsIgnoreCase(sinkType) &&
-                !SinkType.TRUNCATE.name().equalsIgnoreCase(sinkType)) {
+        SinkType sinkType = config.getEnum(SinkType.class, CommonOptions.SINK_TYPE.key());
+        if (SinkType.INSERT != sinkType && SinkType.TRUNCATE != sinkType) {
             throw new AresException(String.format("Unsupported sink type: %s for file sink", sinkType));
         }
         if (config.hasPath(BaseSinkConfig.COMPRESS_CODEC.key())) {
@@ -66,7 +65,7 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
 
         if (config.hasPath(BaseSinkConfig.FILE_NAME_EXPRESSION.key())
                 && !StringUtils.isBlank(
-                        config.getString(BaseSinkConfig.FILE_NAME_EXPRESSION.key()))) {
+                config.getString(BaseSinkConfig.FILE_NAME_EXPRESSION.key()))) {
             this.fileNameExpression = config.getString(BaseSinkConfig.FILE_NAME_EXPRESSION.key());
         }
 
@@ -99,5 +98,6 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
         }
     }
 
-    public BaseFileSinkConfig() {}
+    public BaseFileSinkConfig() {
+    }
 }

@@ -53,7 +53,7 @@ public class SparkDeleteSelectSqlExecutor extends DeleteSelectSqlExecutor implem
                         LogicalDeleteSelectSQL dsSql, PlParams plParams) {
         traceLogger.info("SQL: {}; Params: {}", dsSql.getOriginSQL(), plParams);
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
-        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.DELETE.name());
+        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.DELETE);
 
         sinkConfig.put(CommonOptions.WHERE_CLAUSE.key(), dsSql.getWhereClause());
 

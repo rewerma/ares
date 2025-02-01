@@ -51,15 +51,9 @@ public class JdbcOutputFormatBuilder {
         this.aresRowType = aresRowType;
     }
 
-    public JdbcOutputFormat build() {
-        JdbcOutputFormat.StatementExecutorFactory statementExecutorFactory;
+    public JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> build() {
+        JdbcOutputFormat.StatementExecutorFactory<JdbcBatchStatementExecutor<AresRow>> statementExecutorFactory;
 
-//        final String database = jdbcSinkConfig.getDatabase();
-//        final String table = dialect.extractTableName(
-//                TablePath.of(
-//                        jdbcSinkConfig.getDatabase() + "." + jdbcSinkConfig.getTable()));
-
-//        final List<String> primaryKeys = jdbcSinkConfig.getPrimaryKeys();
         if (StringUtils.isNotBlank(jdbcSinkConfig.getSimpleSql())) {
             statementExecutorFactory =
                     () ->
@@ -67,40 +61,11 @@ public class JdbcOutputFormatBuilder {
                                     jdbcSinkConfig.getSimpleSql(),
                                     aresRowType,
                                     dialect.getRowConverter());
-        } else if (StringUtils.isNotBlank(jdbcSinkConfig.getUpdateSql())) {
-            statementExecutorFactory =
-                    () ->
-                            createSimpleBufferedExecutor(
-                                    jdbcSinkConfig.getUpdateSql(),
-                                    aresRowType,
-                                    dialect.getRowConverter());
-        } else if (StringUtils.isNotBlank(jdbcSinkConfig.getDeleteSql())) {
-            statementExecutorFactory =
-                    () ->
-                            createSimpleBufferedExecutor(
-                                    jdbcSinkConfig.getDeleteSql(),
-                                    aresRowType,
-                                    dialect.getRowConverter());
         } else {
             throw new AresException("unsupported operation");
-        } /*else if (primaryKeys == null || primaryKeys.isEmpty()) {
-            statementExecutorFactory =
-                    () -> createSimpleBufferedExecutor(dialect, database, table, aresRowType);
-        } else {
-            statementExecutorFactory =
-                    () ->
-                            createUpsertBufferedExecutor(
-                                    dialect,
-                                    database,
-                                    table,
-                                    aresRowType,
-                                    primaryKeys.toArray(new String[0]),
-                                    jdbcSinkConfig.isEnableUpsert(),
-                                    jdbcSinkConfig.isPrimaryKeyUpdated(),
-                                    jdbcSinkConfig.isSupportUpsertByInsertOnly());
-        }*/
+        }
 
-        return new JdbcOutputFormat(
+        return new JdbcOutputFormat<>(
                 connectionProvider,
                 jdbcSinkConfig.getJdbcConnectionConfig(),
                 statementExecutorFactory);
@@ -118,174 +83,6 @@ public class JdbcOutputFormatBuilder {
                 createSimpleExecutor(sql, rowType, rowConverter);
         return new BufferedBatchStatementExecutor(simpleRowExecutor, Function.identity());
     }
-
-//    private static JdbcBatchStatementExecutor<AresRow> createUpsertBufferedExecutor(
-//            JdbcDialect dialect,
-//            String database,
-//            String table,
-//            AresRowType rowType,
-//            String[] pkNames,
-//            boolean enableUpsert,
-//            boolean isPrimaryKeyUpdated,
-//            boolean supportUpsertByInsertOnly) {
-//        int[] pkFields = Arrays.stream(pkNames).mapToInt(rowType::indexOf).toArray();
-//        AresDataType[] pkTypes =
-//                Arrays.stream(pkFields)
-//                        .mapToObj((IntFunction<AresDataType>) rowType::getFieldType)
-//                        .toArray(AresDataType[]::new);
-//
-//        Function<AresRow, AresRow> keyExtractor = createKeyExtractor(pkFields);
-//        JdbcBatchStatementExecutor<AresRow> deleteExecutor =
-//                createDeleteExecutor(dialect, database, table, pkNames, pkTypes);
-//        JdbcBatchStatementExecutor<AresRow> upsertExecutor =
-//                createUpsertExecutor(
-//                        dialect,
-//                        database,
-//                        table,
-//                        rowType,
-//                        pkNames,
-//                        pkTypes,
-//                        keyExtractor,
-//                        enableUpsert,
-//                        isPrimaryKeyUpdated,
-//                        supportUpsertByInsertOnly);
-//        return new BufferReducedBatchStatementExecutor(
-//                upsertExecutor, deleteExecutor, keyExtractor, Function.identity());
-//    }
-
-//    private static JdbcBatchStatementExecutor<AresRow> createUpsertExecutor(
-//            JdbcDialect dialect,
-//            String database,
-//            String table,
-//            AresRowType rowType,
-//            String[] pkNames,
-//            AresDataType[] pkTypes,
-//            Function<AresRow, AresRow> keyExtractor,
-//            boolean enableUpsert,
-//            boolean isPrimaryKeyUpdated,
-//            boolean supportUpsertByInsertOnly) {
-//        if (supportUpsertByInsertOnly) {
-//            return createInsertOnlyExecutor(dialect, database, table, rowType);
-//        }
-//        if (enableUpsert) {
-//            Optional<String> upsertSQL =
-//                    dialect.getUpsertStatement(database, table, rowType.getFieldNames(), pkNames);
-//            if (upsertSQL.isPresent()) {
-//                return createSimpleExecutor(upsertSQL.get(), rowType, dialect.getRowConverter());
-//            }
-//            return createInsertOrUpdateByQueryExecutor(
-//                    dialect,
-//                    database,
-//                    table,
-//                    rowType,
-//                    pkNames,
-//                    pkTypes,
-//                    keyExtractor,
-//                    isPrimaryKeyUpdated);
-//        }
-//        return createInsertOrUpdateExecutor(
-//                dialect, database, table, rowType, pkNames, isPrimaryKeyUpdated);
-//    }
-
-//    private static JdbcBatchStatementExecutor<AresRow> createInsertOnlyExecutor(
-//            JdbcDialect dialect, String database, String table, AresRowType rowType) {
-//
-//        return new SimpleBatchStatementExecutor(
-//                connection ->
-//                        FieldNamedPreparedStatement.prepareStatement(
-//                                connection,
-//                                dialect.getInsertIntoStatement(
-//                                        database, table, rowType.getFieldNames()),
-//                                rowType.getFieldNames()),
-//                rowType,
-//                dialect.getRowConverter());
-//    }
-//
-//    private static JdbcBatchStatementExecutor<AresRow> createInsertOrUpdateExecutor(
-//            JdbcDialect dialect,
-//            String database,
-//            String table,
-//            AresRowType rowType,
-//            String[] pkNames,
-//            boolean isPrimaryKeyUpdated) {
-//
-//        return new InsertOrUpdateBatchStatementExecutor(
-//                connection ->
-//                        FieldNamedPreparedStatement.prepareStatement(
-//                                connection,
-//                                dialect.getInsertIntoStatement(
-//                                        database, table, rowType.getFieldNames()),
-//                                rowType.getFieldNames()),
-//                connection ->
-//                        FieldNamedPreparedStatement.prepareStatement(
-//                                connection,
-//                                dialect.getUpdateStatement(
-//                                        database,
-//                                        table,
-//                                        rowType.getFieldNames(),
-//                                        pkNames,
-//                                        isPrimaryKeyUpdated),
-//                                rowType.getFieldNames()),
-//                rowType,
-//                dialect.getRowConverter());
-//    }
-//
-//    private static JdbcBatchStatementExecutor<AresRow> createInsertOrUpdateByQueryExecutor(
-//            JdbcDialect dialect,
-//            String database,
-//            String table,
-//            AresRowType rowType,
-//            String[] pkNames,
-//            AresDataType[] pkTypes,
-//            Function<AresRow, AresRow> keyExtractor,
-//            boolean isPrimaryKeyUpdated) {
-//        AresRowType keyRowType = new AresRowType(pkNames, pkTypes);
-//        return new InsertOrUpdateBatchStatementExecutor(
-//                connection ->
-//                        FieldNamedPreparedStatement.prepareStatement(
-//                                connection,
-//                                dialect.getRowExistsStatement(database, table, pkNames),
-//                                pkNames),
-//                connection ->
-//                        FieldNamedPreparedStatement.prepareStatement(
-//                                connection,
-//                                dialect.getInsertIntoStatement(
-//                                        database, table, rowType.getFieldNames()),
-//                                rowType.getFieldNames()),
-//                connection ->
-//                        FieldNamedPreparedStatement.prepareStatement(
-//                                connection,
-//                                dialect.getUpdateStatement(
-//                                        database,
-//                                        table,
-//                                        rowType.getFieldNames(),
-//                                        pkNames,
-//                                        isPrimaryKeyUpdated),
-//                                rowType.getFieldNames()),
-//                keyRowType,
-//                keyExtractor,
-//                rowType,
-//                dialect.getRowConverter());
-//    }
-//
-//    private static JdbcBatchStatementExecutor<AresRow> createDeleteExecutor(
-//            JdbcDialect dialect,
-//            String database,
-//            String table,
-//            String[] pkNames,
-//            AresDataType[] pkTypes) {
-//        String deleteSQL = dialect.getDeleteStatement(database, table, pkNames);
-//        return createSimpleExecutor(deleteSQL, pkNames, pkTypes, dialect.getRowConverter());
-//    }
-
-//    private static JdbcBatchStatementExecutor<AresRow> createSimpleExecutor(
-//            String sql,
-//            String[] fieldNames,
-//            AresDataType[] fieldTypes,
-//            JdbcRowConverter rowConverter) {
-//        AresRowType rowType = new AresRowType(fieldNames, fieldTypes);
-//        return createSimpleExecutor(sql, rowType, rowConverter);
-//    }
 
     private static JdbcBatchStatementExecutor<AresRow> createSimpleExecutor(
             String sql, AresRowType rowType, JdbcRowConverter rowConverter) {

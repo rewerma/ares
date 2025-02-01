@@ -37,7 +37,7 @@ public class TruncateSqlExecutor extends AbstractBaseExecutor implements Seriali
         }
         LogicalCreateSinkTable sinkTable = truncateSQL.getSinkTable();
         Map<String, Object> sinkConfig = sinkTable.getOptions();
-        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.TRUNCATE.name());
+        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.TRUNCATE);
 
         Optional<? extends Factory> sinkFactory = sinkPlugins.get(truncateSQL.getSinkTable().getTableName());
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

@@ -58,7 +58,7 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
             traceLogger.info("SQL: {}; Params: {}", isSql.getOriginSQL(), plParams);
         }
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
-        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.INSERT.name());
+        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.INSERT);
         sinkConfig.put(CommonOptions.INSERT_COLUMNS.key(), isSql.getTargetColumns());
 
         String selectSql = replaceParams(isSql.getSelectSQL(), plParams);
