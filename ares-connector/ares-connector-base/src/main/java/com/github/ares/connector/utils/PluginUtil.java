@@ -75,7 +75,7 @@ public class PluginUtil {
             throw new AresException(
                     String.format("Unsupported table number: %d on flink", catalogTables.size()));
         }
-        
+
         return new SourceTableInfo(source, catalogTables);
     }
 
@@ -87,7 +87,7 @@ public class PluginUtil {
         source.prepare(pluginConfig);
         return source;
     }
-    
+
     private static boolean isFallback(Optional<Factory> factory) {
         if (!factory.isPresent()) {
             return true;

@@ -17,39 +17,34 @@
 
 package com.github.ares.api.sink;
 
+import com.github.ares.common.utils.IsolatedClassLoader;
+import com.github.ares.common.utils.SerializationUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
+import java.util.Base64;
 import java.util.List;
 
 /**
  * The committer combine taskManager/Worker Commit message. Then commit it uses {@link
- * SinkAggregatedCommitter#commit(List)}. This class will execute in single thread.
+ * SinkAggregatedCommitter#commit(String)}. This class will execute in single thread.
  *
  * <p>See Also {@link SinkCommitter}
  *
- * @param <CommitInfoT> The type of commit message.
+ * @param <CommitInfoT>           The type of commit message.
  * @param <AggregatedCommitInfoT> The type of commit message after combine.
  */
 public interface SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> extends Serializable {
 
-    /** init sink aggregated committer */
-    default void init() {};
-
-    /** Re-commit message to third party data receiver, The method need to achieve idempotency. */
-    default List<AggregatedCommitInfoT> restoreCommit(
-            List<AggregatedCommitInfoT> aggregatedCommitInfo) throws IOException {
-        return commit(aggregatedCommitInfo);
+    /**
+     * init sink aggregated committer
+     */
+    default void init() {
     }
 
-    /**
-     * Commit message to third party data receiver, The method need to achieve idempotency.
-     *
-     * @param aggregatedCommitInfo The list of combine commit message.
-     * @return The commit message which need retry.
-     * @throws IOException throw IOException when commit failed.
-     */
-    List<AggregatedCommitInfoT> commit(List<AggregatedCommitInfoT> aggregatedCommitInfo)
-            throws IOException;
+
+    void commit(String commitInfosSerialized) throws IOException;
 
     /**
      * The logic about how to combine commit message.
@@ -59,14 +54,8 @@ public interface SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> ext
      */
     AggregatedCommitInfoT combine(List<CommitInfoT> commitInfos);
 
-    /**
-     * If {@link #commit(List)} failed, this method will be called (**Only** on Spark engine at
-     * now).
-     *
-     * @param aggregatedCommitInfo The list of combine commit message.
-     * @throws Exception throw Exception when abort failed.
-     */
-    void abort(List<AggregatedCommitInfoT> aggregatedCommitInfo) throws Exception;
+
+    void abort(String commitInfosSerialized) throws Exception;
 
     /**
      * Close this resource.

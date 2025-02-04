@@ -64,23 +64,33 @@
         </dependency>
 
         <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikari.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-mysql</artifactId>
+            <artifactId>connector-jdbc-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-oracle</artifactId>
+            <artifactId>connector-mysql</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-postgres</artifactId>
+            <artifactId>connector-oracle</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-sqlserver</artifactId>
+            <artifactId>connector-postgres</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-sqlserver</artifactId>
             <version>${project.version}</version>
         </dependency>
 

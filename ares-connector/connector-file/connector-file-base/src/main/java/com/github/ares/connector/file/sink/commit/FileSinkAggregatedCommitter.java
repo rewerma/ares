@@ -1,12 +1,17 @@
 package com.github.ares.connector.file.sink.commit;
 
 import com.github.ares.api.sink.SinkAggregatedCommitter;
+import com.github.ares.common.utils.IsolatedClassLoader;
+import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.hadoop.HadoopFileSystemProxy;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +26,12 @@ public class FileSinkAggregatedCommitter
     }
 
     @Override
+    public void commit(String commitInfosSerialized) throws IOException {
+        List<FileCommitInfo> commitInfos = JsonUtils.toList(commitInfosSerialized, FileCommitInfo.class);
+        List<FileAggregatedCommitInfo> aggregatedCommitInfoList = Collections.singletonList(combine(commitInfos));
+        commit(aggregatedCommitInfoList);
+    }
+
     public List<FileAggregatedCommitInfo> commit(
             List<FileAggregatedCommitInfo> aggregatedCommitInfos) throws IOException {
         List<FileAggregatedCommitInfo> errorAggregatedCommitInfoList = new ArrayList<>();
@@ -77,6 +88,13 @@ public class FileSinkAggregatedCommitter
         return new FileAggregatedCommitInfo(aggregateCommitInfo, partitionDirAndValuesMap);
     }
 
+    @Override
+    public void abort(String commitInfosSerialized) throws Exception {
+        List<FileCommitInfo> commitInfos = JsonUtils.toList(commitInfosSerialized, FileCommitInfo.class);
+        List<FileAggregatedCommitInfo> aggregatedCommitInfoList = Collections.singletonList(combine(commitInfos));
+        abort(aggregatedCommitInfoList);
+    }
+
     /**
      * If {@link #commit(List)} failed, this method will be called (**Only** on Spark engine at
      * now).
@@ -84,7 +102,6 @@ public class FileSinkAggregatedCommitter
      * @param aggregatedCommitInfos The list of combine commit message.
      * @throws Exception throw Exception when abort failed.
      */
-    @Override
     public void abort(List<FileAggregatedCommitInfo> aggregatedCommitInfos) throws Exception {
         log.info("rollback aggregate commit");
         if (aggregatedCommitInfos == null || aggregatedCommitInfos.size() == 0) {

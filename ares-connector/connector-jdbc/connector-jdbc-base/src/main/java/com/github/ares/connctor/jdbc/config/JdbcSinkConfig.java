@@ -122,8 +122,8 @@ public class JdbcSinkConfig implements Serializable {
         jdbcSinkConfig.setPrimaryKeyUpdated(config.get(IS_PRIMARY_KEY_UPDATED));
         jdbcSinkConfig.setSupportUpsertByInsertOnly(config.get(SUPPORT_UPSERT_BY_INSERT_ONLY));
 
-        SinkType sinkType = config.get(CommonOptions.SINK_TYPE);
-        String statementSql = (String) JdbcSinkTypeHandler.handleSinkType(sinkType, config, sourceColumns);
+        String sinkType = config.get(CommonOptions.SINK_TYPE);
+        String statementSql = (String) JdbcSinkTypeHandler.handleSinkType(SinkType.valueOf(sinkType), config, sourceColumns);
         jdbcSinkConfig.setSimpleSql(statementSql);
 
         return jdbcSinkConfig;

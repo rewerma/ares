@@ -22,6 +22,7 @@ import com.github.ares.api.env.EnvCommonOptions;
 import com.github.ares.api.source.AresSource;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
+import com.github.ares.common.utils.IsolatedClassLoader;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.source.reader.batch.BatchSourceReader;
 import com.github.ares.spark.connector.source.reader.micro.MicroBatchSourceReader;
@@ -40,6 +41,8 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 
@@ -99,11 +102,19 @@ public class AresSourceSupport
     }
 
     private AresSource<AresRow, ?, ?> getAresSource(DataSourceOptions options) {
-        return SerializationUtils.stringToObject(
-                options.get(Constants.SOURCE_SERIALIZATION)
-                        .orElseThrow(
-                                () ->
-                                        new UnsupportedOperationException(
-                                                "Serialization information for the AresSource is required")));
+        String sourceSerialization = options.get(Constants.SOURCE_SERIALIZATION)
+                .orElseThrow(
+                        () ->
+                                new UnsupportedOperationException(
+                                        "Serialization information for the AresSource is required"));
+        AresSource<AresRow, ?, ?> source = SerializationUtils.stringToObject(sourceSerialization);
+        URL jarUrl = source.getClass().getProtectionDomain().getCodeSource().getLocation();
+        if (jarUrl.getFile().endsWith(".jar")) {
+            ClassLoader isolatedLoader =
+                    new IsolatedClassLoader(new URL[]{jarUrl}, getClass().getClassLoader());
+            byte[] sourceBytes = Base64.getDecoder().decode(sourceSerialization);
+            source = SerializationUtils.deserialize(sourceBytes, isolatedLoader);
+        }
+        return source;
     }
 }

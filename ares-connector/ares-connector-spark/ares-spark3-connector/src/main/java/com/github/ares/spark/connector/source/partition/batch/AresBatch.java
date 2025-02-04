@@ -6,11 +6,16 @@ import com.github.ares.api.table.type.AresRow;
 import org.apache.spark.sql.connector.read.Batch;
 import org.apache.spark.sql.connector.read.InputPartition;
 import org.apache.spark.sql.connector.read.PartitionReaderFactory;
+import org.apache.spark.util.LongAccumulator;
+import org.apache.spark.sql.SparkSession;
 
 import java.util.Map;
 
-/** A physical plan of Ares source */
+/**
+ * A physical plan of Ares source
+ */
 public class AresBatch implements Batch {
+    private final LongAccumulator readAccumulator;
 
     private final AresSource<AresRow, ?, ?> source;
 
@@ -24,6 +29,8 @@ public class AresBatch implements Batch {
         this.source = source;
         this.parallelism = parallelism;
         this.envOptions = envOptions;
+        SparkSession spark = SparkSession.active();
+        this.readAccumulator = spark.sparkContext().longAccumulator("totalReadRows");
     }
 
     @Override
@@ -43,6 +50,6 @@ public class AresBatch implements Batch {
 
     @Override
     public PartitionReaderFactory createReaderFactory() {
-        return new AresBatchPartitionReaderFactory(source, parallelism, envOptions);
+        return new AresBatchPartitionReaderFactory(source, parallelism, envOptions, readAccumulator);
     }
 }

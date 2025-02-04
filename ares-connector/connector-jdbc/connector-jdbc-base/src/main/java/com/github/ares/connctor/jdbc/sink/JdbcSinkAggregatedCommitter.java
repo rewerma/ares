@@ -19,6 +19,9 @@ package com.github.ares.connctor.jdbc.sink;
 
 import com.github.ares.api.sink.SinkAggregatedCommitter;
 import com.github.ares.common.exceptions.AresException;
+import com.github.ares.common.utils.IsolatedClassLoader;
+import com.github.ares.common.utils.JsonUtils;
+import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.connctor.jdbc.config.JdbcSinkConfig;
 import com.github.ares.connctor.jdbc.internal.xa.GroupXaOperationResult;
 import com.github.ares.connctor.jdbc.internal.xa.XaFacade;
@@ -30,7 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +67,6 @@ public class JdbcSinkAggregatedCommitter
         }
     }
 
-    @Override
     public List<JdbcAggregatedCommitInfo> commit(
             List<JdbcAggregatedCommitInfo> aggregatedCommitInfos) throws IOException {
         tryOpen();
@@ -83,16 +88,29 @@ public class JdbcSinkAggregatedCommitter
     }
 
     @Override
+    public void commit(String commitInfosSerialized) throws IOException {
+        List<XidInfo> commitInfos = JsonUtils.toList(commitInfosSerialized, XidInfo.class);
+        List<JdbcAggregatedCommitInfo> aggregatedCommitInfoList = Collections.singletonList(combine(commitInfos));
+        commit(aggregatedCommitInfoList);
+    }
+
+    @Override
     public JdbcAggregatedCommitInfo combine(List<XidInfo> commitInfos) {
         return new JdbcAggregatedCommitInfo(commitInfos);
     }
 
-    @Override
     public void abort(List<JdbcAggregatedCommitInfo> aggregatedCommitInfo) throws IOException {
         tryOpen();
         for (JdbcAggregatedCommitInfo commitInfos : aggregatedCommitInfo) {
             xaGroupOps.rollback(commitInfos.getXidInfoList());
         }
+    }
+
+    @Override
+    public void abort(String commitInfosSerialized) throws Exception {
+        List<XidInfo> commitInfos = JsonUtils.toList(commitInfosSerialized, XidInfo.class);
+        List<JdbcAggregatedCommitInfo> aggregatedCommitInfoList = Collections.singletonList(combine(commitInfos));
+        abort(aggregatedCommitInfoList);
     }
 
     @Override

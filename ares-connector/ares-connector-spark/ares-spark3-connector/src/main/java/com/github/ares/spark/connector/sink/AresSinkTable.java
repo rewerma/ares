@@ -4,6 +4,7 @@ import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
+import com.github.ares.common.utils.IsolatedClassLoader;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.write.AresWriteBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
@@ -16,6 +17,8 @@ import org.apache.spark.sql.connector.write.LogicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 
+import java.net.URL;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,7 +26,7 @@ public class AresSinkTable implements Table, SupportsWrite {
 
     private static final String SINK_TABLE_NAME = "AresSinkTable";
 
-    private final AresSink<AresRow, ?, ?, ?> aresSink;
+    private AresSink<AresRow, ?, ?, ?> aresSink;
 
     private final CatalogTable catalogTable;
 
@@ -33,6 +36,14 @@ public class AresSinkTable implements Table, SupportsWrite {
             throw new IllegalArgumentException(Constants.SINK_SERIALIZATION + " must be specified");
         }
         this.aresSink = SerializationUtils.stringToObject(sinkSerialization);
+        URL jarUrl = this.aresSink.getClass().getProtectionDomain().getCodeSource().getLocation();
+        if (jarUrl.getFile().endsWith(".jar")) {
+            ClassLoader isolatedLoader =
+                    new IsolatedClassLoader(new URL[]{jarUrl}, getClass().getClassLoader());
+            byte[] sinkBytes = Base64.getDecoder().decode(sinkSerialization);
+            this.aresSink = SerializationUtils.deserialize(sinkBytes, isolatedLoader);
+        }
+
         String sinkCatalogTableSerialization =
                 properties.getOrDefault(SparkSinkInjector.SINK_CATALOG_TABLE, "");
         if (StringUtils.isBlank(sinkCatalogTableSerialization)) {

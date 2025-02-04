@@ -17,30 +17,22 @@
 
 package com.github.ares.connctor.jdbc.sink;
 
-
-import com.github.ares.api.common.JobContext;
 import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.sink.SinkAggregatedCommitter;
 import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
-import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connctor.jdbc.config.JdbcSinkConfig;
 import com.github.ares.connctor.jdbc.internal.connection.JdbcConnectionProvider;
 import com.github.ares.connctor.jdbc.internal.dialect.JdbcDialect;
-import com.github.ares.connctor.jdbc.source.ChunkSplitter;
 import com.github.ares.connctor.jdbc.state.JdbcAggregatedCommitInfo;
 import com.github.ares.connctor.jdbc.state.JdbcSinkState;
 import com.github.ares.connctor.jdbc.state.XidInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.Optional;
-
 
 public class JdbcSink
         implements AresSink<AresRow, JdbcSinkState, XidInfo, JdbcAggregatedCommitInfo> {

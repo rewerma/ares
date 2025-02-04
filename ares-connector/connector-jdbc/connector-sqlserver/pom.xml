@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>connector-jdbc-mysql</artifactId>
+    <artifactId>connector-sqlserver</artifactId>
 
     <dependencies>
         <dependency>
@@ -56,9 +56,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>provided</scope>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
         </dependency>
 
         <dependency>
@@ -107,4 +106,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

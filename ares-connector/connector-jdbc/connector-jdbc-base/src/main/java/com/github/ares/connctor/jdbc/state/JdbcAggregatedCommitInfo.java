@@ -21,7 +21,10 @@ import java.io.Serializable;
 import java.util.List;
 
 public class JdbcAggregatedCommitInfo implements Serializable {
-    private final List<XidInfo> xidInfoList;
+    private List<XidInfo> xidInfoList;
+
+    public JdbcAggregatedCommitInfo() {
+    }
 
     public JdbcAggregatedCommitInfo(List<XidInfo> xidInfoList) {
         this.xidInfoList = xidInfoList;

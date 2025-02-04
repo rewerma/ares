@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>connector-jdbc-postgres</artifactId>
+    <artifactId>connector-postgres</artifactId>
 
     <dependencies>
         <dependency>
@@ -58,7 +58,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

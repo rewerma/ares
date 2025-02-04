@@ -14,10 +14,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>connector-jdbc-base</module>
-        <module>connector-jdbc-mysql</module>
-        <module>connector-jdbc-oracle</module>
-        <module>connector-jdbc-postgres</module>
-        <module>connector-jdbc-sqlserver</module>
+        <module>connector-mysql</module>
+        <module>connector-oracle</module>
+        <module>connector-postgres</module>
+        <module>connector-sqlserver</module>
     </modules>
 
 

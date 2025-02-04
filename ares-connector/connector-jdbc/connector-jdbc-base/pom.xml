@@ -11,10 +11,6 @@
 
     <artifactId>connector-jdbc-base</artifactId>
 
-    <properties>
-        <hikari.version>4.0.3</hikari.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.ares</groupId>
@@ -58,6 +54,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${hikari.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

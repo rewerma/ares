@@ -41,6 +41,7 @@
         <spark2.version>2.4.8</spark2.version>
         <auto.service.version>1.1.1</auto.service.version>
         <jcommander.version>1.81</jcommander.version>
+        <hikari.version>4.0.3</hikari.version>
         <mysql.version>8.3.0</mysql.version>
         <oracle.version>12.2.0.1</oracle.version>
         <postgresql.version>42.7.3</postgresql.version>
@@ -48,6 +49,7 @@
         <jsqlparser.version>4.5</jsqlparser.version>
         <junit.version>4.13.2</junit.version>
         <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
+        <hadoop3.version>3.3.4</hadoop3.version>
     </properties>
 
     <dependencyManagement>

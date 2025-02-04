@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>connector-jdbc-oracle</artifactId>
+    <artifactId>connector-oracle</artifactId>
 
     <dependencies>
         <dependency>
@@ -58,7 +58,6 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

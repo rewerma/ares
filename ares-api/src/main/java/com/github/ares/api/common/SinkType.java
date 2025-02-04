@@ -5,5 +5,5 @@ public enum SinkType {
     UPDATE,
     DELETE,
     MERGE,
-    TRUNCATE
+    TRUNCATE;
 }

@@ -33,7 +33,7 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
     protected Boolean enableHeaderWriter = false;
 
     public BaseFileSinkConfig(@NonNull Config config) {
-        SinkType sinkType = config.getEnum(SinkType.class, CommonOptions.SINK_TYPE.key());
+        SinkType sinkType = SinkType.valueOf(config.getString(CommonOptions.SINK_TYPE.key()));
         if (SinkType.INSERT != sinkType && SinkType.TRUNCATE != sinkType) {
             throw new AresException(String.format("Unsupported sink type: %s for file sink", sinkType));
         }
