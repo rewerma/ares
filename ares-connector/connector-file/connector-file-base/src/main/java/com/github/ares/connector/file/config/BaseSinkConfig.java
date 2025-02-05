@@ -8,6 +8,7 @@ import com.github.ares.common.utils.TimeUtils;
 import com.github.ares.format.text.constant.TextFormatConstant;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BaseSinkConfig {
@@ -267,4 +268,18 @@ public class BaseSinkConfig {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("false:dont write header,true:write header");
+
+    public static final Option<Boolean> PARQUET_AVRO_WRITE_TIMESTAMP_AS_INT96 =
+            Options.key("parquet_avro_write_timestamp_as_int96")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription(
+                            "Support writing Parquet INT96 from a timestamp, only valid for parquet files.");
+
+    public static final Option<List<String>> PARQUET_AVRO_WRITE_FIXED_AS_INT96 =
+            Options.key("parquet_avro_write_fixed_as_int96")
+                    .listType(String.class)
+                    .defaultValue(Collections.emptyList())
+                    .withDescription(
+                            "Support writing Parquet INT96 from a 12-byte Avro fixed, only valid for parquet files.");
 }

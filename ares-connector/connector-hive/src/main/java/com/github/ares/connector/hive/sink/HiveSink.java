@@ -52,7 +52,15 @@ import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME
 public class HiveSink extends BaseHdfsFileSink {
     private String dbName;
     private String tableName;
-    private Table tableInformation;
+    private transient Table tableInformation;
+
+    public Table getTableInformation() {
+        if (tableInformation == null) {
+            Pair<String[], Table> tableInfo = HiveConfig.getTableInfo(pluginConfig);
+            tableInformation = tableInfo.getRight();
+        }
+        return tableInformation;
+    }
 
     @Override
     public String getPluginName() {
@@ -61,6 +69,7 @@ public class HiveSink extends BaseHdfsFileSink {
 
     @Override
     public void prepare(Config pluginConfig) {
+        this.pluginConfig = pluginConfig;
         CheckResult result =
                 CheckConfigUtil.checkAllExists(pluginConfig, METASTORE_URI.key(), TABLE_NAME.key());
         if (!result.isSuccess()) {
@@ -102,7 +111,7 @@ public class HiveSink extends BaseHdfsFileSink {
         Pair<String[], Table> tableInfo = HiveConfig.getTableInfo(pluginConfig);
         dbName = tableInfo.getLeft()[0];
         tableName = tableInfo.getLeft()[1];
-        tableInformation = tableInfo.getRight();
+        tableInformation = getTableInformation();
         List<String> sinkFields =
                 tableInformation.getSd().getCols().stream()
                         .map(FieldSchema::getName)

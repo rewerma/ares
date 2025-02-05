@@ -8,6 +8,7 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.api.table.type.MapType;
+import com.github.ares.api.table.type.SqlType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.common.exceptions.CommonErrorCode;
@@ -22,10 +23,13 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.avro.AvroParquetWriter;
 import org.apache.parquet.avro.AvroSchemaConverter;
+import org.apache.parquet.avro.AvroWriteSupport;
 import org.apache.parquet.column.ParquetProperties;
+import org.apache.parquet.example.data.simple.NanoTime;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.util.HadoopOutputFile;
@@ -39,11 +43,19 @@ import org.apache.parquet.schema.Types;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.JulianFields;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -51,6 +63,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
     private final LinkedHashMap<String, ParquetWriter<GenericRecord>> beingWrittenWriter;
     private AvroSchemaConverter schemaConverter;
     private Schema schema;
+    private Set<String> writePathsAsInt96;
     private AresRowType targetColumnsType;
     public static final int[] PRECISION_TO_BYTE_COUNT = new int[38];
 
@@ -70,6 +83,21 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
     @Override
     public void init(HadoopConf conf, String jobId, String uuidPrefix, int subTaskIndex) {
         super.init(conf, jobId, uuidPrefix, subTaskIndex);
+        Configuration configuration = getConfiguration(hadoopConf);
+        writePathsAsInt96 = new HashSet<>(fileSinkConfig.getParquetAvroWriteFixedAsInt96());
+        if (fileSinkConfig.getParquetWriteTimestampAsInt96() && aresRowType != null) {
+            List<String> timestampFields = new ArrayList<>();
+            for (int i = 0; i < aresRowType.getTotalFields(); i++) {
+                if (SqlType.TIMESTAMP.equals(aresRowType.getFieldType(i).getSqlType())) {
+                    timestampFields.add(aresRowType.getFieldName(i));
+                }
+            }
+            writePathsAsInt96.addAll(timestampFields);
+        }
+        if (!writePathsAsInt96.isEmpty()) {
+            configuration.set(
+                    AvroWriteSupport.WRITE_FIXED_AS_INT96, String.join(",", writePathsAsInt96));
+        }
         schemaConverter = new AvroSchemaConverter(getConfiguration(hadoopConf));
     }
 
@@ -80,20 +108,27 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
         ParquetWriter<GenericRecord> writer = getOrCreateWriter(filePath);
         GenericRecordBuilder recordBuilder = new GenericRecordBuilder(schema);
 
-        Pair<String, Object>[] row = new Pair[fileSinkConfig.getSinkColumnList().size()];
-        for (int i = 0; i < fileSinkConfig.getSinkColumnsIndexInRow().size(); i++) {
-            int index = fileSinkConfig.getSinkColumnsIndexInRow().get(i);
-            String fieldName = fileSinkConfig.getSinkColumnList().get(index);
-            Object value = resolveObject(aresRow.getField(i), aresRowType.getFieldType(i));
-            row[index] = Pair.of(fieldName, value);
-        }
-        for (int i = 0; i < row.length; i++) {
-            Pair<String, Object> tuple2 = row[i];
-            if (tuple2 != null) {
-                recordBuilder.set(tuple2.getLeft(), tuple2.getRight());
-            } else {
-                recordBuilder.set(fileSinkConfig.getSinkColumnList().get(i), null);
-            }
+//        Pair<String, Object>[] row = new Pair[fileSinkConfig.getSinkColumnList().size()];
+//        for (int i = 0; i < fileSinkConfig.getSinkColumnsIndexInRow().size(); i++) {
+//            int index = fileSinkConfig.getSinkColumnsIndexInRow().get(i);
+//            String fieldName = fileSinkConfig.getSinkColumnList().get(index);
+//            Object value = resolveObject(fieldName, aresRow.getField(i), aresRowType.getFieldType(i));
+//            row[index] = Pair.of(fieldName, value);
+//        }
+//        for (int i = 0; i < row.length; i++) {
+//            Pair<String, Object> tuple2 = row[i];
+//            if (tuple2 != null) {
+//                recordBuilder.set(tuple2.getLeft(), tuple2.getRight());
+//            } else {
+//                recordBuilder.set(fileSinkConfig.getSinkColumnList().get(i), null);
+//            }
+//        }
+        for (Integer integer : sinkColumnsIndexInRow) {
+            String fieldName = aresRowType.getFieldName(integer);
+            Object field = aresRow.getField(integer);
+            recordBuilder.set(
+                    fieldName.toLowerCase(),
+                    resolveObject(fieldName, field, aresRowType.getFieldType(integer)));
         }
         GenericData.Record record = recordBuilder.build();
         try {
@@ -137,11 +172,18 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
             return hadoopFileSystemProxy.doWithHadoopAuth(
                     (configuration, userGroupInformation) -> {
                         try {
+                            if (!writePathsAsInt96.isEmpty()) {
+                                configuration.setBoolean("parquet.avro.readInt96AsFixed", true);
+                                configuration.set(
+                                        AvroWriteSupport.WRITE_FIXED_AS_INT96,
+                                        String.join(",", writePathsAsInt96));
+                            }
                             HadoopOutputFile outputFile =
                                     HadoopOutputFile.fromPath(path, getConfiguration(hadoopConf));
                             ParquetWriter<GenericRecord> newWriter =
                                     AvroParquetWriter.<GenericRecord>builder(outputFile)
                                             .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
+                                            .withConf(configuration)
                                             .withDataModel(dataModel)
                                             // use parquet v1 to improve compatibility
                                             .withWriterVersion(
@@ -164,7 +206,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
         return writer;
     }
 
-    private Object resolveObject(Object data, AresDataType<?> aresDataType) {
+    private Object resolveObject(String name, Object data, AresDataType<?> aresDataType) {
         if (data == null) {
             return null;
         }
@@ -173,7 +215,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                 BasicType<?> elementType = ((ArrayType<?, ?>) aresDataType).getElementType();
                 ArrayList<Object> records = new ArrayList<>(((Object[]) data).length);
                 for (Object object : (Object[]) data) {
-                    Object resolvedObject = resolveObject(object, elementType);
+                    Object resolvedObject = resolveObject(name, object, elementType);
                     records.add(resolvedObject);
                 }
                 return records;
@@ -191,8 +233,33 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
             case DATE:
                 return data;
             case TIMESTAMP:
+                if (writePathsAsInt96.contains(name)) {
+                    LocalDateTime localDateTime = (LocalDateTime) data;
+                    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                    calendar.setTime(
+                            Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+                    int julianDays =
+                            (int)
+                                    JulianFields.JULIAN_DAY.getFrom(
+                                            LocalDate.of(
+                                                    calendar.get(Calendar.YEAR),
+                                                    calendar.get(Calendar.MONTH) + 1,
+                                                    calendar.get(Calendar.DAY_OF_MONTH)));
+                    long timeOfDayNanos =
+                            TimeUnit.HOURS.toNanos(calendar.get(Calendar.HOUR_OF_DAY))
+                                    + TimeUnit.MINUTES.toNanos(calendar.get(Calendar.MINUTE))
+                                    + TimeUnit.SECONDS.toNanos(calendar.get(Calendar.SECOND))
+                                    + TimeUnit.MILLISECONDS.toNanos(
+                                    calendar.get(Calendar.MILLISECOND));
+                    NanoTime nanoTime = new NanoTime(julianDays, timeOfDayNanos);
+                    return new GenericData.Fixed(
+                            schema.getField(name).schema(), nanoTime.toBinary().getBytes());
+                }
                 return ((LocalDateTime) data).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             case BYTES:
+                if (writePathsAsInt96.contains(name)) {
+                    return new GenericData.Fixed(schema.getField(name).schema(), (byte[]) data);
+                }
                 return ByteBuffer.wrap((byte[]) data);
             case ROW:
                 AresRow aresRow = (AresRow) data;
@@ -210,7 +277,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                 for (int i = 0; i < fieldNames.length; i++) {
                     recordBuilder.set(
                             fieldNames[i].toLowerCase(),
-                            resolveObject(aresRow.getField(i), fieldTypes[i]));
+                            resolveObject(fieldNames[i], aresRow.getField(i), fieldTypes[i]));
                 }
                 return recordBuilder.build();
             default:
@@ -223,7 +290,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
         }
     }
 
-    public static Type aresDataType2ParquetDataType(
+    public Type aresDataType2ParquetDataType(
             String fieldName, AresDataType<?> aresDataType) {
         switch (aresDataType.getSqlType()) {
             case ARRAY:
@@ -281,6 +348,11 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                                 PrimitiveType.PrimitiveTypeName.INT64, Type.Repetition.OPTIONAL)
                         .named(fieldName);
             case TIMESTAMP:
+                if (writePathsAsInt96.contains(fieldName)) {
+                    return Types.primitive(
+                                    PrimitiveType.PrimitiveTypeName.INT96, Type.Repetition.OPTIONAL)
+                            .named(fieldName);
+                }
                 return Types.primitive(
                                 PrimitiveType.PrimitiveTypeName.INT64, Type.Repetition.OPTIONAL)
                         .as(LogicalTypeAnnotation.timestampType(false, LogicalTypeAnnotation.TimeUnit.MILLIS))
@@ -304,6 +376,13 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                         .scale(scale)
                         .named(fieldName);
             case BYTES:
+                if (writePathsAsInt96.contains(fieldName)) {
+                    return Types.primitive(
+                                    PrimitiveType.PrimitiveTypeName.FIXED_LEN_BYTE_ARRAY,
+                                    Type.Repetition.OPTIONAL)
+                            .length(12)
+                            .named(fieldName);
+                }
                 return Types.primitive(
                                 PrimitiveType.PrimitiveTypeName.BINARY, Type.Repetition.OPTIONAL)
                         .named(fieldName);

@@ -96,7 +96,7 @@ public abstract class BaseFileSink
             writeStrategy.init(hadoopConf, jobId, null, 0);
             writeStrategy.truncateFiles();
         } catch (Exception e) {
-            throw new AresException(String.format("Truncate table failed: %s, cause %s", tableName, e.getMessage()));
+            throw new AresException(String.format("Truncate table failed: %s, cause %s", tableName, e.getMessage()), e);
         }
     }
 }

@@ -64,6 +64,11 @@ public class FileSinkConfig extends BaseFileSinkConfig implements PartitionConfi
 
     private Boolean xmlUseAttrFormat;
 
+    private Boolean parquetWriteTimestampAsInt96 =
+            BaseSinkConfig.PARQUET_AVRO_WRITE_TIMESTAMP_AS_INT96.defaultValue();
+    private List<String> parquetAvroWriteFixedAsInt96 =
+            BaseSinkConfig.PARQUET_AVRO_WRITE_FIXED_AS_INT96.defaultValue();
+
     public FileSinkConfig(@NonNull Config config, @NonNull AresRowType aresRowTypeInfo) {
         super(config);
         checkArgument(

@@ -73,20 +73,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>com.github.ares</groupId>-->
-        <!--            <artifactId>ares-hadoop3</artifactId>-->
-        <!--            <version>${project.version}</version>-->
-        <!--            <classifier>optional</classifier>-->
-        <!--            <scope>provided</scope>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>org.apache.avro</groupId>-->
-        <!--                    <artifactId>avro</artifactId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>

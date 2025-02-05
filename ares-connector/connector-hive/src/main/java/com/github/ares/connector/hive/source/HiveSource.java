@@ -28,7 +28,6 @@ import org.apache.hadoop.hive.metastore.api.Table;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +43,19 @@ import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME
 
 @AutoService(AresSource.class)
 public class HiveSource extends BaseHdfsFileSource {
-    private Table tableInformation;
+    private transient Table tableInformation;
 
     @Override
     public String getPluginName() {
         return "Hive";
+    }
+
+    public Table getTableInformation() {
+        if(tableInformation == null) {
+            Pair<String[], Table> tableInfo = HiveConfig.getTableInfo(pluginConfig);
+            tableInformation = tableInfo.getRight();
+        }
+        return tableInformation;
     }
 
     @Override
@@ -104,8 +111,7 @@ public class HiveSource extends BaseHdfsFileSource {
                         "Every partition that in partition list should has the same directory depth");
             }
         }
-        Pair<String[], Table> tableInfo = HiveConfig.getTableInfo(pluginConfig);
-        tableInformation = tableInfo.getRight();
+        tableInformation = getTableInformation();
 
         if (tableInformation.getPartitionKeys() != null) {
             List<String> partitionColumns = tableInformation.getPartitionKeys().stream().map(FieldSchema::getName).collect(Collectors.toList());
