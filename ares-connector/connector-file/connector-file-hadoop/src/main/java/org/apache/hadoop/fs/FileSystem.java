@@ -53,6 +53,7 @@ import org.apache.hadoop.util.DataChecksum;
 import org.apache.hadoop.util.DurationInfo;
 import org.apache.hadoop.util.LambdaUtils;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.ShutdownHookManager;
 import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
@@ -3468,7 +3469,16 @@ public abstract class FileSystem extends Configured
         DurationInfo ignored =
             new DurationInfo(LOGGER, false, "Creating FS %s", uri)) {
       scope.addKVAnnotation("scheme", uri.getScheme());
-      FileSystem fs = new org.apache.hadoop.hdfs.DistributedFileSystem(); //ReflectionUtils.newInstance(clazz, conf);
+      String scheme = uri.getScheme();
+      FileSystem fs;
+      if ("hdfs".equals(scheme)) {
+        fs = new org.apache.hadoop.hdfs.DistributedFileSystem();
+      } else if ("file".equals(scheme)) {
+        fs = new LocalFileSystem();
+      } else {
+        Class<? extends FileSystem> clazz = getFileSystemClass(scheme, conf);
+        fs = ReflectionUtils.newInstance(clazz, conf);
+      }
       fs.setConf(conf);
       try {
         fs.initialize(uri, conf);

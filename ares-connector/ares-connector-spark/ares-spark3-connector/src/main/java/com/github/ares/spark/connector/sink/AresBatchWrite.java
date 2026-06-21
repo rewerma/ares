@@ -6,9 +6,12 @@ import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.IsolatedClassLoader;
 import com.github.ares.common.utils.JsonUtils;
+import com.github.ares.common.utils.PluginClassLoaderUtils;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.write.AresSparkDataWriterFactory;
 import com.github.ares.spark.connector.sink.write.AresSparkWriterCommitMessage;
+import com.github.ares.spark.connector.statistic.JobStatisticInformation;
+import com.github.ares.spark.connector.statistic.WriterStatistic;
 import org.apache.spark.sql.connector.write.BatchWrite;
 import org.apache.spark.sql.connector.write.DataWriterFactory;
 import org.apache.spark.sql.connector.write.PhysicalWriteInfo;
@@ -36,12 +39,15 @@ public class AresBatchWrite<StateT, CommitInfoT, AggregatedCommitInfoT>
 
     private final CatalogTable catalogTable;
 
+    private final long startTimeMillis;
+
     public AresBatchWrite(
             AresSink<AresRow, StateT, CommitInfoT, AggregatedCommitInfoT> sink,
             CatalogTable catalogTable)
             throws IOException {
         this.sink = sink;
         this.catalogTable = catalogTable;
+        this.startTimeMillis = System.currentTimeMillis();
 //        this.aggregatedCommitter = sink.createAggregatedCommitter().orElse(null);
     }
 
@@ -52,11 +58,11 @@ public class AresBatchWrite<StateT, CommitInfoT, AggregatedCommitInfoT>
 
     private SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> getAggregatedCommitter() {
         try {
-            URL jarUrl = sink.getClass().getProtectionDomain().getCodeSource().getLocation();
-            if (jarUrl.getFile().endsWith(".jar")) {
+            URL[] jarUrls = PluginClassLoaderUtils.getPluginJarUrls(sink.getClass());
+            if (jarUrls.length > 0 && jarUrls[0].getFile().endsWith(".jar")) {
                 String sinkSerialization = SerializationUtils.objectToString(sink);
                 ClassLoader isolatedLoader =
-                        new IsolatedClassLoader(new URL[]{jarUrl}, getClass().getClassLoader());
+                        new IsolatedClassLoader(jarUrls, getClass().getClassLoader());
                 byte[] sinkBytes = Base64.getDecoder().decode(sinkSerialization);
                 AresSink<AresRow, StateT, CommitInfoT, AggregatedCommitInfoT> aresSink
                         = SerializationUtils.deserialize(sinkBytes, isolatedLoader);
@@ -71,6 +77,7 @@ public class AresBatchWrite<StateT, CommitInfoT, AggregatedCommitInfoT>
 
     @Override
     public void commit(WriterCommitMessage[] messages) {
+        WriterStatistic totalStatistic = aggregateStatistic(messages);
         SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> aggregatedCommitter = getAggregatedCommitter();
         if (aggregatedCommitter != null) {
             try {
@@ -85,6 +92,24 @@ public class AresBatchWrite<StateT, CommitInfoT, AggregatedCommitInfoT>
                 throw new RuntimeException("SinkAggregatedCommitter commit failed in driver", e);
             }
         }
+        JobStatisticInformation.log(
+                startTimeMillis,
+                totalStatistic.getReadCount(),
+                totalStatistic.getWriteCount(),
+                totalStatistic.getFailedCount());
+    }
+
+    private WriterStatistic aggregateStatistic(WriterCommitMessage[] messages) {
+        WriterStatistic totalStatistic = new WriterStatistic();
+        if (messages == null) {
+            return totalStatistic;
+        }
+        for (WriterCommitMessage message : messages) {
+            if (message instanceof AresSparkWriterCommitMessage) {
+                totalStatistic.merge(((AresSparkWriterCommitMessage<?>) message).getStatistic());
+            }
+        }
+        return totalStatistic;
     }
 
     @Override

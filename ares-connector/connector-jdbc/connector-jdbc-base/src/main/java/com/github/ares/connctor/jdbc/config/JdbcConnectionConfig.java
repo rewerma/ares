@@ -3,13 +3,20 @@ package com.github.ares.connctor.jdbc.config;
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.common.configuration.ReadonlyConfig;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class JdbcConnectionConfig implements Serializable {
     private static final long serialVersionUID = 2L;
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcConnectionConfig.class);
 
     public String dbType;
     public String url;
@@ -17,6 +24,7 @@ public class JdbcConnectionConfig implements Serializable {
     public String compatibleMode;
     public int connectionCheckTimeoutSeconds =
             JdbcOptions.CONNECTION_CHECK_TIMEOUT_SEC.defaultValue();
+    public int queryTimeoutSec = JdbcOptions.QUERY_TIMEOUT_SEC.defaultValue();
     public int maxRetries = JdbcOptions.MAX_RETRIES.defaultValue();
     public String username;
     public String password;
@@ -51,6 +59,7 @@ public class JdbcConnectionConfig implements Serializable {
         builder.autoCommit(config.get(JdbcOptions.AUTO_COMMIT));
         builder.maxRetries(config.get(JdbcOptions.MAX_RETRIES));
         builder.connectionCheckTimeoutSeconds(config.get(JdbcOptions.CONNECTION_CHECK_TIMEOUT_SEC));
+        builder.queryTimeoutSec(config.get(JdbcOptions.QUERY_TIMEOUT_SEC));
         builder.batchSize(config.get(JdbcOptions.BATCH_SIZE));
         if (config.get(JdbcOptions.IS_EXACTLY_ONCE)) {
             builder.xaDataSourceClassName(config.get(JdbcOptions.XA_DATA_SOURCE_CLASS_NAME));
@@ -98,8 +107,33 @@ public class JdbcConnectionConfig implements Serializable {
         return connectionCheckTimeoutSeconds;
     }
 
+    public int getQueryTimeoutSec() {
+        return queryTimeoutSec;
+    }
+
     public int getMaxRetries() {
         return maxRetries;
+    }
+
+    public void applySessionSettings(Connection connection) throws SQLException {
+        if (queryTimeoutSec <= 0) {
+            return;
+        }
+        if ("oceanbase".equalsIgnoreCase(compatibleMode)) {
+            long timeoutMicros = (long) queryTimeoutSec * 1_000_000L;
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("SET ob_query_timeout = " + timeoutMicros);
+            }
+            return;
+        }
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("SET query_timeout = " + queryTimeoutSec);
+        } catch (SQLException e) {
+            LOG.warn(
+                    "Failed to set query_timeout to {} seconds, continuing without session timeout adjustment",
+                    queryTimeoutSec,
+                    e);
+        }
     }
 
     public Optional<String> getUsername() {
@@ -141,6 +175,7 @@ public class JdbcConnectionConfig implements Serializable {
         private String compatibleMode;
         private int connectionCheckTimeoutSeconds =
                 JdbcOptions.CONNECTION_CHECK_TIMEOUT_SEC.defaultValue();
+        private int queryTimeoutSec = JdbcOptions.QUERY_TIMEOUT_SEC.defaultValue();
         private int maxRetries = JdbcOptions.MAX_RETRIES.defaultValue();
         private String username;
         private String password;
@@ -180,6 +215,11 @@ public class JdbcConnectionConfig implements Serializable {
 
         public Builder connectionCheckTimeoutSeconds(int connectionCheckTimeoutSeconds) {
             this.connectionCheckTimeoutSeconds = connectionCheckTimeoutSeconds;
+            return this;
+        }
+
+        public Builder queryTimeoutSec(int queryTimeoutSec) {
+            this.queryTimeoutSec = queryTimeoutSec;
             return this;
         }
 
@@ -261,6 +301,7 @@ public class JdbcConnectionConfig implements Serializable {
             jdbcConnectionConfig.maxRetries = this.maxRetries;
             jdbcConnectionConfig.password = this.password;
             jdbcConnectionConfig.connectionCheckTimeoutSeconds = this.connectionCheckTimeoutSeconds;
+            jdbcConnectionConfig.queryTimeoutSec = this.queryTimeoutSec;
             jdbcConnectionConfig.url = this.url;
             jdbcConnectionConfig.autoCommit = this.autoCommit;
             jdbcConnectionConfig.username = this.username;

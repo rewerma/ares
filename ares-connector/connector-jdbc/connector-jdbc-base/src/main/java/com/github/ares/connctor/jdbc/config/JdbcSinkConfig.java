@@ -29,6 +29,7 @@ public class JdbcSinkConfig implements Serializable {
     private boolean enableUpsert;
     private boolean isPrimaryKeyUpdated = true;
     private boolean supportUpsertByInsertOnly;
+    private String fieldIde;
 
     public String getDbType() {
         return dbType;
@@ -110,6 +111,14 @@ public class JdbcSinkConfig implements Serializable {
         this.supportUpsertByInsertOnly = supportUpsertByInsertOnly;
     }
 
+    public String getFieldIde() {
+        return fieldIde;
+    }
+
+    public void setFieldIde(String fieldIde) {
+        this.fieldIde = fieldIde;
+    }
+
     public static JdbcSinkConfig of(ReadonlyConfig config, List<Column> sourceColumns) {
         JdbcSinkConfig jdbcSinkConfig = new JdbcSinkConfig();
         jdbcSinkConfig.setDbType(config.get(CommonOptions.CONNECTOR));
@@ -121,6 +130,8 @@ public class JdbcSinkConfig implements Serializable {
         jdbcSinkConfig.setEnableUpsert(config.get(ENABLE_UPSERT));
         jdbcSinkConfig.setPrimaryKeyUpdated(config.get(IS_PRIMARY_KEY_UPDATED));
         jdbcSinkConfig.setSupportUpsertByInsertOnly(config.get(SUPPORT_UPSERT_BY_INSERT_ONLY));
+        config.getOptional(JdbcOptions.FIELD_IDE)
+                .ifPresent(fieldIdeEnum -> jdbcSinkConfig.setFieldIde(fieldIdeEnum.getValue()));
 
         String sinkType = config.get(CommonOptions.SINK_TYPE);
         String statementSql = (String) JdbcSinkTypeHandler.handleSinkType(SinkType.valueOf(sinkType), config, sourceColumns);

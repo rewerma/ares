@@ -40,6 +40,7 @@ import static com.github.ares.connctor.jdbc.config.JdbcOptions.PARTITION_UPPER_B
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.PASSWORD;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.PROPERTIES;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.QUERY;
+import static com.github.ares.connctor.jdbc.config.JdbcOptions.QUERY_TIMEOUT_SEC;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.URL;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.USER;
 import static com.github.ares.connctor.jdbc.config.JdbcSourceOptions.SPLIT_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND;
@@ -81,6 +82,7 @@ public class JdbcSourceFactory implements TableSourceFactory {
                         USER,
                         PASSWORD,
                         CONNECTION_CHECK_TIMEOUT_SEC,
+                        QUERY_TIMEOUT_SEC,
                         FETCH_SIZE,
                         PARTITION_COLUMN,
                         PARTITION_UPPER_BOUND,

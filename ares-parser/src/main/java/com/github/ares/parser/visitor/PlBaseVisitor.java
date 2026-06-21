@@ -182,7 +182,9 @@ public class PlBaseVisitor {
                 LogicalSetConfig setConfig = new LogicalSetConfig();
                 if (equalIndex > -1) {
                     setConfig.setKey(setBlock.substring(0, equalIndex).trim());
-                    setConfig.setValue(setBlock.substring(equalIndex + 1).trim());
+                    setConfig.setValue(
+                            PLParserUtil.stripOptionalSingleQuotes(
+                                    setBlock.substring(equalIndex + 1).trim()));
                 } else {
                     setConfig.setKey(setBlock.trim());
                 }

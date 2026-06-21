@@ -114,6 +114,19 @@
             <useProjectArtifact>false</useProjectArtifact>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <unpack>false</unpack>
+            <includes>
+                <include>com.mysql:mysql-connector-j:jar</include>
+                <include>org.postgresql:postgresql:jar</include>
+                <include>com.oracle.database.jdbc:ojdbc8:jar</include>
+                <include>com.microsoft.sqlserver:mssql-jdbc:jar</include>
+            </includes>
+            <outputDirectory>/lib</outputDirectory>
+        </dependencySet>
+
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <unpack>false</unpack>
             <outputDirectory>/starter/logging</outputDirectory>
             <includes>
                 <include>org.slf4j:slf4j-api:jar</include>

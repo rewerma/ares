@@ -87,6 +87,7 @@ public class XaFacadeImplAutoLoad implements XaFacade {
         connection = xaConnection.getConnection();
         connection.setReadOnly(false);
         connection.setAutoCommit(false);
+        jdbcConnectionConfig.applySessionSettings(connection);
         checkState(!connection.getAutoCommit());
     }
 

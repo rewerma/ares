@@ -97,6 +97,8 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
 
         connection.setAutoCommit(jdbcConfig.isAutoCommit());
 
+        jdbcConfig.applySessionSettings(connection);
+
         return connection;
     }
 

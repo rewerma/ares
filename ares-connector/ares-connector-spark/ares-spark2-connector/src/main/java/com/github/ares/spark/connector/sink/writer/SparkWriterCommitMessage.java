@@ -17,6 +17,7 @@
 
 package com.github.ares.spark.connector.sink.writer;
 
+import com.github.ares.spark.connector.statistic.WriterStatistic;
 import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 
 import javax.annotation.Nullable;
@@ -24,9 +25,11 @@ import javax.annotation.Nullable;
 public class SparkWriterCommitMessage<T> implements WriterCommitMessage {
 
     private @Nullable T message;
+    private WriterStatistic statistic;
 
-    SparkWriterCommitMessage(T message) {
+    SparkWriterCommitMessage(T message, WriterStatistic statistic) {
         this.message = message;
+        this.statistic = statistic;
     }
 
     public T getMessage() {
@@ -35,5 +38,9 @@ public class SparkWriterCommitMessage<T> implements WriterCommitMessage {
 
     public void setMessage(T message) {
         this.message = message;
+    }
+
+    public WriterStatistic getStatistic() {
+        return statistic;
     }
 }

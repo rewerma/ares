@@ -23,9 +23,11 @@ import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.common.exceptions.AresException;
+import com.github.ares.connctor.jdbc.config.JdbcConnectionConfig;
 import com.github.ares.connctor.jdbc.config.JdbcSinkConfig;
 import com.github.ares.connctor.jdbc.internal.connection.JdbcConnectionProvider;
 import com.github.ares.connctor.jdbc.internal.dialect.JdbcDialect;
+import com.github.ares.connctor.jdbc.internal.dialect.JdbcDialectLoader;
 import com.github.ares.connctor.jdbc.state.JdbcAggregatedCommitInfo;
 import com.github.ares.connctor.jdbc.state.JdbcSinkState;
 import com.github.ares.connctor.jdbc.state.XidInfo;
@@ -36,11 +38,13 @@ import java.util.Optional;
 
 public class JdbcSink
         implements AresSink<AresRow, JdbcSinkState, XidInfo, JdbcAggregatedCommitInfo> {
+    private static final long serialVersionUID = 1L;
+
     private AresRowType aresRowType;
 
     private final JdbcSinkConfig jdbcSinkConfig;
 
-    private final JdbcDialect dialect;
+    private transient JdbcDialect dialect;
 
     public JdbcSink(
             JdbcSinkConfig jdbcSinkConfig,
@@ -49,6 +53,35 @@ public class JdbcSink
         this.jdbcSinkConfig = jdbcSinkConfig;
         this.dialect = dialect;
         this.aresRowType = rowType;
+    }
+
+    private JdbcDialect getDialect() {
+        if (dialect == null) {
+            dialect = resolveDialect();
+        }
+        return dialect;
+    }
+
+    private JdbcDialect resolveDialect() {
+        JdbcConnectionConfig connectionConfig = jdbcSinkConfig.getJdbcConnectionConfig();
+        ClassLoader pluginClassLoader = getClass().getClassLoader();
+        ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(pluginClassLoader);
+            JdbcDialect loadedDialect =
+                    JdbcDialectLoader.load(
+                            jdbcSinkConfig.getDbType(),
+                            connectionConfig.getUrl(),
+                            connectionConfig.getCompatibleMode(),
+                            jdbcSinkConfig.getFieldIde());
+            loadedDialect.connectionUrlParse(
+                    connectionConfig.getUrl(),
+                    connectionConfig.getProperties(),
+                    loadedDialect.defaultParameter());
+            return loadedDialect;
+        } finally {
+            Thread.currentThread().setContextClassLoader(previousClassLoader);
+        }
     }
 
     @Override
@@ -60,7 +93,7 @@ public class JdbcSink
     public SinkWriter<AresRow, XidInfo, JdbcSinkState> createWriter(
             SinkWriter.Context context) {
         SinkWriter<AresRow, XidInfo, JdbcSinkState> sinkWriter =
-                new JdbcSinkWriter(dialect, jdbcSinkConfig, aresRowType);
+                new JdbcSinkWriter(getDialect(), jdbcSinkConfig, aresRowType);
         return sinkWriter;
     }
 
@@ -76,7 +109,7 @@ public class JdbcSink
     @Override
     public void truncateTable(String tableName) {
         JdbcConnectionProvider connectionProvider =
-                dialect.getJdbcConnectionProvider(jdbcSinkConfig.getJdbcConnectionConfig());
+                getDialect().getJdbcConnectionProvider(jdbcSinkConfig.getJdbcConnectionConfig());
         try (Connection conn = connectionProvider.getOrEstablishConnection();
              PreparedStatement pStmt = conn.prepareStatement(jdbcSinkConfig.getSimpleSql())) {
             pStmt.execute();

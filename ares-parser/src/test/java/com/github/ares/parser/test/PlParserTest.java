@@ -110,4 +110,25 @@ public class PlParserTest {
         Assert.assertEquals("123456", logicalCreateSinkTable.getOptions().get("password"));
         Assert.assertEquals("t_user", logicalCreateSinkTable.getOptions().get("table_name"));
     }
+
+    @Test
+    public void parseSetConfigWithQuotedValues() {
+        Injector injector = Guice.createInjector(new ParserServiceModule());
+        InjectorFactory.init(injector);
+        String pl = "SET datasource.mytest.connector=mysql;\n" +
+                "SET datasource.mytest.driver='com.mysql.cj.jdbc.Driver';\n" +
+                "SET datasource.mytest.password='p@ss';\n" +
+                "\n" +
+                "CREATE TABLE test1\n" +
+                "WITH (\n" +
+                "    'datasource' = 'mytest',\n" +
+                "    'table_name'='t_user',\n" +
+                "    'type' = 'source'\n" +
+                ");";
+        LogicalProject logicalProject = plTransformation.parseToBaseBody(pl);
+        LogicalCreateSourceTable logicalCreateSourceTable =
+                (LogicalCreateSourceTable) logicalProject.getLogicalOperations().get(0);
+        Assert.assertEquals("com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
+        Assert.assertEquals("p@ss", logicalCreateSourceTable.getOptions().get("password"));
+    }
 }

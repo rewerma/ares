@@ -5,6 +5,7 @@ import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
 import com.github.ares.common.utils.IsolatedClassLoader;
+import com.github.ares.common.utils.PluginClassLoaderUtils;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.write.AresWriteBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
@@ -36,10 +37,10 @@ public class AresSinkTable implements Table, SupportsWrite {
             throw new IllegalArgumentException(Constants.SINK_SERIALIZATION + " must be specified");
         }
         this.aresSink = SerializationUtils.stringToObject(sinkSerialization);
-        URL jarUrl = this.aresSink.getClass().getProtectionDomain().getCodeSource().getLocation();
-        if (jarUrl.getFile().endsWith(".jar")) {
+        URL[] jarUrls = PluginClassLoaderUtils.getPluginJarUrls(this.aresSink.getClass());
+        if (jarUrls.length > 0 && jarUrls[0].getFile().endsWith(".jar")) {
             ClassLoader isolatedLoader =
-                    new IsolatedClassLoader(new URL[]{jarUrl}, getClass().getClassLoader());
+                    new IsolatedClassLoader(jarUrls, getClass().getClassLoader());
             byte[] sinkBytes = Base64.getDecoder().decode(sinkSerialization);
             this.aresSink = SerializationUtils.deserialize(sinkBytes, isolatedLoader);
         }

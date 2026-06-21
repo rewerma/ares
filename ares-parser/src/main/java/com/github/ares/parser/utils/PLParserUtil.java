@@ -238,6 +238,18 @@ public class PLParserUtil {
     }
 
 
+    /** Strip surrounding single quotes from SET values, consistent with CREATE TABLE WITH options. */
+    public static String stripOptionalSingleQuotes(String value) {
+        if (value == null) {
+            return null;
+        }
+        value = value.trim();
+        if (value.length() >= 2 && value.startsWith("'") && value.endsWith("'")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
+    }
+
     public static String cleanSQL(String sql) {
         if (sql == null) {
             return null;

@@ -21,6 +21,15 @@ public interface JdbcOptions {
                     .intType()
                     .defaultValue(30)
                     .withDescription("connection check time second");
+
+    Option<Integer> QUERY_TIMEOUT_SEC =
+            Options.key("query_timeout_sec")
+                    .intType()
+                    .defaultValue(-1)
+                    .withDescription(
+                            "Query timeout in seconds for MySQL-compatible analytics databases "
+                                    + "(StarRocks/Doris/SelectDB). Applied via SET query_timeout after connection. "
+                                    + "Use -1 to disable.");
     Option<String> COMPATIBLE_MODE =
             Options.key("compatible_mode")
                     .stringType()

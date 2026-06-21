@@ -46,6 +46,7 @@ import static com.github.ares.connctor.jdbc.config.JdbcOptions.MAX_RETRIES;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.PASSWORD;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.PRIMARY_KEYS;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.QUERY;
+import static com.github.ares.connctor.jdbc.config.JdbcOptions.QUERY_TIMEOUT_SEC;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.SUPPORT_UPSERT_BY_QUERY_PRIMARY_KEY_EXIST;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.TRANSACTION_TIMEOUT_SEC;
 import static com.github.ares.connctor.jdbc.config.JdbcOptions.URL;
@@ -99,6 +100,7 @@ public class JdbcSinkFactory implements TableSinkFactory {
                         USER,
                         PASSWORD,
                         CONNECTION_CHECK_TIMEOUT_SEC,
+                        QUERY_TIMEOUT_SEC,
                         BATCH_SIZE,
                         IS_EXACTLY_ONCE,
                         GENERATE_SINK_SQL,
