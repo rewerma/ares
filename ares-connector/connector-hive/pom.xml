@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
-            <artifactId>hive-exec</artifactId>
+            <artifactId>hive-common</artifactId>
             <version>${hive.exec.version}</version>
             <exclusions>
                 <exclusion>

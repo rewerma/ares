@@ -20,9 +20,7 @@ package com.github.ares.connector.discovery;
 
 import com.github.ares.api.source.AresSource;
 
-import java.net.URL;
 import java.nio.file.Path;
-import java.util.function.BiConsumer;
 
 @SuppressWarnings("rawtypes")
 public class AresSourcePluginDiscovery extends AbstractPluginDiscovery<AresSource> {
@@ -33,10 +31,6 @@ public class AresSourcePluginDiscovery extends AbstractPluginDiscovery<AresSourc
 
     public AresSourcePluginDiscovery(Path pluginDir) {
         super(pluginDir);
-    }
-
-    public AresSourcePluginDiscovery(BiConsumer<ClassLoader, URL> addURLToClassLoader) {
-        super(addURLToClassLoader);
     }
 
     @Override

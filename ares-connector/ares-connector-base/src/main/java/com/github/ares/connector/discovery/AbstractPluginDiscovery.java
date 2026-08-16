@@ -3,7 +3,8 @@ package com.github.ares.connector.discovery;
 import com.github.ares.api.common.PluginIdentifierInterface;
 import com.github.ares.common.configuration.Common;
 import com.github.ares.common.exceptions.AresException;
-import com.github.ares.common.utils.ReflectionUtils;
+import com.github.ares.common.utils.IsolatedClassLoader;
+import com.github.ares.common.utils.PluginClassLoader;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,9 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
@@ -30,42 +28,16 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
 
     private static final int COLLECTION_SIZE = 16;
 
-    /**
-     * Add jar url to classloader. The different engine should have different logic to add url into
-     * their own classloader
-     */
-    private static final BiConsumer<ClassLoader, URL> DEFAULT_URL_TO_CLASSLOADER =
-            (classLoader, url) -> {
-                if (classLoader instanceof URLClassLoader) {
-                    ReflectionUtils.invoke(classLoader, "addURL", url);
-                } else {
-                    throw new UnsupportedOperationException("can't support custom load jar");
-                }
-            };
-
     private final Path pluginDir;
-    private final BiConsumer<ClassLoader, URL> addURLToClassLoaderConsumer;
     protected final ConcurrentHashMap<PluginIdentifier, Optional<URL>> pluginJarPath =
             new ConcurrentHashMap<>(COLLECTION_SIZE);
-
 
     protected AbstractPluginDiscovery() {
         this(Common.connectorDir());
     }
 
-    protected AbstractPluginDiscovery(BiConsumer<ClassLoader, URL> addURLToClassloader) {
-        this(Common.connectorDir(), addURLToClassloader);
-    }
-
     protected AbstractPluginDiscovery(Path pluginDir) {
-        this(pluginDir, DEFAULT_URL_TO_CLASSLOADER);
-    }
-
-    protected AbstractPluginDiscovery(
-            Path pluginDir,
-            BiConsumer<ClassLoader, URL> addURLToClassLoaderConsumer) {
         this.pluginDir = pluginDir;
-        this.addURLToClassLoaderConsumer = addURLToClassLoaderConsumer;
         log.info("Load {} Plugin from {}", getPluginBaseClass().getSimpleName(), pluginDir);
     }
 
@@ -110,32 +82,16 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
         Optional<URL> pluginJarPathOp = getPluginJarPath(pluginIdentifier);
         // if the plugin jar not exist in classpath, will load from plugin dir.
         if (pluginJarPathOp.isPresent()) {
-            try {
-                // use current thread classloader to avoid different classloader load same class
-                // error.
-                this.addURLToClassLoaderConsumer.accept(classLoader, pluginJarPathOp.get());
-                for (URL jar : pluginJars) {
-                    addURLToClassLoaderConsumer.accept(classLoader, jar);
-                }
-            } catch (Exception e) {
-                log.warn("can't load jar use current thread classloader, use URLClassLoader instead now."
-                        + " message: {}", e.getMessage());
-                URL[] urls = new URL[pluginJars.size() + 1];
-                int i = 0;
-                for (URL pluginJar : pluginJars) {
-                    urls[i++] = pluginJar;
-                }
-                urls[i] = pluginJarPathOp.get();
-                classLoader =
-                        new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
-            }
-            pluginInstance = loadPluginInstance(pluginIdentifier, classLoader);
+            IsolatedClassLoader pluginClassLoader =
+                    PluginClassLoader.createForDiscovery(
+                            pluginJarPathOp.get(), pluginJars, classLoader);
+            pluginInstance = loadPluginInstance(pluginIdentifier, pluginClassLoader);
             if (pluginInstance != null) {
                 log.info(
                         "Load plugin: {} from path: {} use classloader: {}",
                         pluginIdentifier,
                         pluginJarPathOp.get(),
-                        classLoader.getClass().getName());
+                        pluginClassLoader.getClass().getName());
                 return Optional.of(pluginInstance);
             }
         }

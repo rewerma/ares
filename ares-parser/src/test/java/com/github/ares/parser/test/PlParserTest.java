@@ -3,11 +3,10 @@ package com.github.ares.parser.test;
 import com.github.ares.api.common.EngineType;
 import com.github.ares.api.common.EngineTypeVersion;
 import com.github.ares.api.common.ExecutionEngineType;
-import com.github.ares.com.google.inject.Guice;
 import com.github.ares.com.google.inject.Injector;
 import com.github.ares.common.utils.InjectorFactory;
 import com.github.ares.parser.PlParser;
-import com.github.ares.parser.config.ParserServiceModule;
+import com.github.ares.parser.config.ParserInjectorFactory;
 import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
@@ -29,7 +28,7 @@ public class PlParserTest {
     @Before
     public void init() {
         ExecutionEngineType.init(EngineType.SPARK, EngineTypeVersion.SPARK3);
-        Injector injector = Guice.createInjector(new ParserServiceModule());
+        Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
         plTransformation = injector.getInstance(PlParser.class);
         plTransformation.init();
@@ -39,7 +38,7 @@ public class PlParserTest {
 
     @Test
     public void parseCreateTable() {
-        Injector injector = Guice.createInjector(new ParserServiceModule());
+        Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
         String pl = "CREATE TABLE test1\n" +
                 "WITH (\n" +
@@ -75,10 +74,10 @@ public class PlParserTest {
 
     @Test
     public void parseCreateTableWithDs() {
-        Injector injector = Guice.createInjector(new ParserServiceModule());
+        Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
         String pl = "SET datasource.mytest.connector=jdbc;\n" +
-                "SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false;\n" +
+                "SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false';\n" +
                 "SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;\n" +
                 "SET datasource.mytest.user=root;\n" +
                 "SET datasource.mytest.password=123456;\n" +
@@ -113,7 +112,7 @@ public class PlParserTest {
 
     @Test
     public void parseSetConfigWithQuotedValues() {
-        Injector injector = Guice.createInjector(new ParserServiceModule());
+        Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
         String pl = "SET datasource.mytest.connector=mysql;\n" +
                 "SET datasource.mytest.driver='com.mysql.cj.jdbc.Driver';\n" +

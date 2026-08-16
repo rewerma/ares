@@ -25,15 +25,11 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.24</lombok.version>
         <jackson.version>2.14.2</jackson.version>
         <slf4j.version>1.7.36</slf4j.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
-        <commons.collecton4.version>4.4</commons.collecton4.version>
+        <commons.collection4.version>4.4</commons.collection4.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <guava.version>33.0.0-jre</guava.version>
         <guice.version>7.0.0</guice.version>
@@ -92,7 +88,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>${commons.collecton4.version}</version>
+                <version>${commons.collection4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

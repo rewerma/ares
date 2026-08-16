@@ -1,7 +1,6 @@
 package com.github.ares.connector.file.sink.commit;
 
 import com.github.ares.api.sink.SinkAggregatedCommitter;
-import com.github.ares.common.utils.IsolatedClassLoader;
 import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.hadoop.HadoopFileSystemProxy;

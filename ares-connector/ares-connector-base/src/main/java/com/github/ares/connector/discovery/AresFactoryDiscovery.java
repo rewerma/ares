@@ -3,9 +3,7 @@ package com.github.ares.connector.discovery;
 import com.github.ares.api.table.factory.Factory;
 import org.apache.commons.lang3.StringUtils;
 
-import java.net.URL;
 import java.util.ServiceLoader;
-import java.util.function.BiConsumer;
 
 public class AresFactoryDiscovery extends AbstractPluginDiscovery<Factory> {
 
@@ -13,13 +11,6 @@ public class AresFactoryDiscovery extends AbstractPluginDiscovery<Factory> {
 
     public AresFactoryDiscovery(Class<? extends Factory> factoryClass) {
         super();
-        this.factoryClass = factoryClass;
-    }
-
-    public AresFactoryDiscovery(
-            Class<? extends Factory> factoryClass,
-            BiConsumer<ClassLoader, URL> addURLToClassLoader) {
-        super(addURLToClassLoader);
         this.factoryClass = factoryClass;
     }
 

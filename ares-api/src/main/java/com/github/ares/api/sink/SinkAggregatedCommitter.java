@@ -17,13 +17,8 @@
 
 package com.github.ares.api.sink;
 
-import com.github.ares.common.utils.IsolatedClassLoader;
-import com.github.ares.common.utils.SerializationUtils;
-
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
-import java.util.Base64;
 import java.util.List;
 
 /**

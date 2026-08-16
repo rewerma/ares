@@ -1,3 +1,4 @@
+// Generated from /Users/rewerma/Develop/git_workspace/ares/ares-parser/src/main/java/com/github/ares/parser/antlr4/plsql/PlSqlParser.g4 by ANTLR 4.13.1
 package com.github.ares.parser.antlr4.plsql;
 import com.github.ares.org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -106,47 +107,47 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitColumn_definition(PlSqlParser.Column_definitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#column_collation_name}.
+	 * Visit a parse tree produced by {@link PlSqlParser#truncate_table_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitColumn_collation_name(PlSqlParser.Column_collation_nameContext ctx);
+	T visitTruncate_table_block(PlSqlParser.Truncate_table_blockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#identity_clause}.
+	 * Visit a parse tree produced by {@link PlSqlParser#select_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIdentity_clause(PlSqlParser.Identity_clauseContext ctx);
+	T visitSelect_block(PlSqlParser.Select_blockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#identity_options_parentheses}.
+	 * Visit a parse tree produced by {@link PlSqlParser#update_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIdentity_options_parentheses(PlSqlParser.Identity_options_parenthesesContext ctx);
+	T visitUpdate_block(PlSqlParser.Update_blockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#identity_options}.
+	 * Visit a parse tree produced by {@link PlSqlParser#delete_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIdentity_options(PlSqlParser.Identity_optionsContext ctx);
+	T visitDelete_block(PlSqlParser.Delete_blockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#encryption_spec}.
+	 * Visit a parse tree produced by {@link PlSqlParser#insert_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitEncryption_spec(PlSqlParser.Encryption_specContext ctx);
+	T visitInsert_block(PlSqlParser.Insert_blockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#truncate_table}.
+	 * Visit a parse tree produced by {@link PlSqlParser#merge_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTruncate_table(PlSqlParser.Truncate_tableContext ctx);
+	T visitMerge_block(PlSqlParser.Merge_blockContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#rule_on_column}.
+	 * Visit a parse tree produced by {@link PlSqlParser#set_bleck}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitRule_on_column(PlSqlParser.Rule_on_columnContext ctx);
+	T visitSet_bleck(PlSqlParser.Set_bleckContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#parameter}.
 	 * @param ctx the parse tree
@@ -238,11 +239,11 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCursor_loop_param(PlSqlParser.Cursor_loop_paramContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#select_only_statement}.
+	 * Visit a parse tree produced by {@link PlSqlParser#select_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSelect_only_statement(PlSqlParser.Select_only_statementContext ctx);
+	T visitSelect_statement(PlSqlParser.Select_statementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#lower_bound}.
 	 * @param ctx the parse tree
@@ -286,12 +287,6 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitException_handler(PlSqlParser.Exception_handlerContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBlock(PlSqlParser.BlockContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#sql_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -304,71 +299,11 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitData_manipulation_language_statements(PlSqlParser.Data_manipulation_language_statementsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#select_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelect_statement(PlSqlParser.Select_statementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#subquery}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubquery(PlSqlParser.SubqueryContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#subquery_basic_elements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubquery_basic_elements(PlSqlParser.Subquery_basic_elementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#subquery_operation_part}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubquery_operation_part(PlSqlParser.Subquery_operation_partContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#select_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelect_block(PlSqlParser.Select_blockContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#query_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQuery_block(PlSqlParser.Query_blockContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#rollup_cube_clause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRollup_cube_clause(PlSqlParser.Rollup_cube_clauseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#grouping_sets_elements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGrouping_sets_elements(PlSqlParser.Grouping_sets_elementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#update_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUpdate_block(PlSqlParser.Update_blockContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#update_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitUpdate_statement(PlSqlParser.Update_statementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#delete_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDelete_block(PlSqlParser.Delete_blockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#delete_statement}.
 	 * @param ctx the parse tree
@@ -376,41 +311,11 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDelete_statement(PlSqlParser.Delete_statementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#insert_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInsert_block(PlSqlParser.Insert_blockContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#insert_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitInsert_statement(PlSqlParser.Insert_statementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#set_bleck}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSet_bleck(PlSqlParser.Set_bleckContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#truncate_table_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTruncate_table_block(PlSqlParser.Truncate_table_blockContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#truncate_table_block2}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTruncate_table_block2(PlSqlParser.Truncate_table_block2Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#merge_block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMerge_block(PlSqlParser.Merge_blockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#merge_statement}.
 	 * @param ctx the parse tree
@@ -447,12 +352,6 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitUnary_logical_expression(PlSqlParser.Unary_logical_expressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#logical_operation}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLogical_operation(PlSqlParser.Logical_operationContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#multiset_expression}.
 	 * @param ctx the parse tree
@@ -496,77 +395,17 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConcatenation(PlSqlParser.ConcatenationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#interval_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInterval_expression(PlSqlParser.Interval_expressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#model_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitModel_expression(PlSqlParser.Model_expressionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#unary_expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitUnary_expression(PlSqlParser.Unary_expressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#other_function}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitOther_function(PlSqlParser.Other_functionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#case_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCase_statement(PlSqlParser.Case_statementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#simple_case_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimple_case_statement(PlSqlParser.Simple_case_statementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#simple_case_when_part}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimple_case_when_part(PlSqlParser.Simple_case_when_partContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#searched_case_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSearched_case_statement(PlSqlParser.Searched_case_statementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#searched_case_when_part}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSearched_case_when_part(PlSqlParser.Searched_case_when_partContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#case_else_part}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCase_else_part(PlSqlParser.Case_else_partContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#atom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAtom(PlSqlParser.AtomContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#quantified_expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQuantified_expression(PlSqlParser.Quantified_expressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#routine_name}.
 	 * @param ctx the parse tree
@@ -580,17 +419,11 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParameter_name(PlSqlParser.Parameter_nameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#label_name}.
+	 * Visit a parse tree produced by {@link PlSqlParser#procedure_name}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLabel_name(PlSqlParser.Label_nameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#type_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitType_name(PlSqlParser.Type_nameContext ctx);
+	T visitProcedure_name(PlSqlParser.Procedure_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#exception_name}.
 	 * @param ctx the parse tree
@@ -598,29 +431,11 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitException_name(PlSqlParser.Exception_nameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#procedure_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitProcedure_name(PlSqlParser.Procedure_nameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#variable_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariable_name(PlSqlParser.Variable_nameContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#index_name}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIndex_name(PlSqlParser.Index_nameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#cursor_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCursor_name(PlSqlParser.Cursor_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#record_name}.
 	 * @param ctx the parse tree
@@ -628,29 +443,11 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRecord_name(PlSqlParser.Record_nameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#link_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLink_name(PlSqlParser.Link_nameContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#column_name}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitColumn_name(PlSqlParser.Column_nameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#tableview_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTableview_name(PlSqlParser.Tableview_nameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#char_set_name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitChar_set_name(PlSqlParser.Char_set_nameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#function_argument}.
 	 * @param ctx the parse tree
@@ -700,18 +497,6 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitGeneral_element(PlSqlParser.General_elementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#general_element_part}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGeneral_element_part(PlSqlParser.General_element_partContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#table_element}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_element(PlSqlParser.Table_elementContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#constant}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -723,12 +508,6 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNumeric(PlSqlParser.NumericContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#numeric_negative}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNumeric_negative(PlSqlParser.Numeric_negativeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#quoted_string}.
 	 * @param ctx the parse tree
@@ -748,27 +527,9 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitId_expression(PlSqlParser.Id_expressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#outer_join_sign}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitOuter_join_sign(PlSqlParser.Outer_join_signContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#regular_id}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitRegular_id(PlSqlParser.Regular_idContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#non_reserved_keywords_in_12c}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNon_reserved_keywords_in_12c(PlSqlParser.Non_reserved_keywords_in_12cContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PlSqlParser#non_reserved_keywords_pre12c}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNon_reserved_keywords_pre12c(PlSqlParser.Non_reserved_keywords_pre12cContext ctx);
 }

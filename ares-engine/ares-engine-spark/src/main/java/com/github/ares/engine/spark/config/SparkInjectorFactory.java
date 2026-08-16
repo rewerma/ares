@@ -3,6 +3,7 @@ package com.github.ares.engine.spark.config;
 import com.github.ares.com.google.inject.AbstractModule;
 import com.github.ares.com.google.inject.Guice;
 import com.github.ares.com.google.inject.Injector;
+import com.github.ares.com.google.inject.Stage;
 import com.github.ares.common.utils.InjectorFactory;
 import com.github.ares.engine.config.BaseServiceModule;
 import com.github.ares.parser.config.ParserServiceModule;
@@ -19,7 +20,8 @@ public final class SparkInjectorFactory {
                     abstractModules[1] = new BaseServiceModule();
                     abstractModules[2] = new SparkServiceModule();
                     System.arraycopy(modules, 0, abstractModules, 3, modules.length);
-                    injector = InjectorFactory.init(Guice.createInjector(abstractModules));
+                    injector = InjectorFactory.init(
+                            Guice.createInjector(Stage.PRODUCTION, abstractModules));
                 }
             }
         }

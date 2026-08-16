@@ -4,9 +4,7 @@ import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.source.AresSource;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
-import com.github.ares.common.utils.IsolatedClassLoader;
-import com.github.ares.common.utils.PluginClassLoaderUtils;
-import com.github.ares.common.utils.SerializationUtils;
+import com.github.ares.common.utils.PluginClassLoader;
 import com.github.ares.spark.connector.source.scan.AresScanBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
 import com.google.common.collect.Sets;
@@ -20,8 +18,6 @@ import org.apache.spark.sql.connector.read.ScanBuilder;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-import java.net.URL;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,14 +38,9 @@ public class AresSourceTable implements Table, SupportsRead {
         if (StringUtils.isBlank(sourceSerialization)) {
             throw new IllegalArgumentException("source.serialization must be specified");
         }
-        this.source = SerializationUtils.stringToObject(sourceSerialization);
-        URL[] jarUrls = PluginClassLoaderUtils.getPluginJarUrls(this.source.getClass());
-        if (jarUrls.length > 0 && jarUrls[0].getFile().endsWith(".jar")) {
-            ClassLoader isolatedLoader =
-                    new IsolatedClassLoader(jarUrls, getClass().getClassLoader());
-            byte[] sourceBytes = Base64.getDecoder().decode(sourceSerialization);
-            this.source = SerializationUtils.deserialize(sourceBytes, isolatedLoader);
-        }
+        this.source =
+                PluginClassLoader.deserializePlugin(
+                        sourceSerialization, getClass().getClassLoader());
     }
 
     /**

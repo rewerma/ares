@@ -4,8 +4,7 @@ import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
-import com.github.ares.common.utils.IsolatedClassLoader;
-import com.github.ares.common.utils.PluginClassLoaderUtils;
+import com.github.ares.common.utils.PluginClassLoader;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.write.AresWriteBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
@@ -18,8 +17,6 @@ import org.apache.spark.sql.connector.write.LogicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 
-import java.net.URL;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,14 +33,9 @@ public class AresSinkTable implements Table, SupportsWrite {
         if (StringUtils.isBlank(sinkSerialization)) {
             throw new IllegalArgumentException(Constants.SINK_SERIALIZATION + " must be specified");
         }
-        this.aresSink = SerializationUtils.stringToObject(sinkSerialization);
-        URL[] jarUrls = PluginClassLoaderUtils.getPluginJarUrls(this.aresSink.getClass());
-        if (jarUrls.length > 0 && jarUrls[0].getFile().endsWith(".jar")) {
-            ClassLoader isolatedLoader =
-                    new IsolatedClassLoader(jarUrls, getClass().getClassLoader());
-            byte[] sinkBytes = Base64.getDecoder().decode(sinkSerialization);
-            this.aresSink = SerializationUtils.deserialize(sinkBytes, isolatedLoader);
-        }
+        this.aresSink =
+                PluginClassLoader.deserializePlugin(
+                        sinkSerialization, getClass().getClassLoader());
 
         String sinkCatalogTableSerialization =
                 properties.getOrDefault(SparkSinkInjector.SINK_CATALOG_TABLE, "");

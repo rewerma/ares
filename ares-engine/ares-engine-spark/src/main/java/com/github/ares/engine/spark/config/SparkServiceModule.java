@@ -16,6 +16,8 @@ import com.github.ares.engine.core.SelectIntoSqlExecutor;
 import com.github.ares.engine.core.SelectSqlExecutor;
 import com.github.ares.engine.core.UdfManager;
 import com.github.ares.engine.core.UpdateSelectSqlExecutor;
+import com.github.ares.engine.spark.core.MainExecutor;
+import com.github.ares.engine.spark.core.SparkCommonExecutor;
 import com.github.ares.engine.spark.core.SparkCreateFunctionExecutor;
 import com.github.ares.engine.spark.core.SparkCreateSourceTableExecutor;
 import com.github.ares.engine.spark.core.SparkCreateTableAsSqlExecutor;
@@ -28,26 +30,45 @@ import com.github.ares.engine.spark.core.SparkMergeIntoSqlExecutor;
 import com.github.ares.engine.spark.core.SparkRootExecutor;
 import com.github.ares.engine.spark.core.SparkSelectIntoSqlExecutor;
 import com.github.ares.engine.spark.core.SparkSelectSqlExecutor;
+import com.github.ares.engine.spark.core.SparkSessionManager;
+import com.github.ares.engine.spark.core.SparkSinkExecutor;
 import com.github.ares.engine.spark.core.SparkUdfManager;
 import com.github.ares.engine.spark.core.SparkUpdateSelectSqlManager;
 
 public class SparkServiceModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(AbstractRootExecutor.class).to(SparkRootExecutor.class);
-        bind(ExecutorManager.class).to(SparkExecutorManager.class);
+        bind(AbstractRootExecutor.class).to(SparkRootExecutor.class).in(Singleton.class);
+        bind(ExecutorManager.class).to(SparkExecutorManager.class).in(Singleton.class);
 
-        bind(CreateSourceTableExecutor.class).to(SparkCreateSourceTableExecutor.class);
-        bind(SelectSqlExecutor.class).to(SparkSelectSqlExecutor.class);
-        bind(CreateTableAsSqlExecutor.class).to(SparkCreateTableAsSqlExecutor.class);
-        bind(SelectIntoSqlExecutor.class).to(SparkSelectIntoSqlExecutor.class);
-        bind(InsertSelectSqlExecutor.class).to(SparkInsertSelectSqlExecutor.class);
-        bind(UpdateSelectSqlExecutor.class).to(SparkUpdateSelectSqlManager.class);
-        bind(DeleteSelectSqlExecutor.class).to(SparkDeleteSelectSqlExecutor.class);
-        bind(MergeIntoSqlExecutor.class).to(SparkMergeIntoSqlExecutor.class);
-        bind(ForCursorLoopExecutor.class).to(SparkForCursorLoopExecutor.class);
-        bind(UdfManager.class).to(SparkUdfManager.class);
-        bind(CreateFunctionExecutor.class).to(SparkCreateFunctionExecutor.class);
-        bind(ExceptionMessageHandler.class).to(SparkExceptionMessageHandler.class);
+        bind(CreateSourceTableExecutor.class)
+                .to(SparkCreateSourceTableExecutor.class)
+                .in(Singleton.class);
+        bind(SelectSqlExecutor.class).to(SparkSelectSqlExecutor.class).in(Singleton.class);
+        bind(CreateTableAsSqlExecutor.class)
+                .to(SparkCreateTableAsSqlExecutor.class)
+                .in(Singleton.class);
+        bind(SelectIntoSqlExecutor.class).to(SparkSelectIntoSqlExecutor.class).in(Singleton.class);
+        bind(InsertSelectSqlExecutor.class)
+                .to(SparkInsertSelectSqlExecutor.class)
+                .in(Singleton.class);
+        bind(UpdateSelectSqlExecutor.class)
+                .to(SparkUpdateSelectSqlManager.class)
+                .in(Singleton.class);
+        bind(DeleteSelectSqlExecutor.class)
+                .to(SparkDeleteSelectSqlExecutor.class)
+                .in(Singleton.class);
+        bind(MergeIntoSqlExecutor.class).to(SparkMergeIntoSqlExecutor.class).in(Singleton.class);
+        bind(ForCursorLoopExecutor.class).to(SparkForCursorLoopExecutor.class).in(Singleton.class);
+        bind(UdfManager.class).to(SparkUdfManager.class).in(Singleton.class);
+        bind(CreateFunctionExecutor.class).to(SparkCreateFunctionExecutor.class).in(Singleton.class);
+        bind(ExceptionMessageHandler.class)
+                .to(SparkExceptionMessageHandler.class)
+                .in(Singleton.class);
+
+        bind(MainExecutor.class).in(Singleton.class);
+        bind(SparkSessionManager.class).in(Singleton.class);
+        bind(SparkSinkExecutor.class).in(Singleton.class);
+        bind(SparkCommonExecutor.class).in(Singleton.class);
     }
 }

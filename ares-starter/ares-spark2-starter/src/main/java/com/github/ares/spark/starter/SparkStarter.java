@@ -18,7 +18,6 @@
 package com.github.ares.spark.starter;
 
 import com.github.ares.api.env.EnvCommonOptions;
-import com.github.ares.com.google.inject.Guice;
 import com.github.ares.com.google.inject.Injector;
 import com.github.ares.common.configuration.DeployMode;
 import com.github.ares.common.exceptions.ParseException;
@@ -32,7 +31,7 @@ import com.github.ares.core.starter.enums.EngineType;
 import com.github.ares.core.starter.enums.PluginType;
 import com.github.ares.core.starter.utils.CommandLineUtils;
 import com.github.ares.parser.PlParser;
-import com.github.ares.parser.config.ParserServiceModule;
+import com.github.ares.parser.config.ParserInjectorFactory;
 import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
 import com.github.ares.parser.model.TableWith;
@@ -101,7 +100,7 @@ public class SparkStarter implements Starter {
     private SparkStarter(String[] args, SparkCommandArgs commandArgs) {
         this.args = args;
         this.commandArgs = commandArgs;
-        Injector injector = InjectorFactory.init(Guice.createInjector(new ParserServiceModule()));
+        Injector injector = InjectorFactory.init(ParserInjectorFactory.create());
         this.plParser = injector.getInstance(PlParser.class);
         this.plParser.init();
     }

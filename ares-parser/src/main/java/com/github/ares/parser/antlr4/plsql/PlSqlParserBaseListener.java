@@ -1,3 +1,4 @@
+// Generated from /Users/rewerma/Develop/git_workspace/ares/ares-parser/src/main/java/com/github/ares/parser/antlr4/plsql/PlSqlParser.g4 by ANTLR 4.13.1
 package com.github.ares.parser.antlr4.plsql;
 
 import com.github.ares.org.antlr.v4.runtime.ParserRuleContext;
@@ -208,85 +209,85 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterColumn_collation_name(PlSqlParser.Column_collation_nameContext ctx) { }
+	@Override public void enterTruncate_table_block(PlSqlParser.Truncate_table_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitColumn_collation_name(PlSqlParser.Column_collation_nameContext ctx) { }
+	@Override public void exitTruncate_table_block(PlSqlParser.Truncate_table_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIdentity_clause(PlSqlParser.Identity_clauseContext ctx) { }
+	@Override public void enterSelect_block(PlSqlParser.Select_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIdentity_clause(PlSqlParser.Identity_clauseContext ctx) { }
+	@Override public void exitSelect_block(PlSqlParser.Select_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIdentity_options_parentheses(PlSqlParser.Identity_options_parenthesesContext ctx) { }
+	@Override public void enterUpdate_block(PlSqlParser.Update_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIdentity_options_parentheses(PlSqlParser.Identity_options_parenthesesContext ctx) { }
+	@Override public void exitUpdate_block(PlSqlParser.Update_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIdentity_options(PlSqlParser.Identity_optionsContext ctx) { }
+	@Override public void enterDelete_block(PlSqlParser.Delete_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIdentity_options(PlSqlParser.Identity_optionsContext ctx) { }
+	@Override public void exitDelete_block(PlSqlParser.Delete_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEncryption_spec(PlSqlParser.Encryption_specContext ctx) { }
+	@Override public void enterInsert_block(PlSqlParser.Insert_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEncryption_spec(PlSqlParser.Encryption_specContext ctx) { }
+	@Override public void exitInsert_block(PlSqlParser.Insert_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTruncate_table(PlSqlParser.Truncate_tableContext ctx) { }
+	@Override public void enterMerge_block(PlSqlParser.Merge_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTruncate_table(PlSqlParser.Truncate_tableContext ctx) { }
+	@Override public void exitMerge_block(PlSqlParser.Merge_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRule_on_column(PlSqlParser.Rule_on_columnContext ctx) { }
+	@Override public void enterSet_bleck(PlSqlParser.Set_bleckContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRule_on_column(PlSqlParser.Rule_on_columnContext ctx) { }
+	@Override public void exitSet_bleck(PlSqlParser.Set_bleckContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -472,13 +473,13 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSelect_only_statement(PlSqlParser.Select_only_statementContext ctx) { }
+	@Override public void enterSelect_statement(PlSqlParser.Select_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSelect_only_statement(PlSqlParser.Select_only_statementContext ctx) { }
+	@Override public void exitSelect_statement(PlSqlParser.Select_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -568,18 +569,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlock(PlSqlParser.BlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBlock(PlSqlParser.BlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSql_statement(PlSqlParser.Sql_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -604,114 +593,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSelect_statement(PlSqlParser.Select_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelect_statement(PlSqlParser.Select_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSubquery(PlSqlParser.SubqueryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSubquery(PlSqlParser.SubqueryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSubquery_basic_elements(PlSqlParser.Subquery_basic_elementsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSubquery_basic_elements(PlSqlParser.Subquery_basic_elementsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSubquery_operation_part(PlSqlParser.Subquery_operation_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSubquery_operation_part(PlSqlParser.Subquery_operation_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelect_block(PlSqlParser.Select_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelect_block(PlSqlParser.Select_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterQuery_block(PlSqlParser.Query_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitQuery_block(PlSqlParser.Query_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterRollup_cube_clause(PlSqlParser.Rollup_cube_clauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitRollup_cube_clause(PlSqlParser.Rollup_cube_clauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterGrouping_sets_elements(PlSqlParser.Grouping_sets_elementsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitGrouping_sets_elements(PlSqlParser.Grouping_sets_elementsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUpdate_block(PlSqlParser.Update_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUpdate_block(PlSqlParser.Update_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterUpdate_statement(PlSqlParser.Update_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -719,18 +600,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUpdate_statement(PlSqlParser.Update_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDelete_block(PlSqlParser.Delete_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDelete_block(PlSqlParser.Delete_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -748,18 +617,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInsert_block(PlSqlParser.Insert_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInsert_block(PlSqlParser.Insert_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterInsert_statement(PlSqlParser.Insert_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -767,54 +624,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInsert_statement(PlSqlParser.Insert_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSet_bleck(PlSqlParser.Set_bleckContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSet_bleck(PlSqlParser.Set_bleckContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTruncate_table_block(PlSqlParser.Truncate_table_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTruncate_table_block(PlSqlParser.Truncate_table_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTruncate_table_block2(PlSqlParser.Truncate_table_block2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTruncate_table_block2(PlSqlParser.Truncate_table_block2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMerge_block(PlSqlParser.Merge_blockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMerge_block(PlSqlParser.Merge_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -887,18 +696,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUnary_logical_expression(PlSqlParser.Unary_logical_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogical_operation(PlSqlParser.Logical_operationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogical_operation(PlSqlParser.Logical_operationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -988,30 +785,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInterval_expression(PlSqlParser.Interval_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInterval_expression(PlSqlParser.Interval_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterModel_expression(PlSqlParser.Model_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitModel_expression(PlSqlParser.Model_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterUnary_expression(PlSqlParser.Unary_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1024,90 +797,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterOther_function(PlSqlParser.Other_functionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOther_function(PlSqlParser.Other_functionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCase_statement(PlSqlParser.Case_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCase_statement(PlSqlParser.Case_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSimple_case_statement(PlSqlParser.Simple_case_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSimple_case_statement(PlSqlParser.Simple_case_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSimple_case_when_part(PlSqlParser.Simple_case_when_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSimple_case_when_part(PlSqlParser.Simple_case_when_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSearched_case_statement(PlSqlParser.Searched_case_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSearched_case_statement(PlSqlParser.Searched_case_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSearched_case_when_part(PlSqlParser.Searched_case_when_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSearched_case_when_part(PlSqlParser.Searched_case_when_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCase_else_part(PlSqlParser.Case_else_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCase_else_part(PlSqlParser.Case_else_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterAtom(PlSqlParser.AtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1115,18 +804,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAtom(PlSqlParser.AtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterQuantified_expression(PlSqlParser.Quantified_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitQuantified_expression(PlSqlParser.Quantified_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1156,25 +833,13 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLabel_name(PlSqlParser.Label_nameContext ctx) { }
+	@Override public void enterProcedure_name(PlSqlParser.Procedure_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLabel_name(PlSqlParser.Label_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterType_name(PlSqlParser.Type_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitType_name(PlSqlParser.Type_nameContext ctx) { }
+	@Override public void exitProcedure_name(PlSqlParser.Procedure_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1192,30 +857,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProcedure_name(PlSqlParser.Procedure_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitProcedure_name(PlSqlParser.Procedure_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterVariable_name(PlSqlParser.Variable_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitVariable_name(PlSqlParser.Variable_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterIndex_name(PlSqlParser.Index_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1223,18 +864,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIndex_name(PlSqlParser.Index_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCursor_name(PlSqlParser.Cursor_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCursor_name(PlSqlParser.Cursor_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1252,18 +881,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLink_name(PlSqlParser.Link_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLink_name(PlSqlParser.Link_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterColumn_name(PlSqlParser.Column_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1271,30 +888,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitColumn_name(PlSqlParser.Column_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTableview_name(PlSqlParser.Tableview_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTableview_name(PlSqlParser.Tableview_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterChar_set_name(PlSqlParser.Char_set_nameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitChar_set_name(PlSqlParser.Char_set_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1396,30 +989,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGeneral_element_part(PlSqlParser.General_element_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitGeneral_element_part(PlSqlParser.General_element_partContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTable_element(PlSqlParser.Table_elementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTable_element(PlSqlParser.Table_elementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterConstant(PlSqlParser.ConstantContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1439,18 +1008,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNumeric(PlSqlParser.NumericContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNumeric_negative(PlSqlParser.Numeric_negativeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNumeric_negative(PlSqlParser.Numeric_negativeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1492,18 +1049,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterOuter_join_sign(PlSqlParser.Outer_join_signContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOuter_join_sign(PlSqlParser.Outer_join_signContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterRegular_id(PlSqlParser.Regular_idContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1511,30 +1056,6 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRegular_id(PlSqlParser.Regular_idContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNon_reserved_keywords_in_12c(PlSqlParser.Non_reserved_keywords_in_12cContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNon_reserved_keywords_in_12c(PlSqlParser.Non_reserved_keywords_in_12cContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNon_reserved_keywords_pre12c(PlSqlParser.Non_reserved_keywords_pre12cContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNon_reserved_keywords_pre12c(PlSqlParser.Non_reserved_keywords_pre12cContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
