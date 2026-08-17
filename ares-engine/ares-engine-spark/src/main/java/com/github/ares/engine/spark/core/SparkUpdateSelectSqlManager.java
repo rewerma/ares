@@ -97,6 +97,10 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
                         ReadonlyConfig.fromMap(sinkConfig),
                         classLoader);
         AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
+        if (sparkExecutorManager.tryTransactionalSink(aresSink, resultDf, catalogTable,
+                usSql.getSinkTable().getTableName())) {
+            return;
+        }
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
 
         // reload target table

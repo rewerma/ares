@@ -65,6 +65,10 @@ DECLARE:                       'DECLARE';
 CALL:                          'CALL';
 AS:                            'AS';
 IS:                            'IS';
+START:                         'START';
+TRANSACTION:                   'TRANSACTION';
+COMMIT:                        'COMMIT';
+ROLLBACK:                      'ROLLBACK';
 
 // ---------------------------------------------------------------------------
 // Logical / null / boolean

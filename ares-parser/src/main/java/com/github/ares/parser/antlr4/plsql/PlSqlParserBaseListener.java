@@ -377,6 +377,18 @@ public class PlSqlParserBaseListener implements PlSqlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTransaction_statement(PlSqlParser.Transaction_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransaction_statement(PlSqlParser.Transaction_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAssignment_statement(PlSqlParser.Assignment_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}

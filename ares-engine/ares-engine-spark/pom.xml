@@ -43,6 +43,11 @@
             <artifactId>ares-parser</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-jdbc-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>

@@ -118,6 +118,15 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
             aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
         }
 
+        CatalogTable writeCatalogTable = !isSql.getTargetColumns().isEmpty()
+                ? CatalogTable.of(tableIdentifier,
+                TableSchema.builder().columns(columns2).build(),
+                new HashMap<>(), new ArrayList<>(), "")
+                : catalogTable;
+        if (sparkExecutorManager.tryTransactionalSink(aresSink, resultDf, writeCatalogTable,
+                isSql.getSinkTable().getTableName())) {
+            return;
+        }
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
 
         // reload target table

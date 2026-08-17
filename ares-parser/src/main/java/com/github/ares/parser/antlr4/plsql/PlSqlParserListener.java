@@ -308,6 +308,16 @@ public interface PlSqlParserListener extends ParseTreeListener {
 	 */
 	void exitStatement(PlSqlParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PlSqlParser#transaction_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransaction_statement(PlSqlParser.Transaction_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PlSqlParser#transaction_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransaction_statement(PlSqlParser.Transaction_statementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PlSqlParser#assignment_statement}.
 	 * @param ctx the parse tree
 	 */

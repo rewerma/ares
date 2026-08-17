@@ -26,7 +26,10 @@ public enum OperationType {
     TRUNCATE_SQL("truncateSQL"),
     EXCEPTION_HANDLER("exceptionHandler"),
     EXPRESSION("expression"),
-    SET_CONFIG("setConfig");
+    SET_CONFIG("setConfig"),
+    START_TRANSACTION("startTransaction"),
+    COMMIT("commit"),
+    ROLLBACK("rollback");
 
     private final String name;
 

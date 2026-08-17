@@ -36,6 +36,7 @@ public class TruncateSqlExecutor extends AbstractBaseExecutor implements Seriali
             throw new AresException(String.format("Sink table undefined %s", truncateSQL.getSinkTable().getTableName()));
         }
         LogicalCreateSinkTable sinkTable = truncateSQL.getSinkTable();
+        executorManager.getTransactionManager().ensureNotActive("TRUNCATE");
         Map<String, Object> sinkConfig = sinkTable.getOptions();
         sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.TRUNCATE.name());
 

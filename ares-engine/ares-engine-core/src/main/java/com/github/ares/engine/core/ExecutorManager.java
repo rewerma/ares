@@ -92,6 +92,15 @@ public class ExecutorManager implements Serializable {
     @Inject
     protected ReloadFunctionExecutor reloadFunctionExecutor;
 
+    protected final PlTransactionManager transactionManager = new PlTransactionManager();
+
+    @Inject
+    protected StartTransactionExecutor startTransactionExecutor;
+    @Inject
+    protected CommitExecutor commitExecutor;
+    @Inject
+    protected RollbackExecutor rollbackExecutor;
+
     public void init(PlProperties plProperties) {
         this.plProperties = plProperties;
         traceLogger.init(plProperties);
@@ -126,6 +135,9 @@ public class ExecutorManager implements Serializable {
         truncateSqlExecutor.init(this);
 
         reloadFunctionExecutor.init(this);
+        startTransactionExecutor.init(this);
+        commitExecutor.init(this);
+        rollbackExecutor.init(this);
     }
 
 }

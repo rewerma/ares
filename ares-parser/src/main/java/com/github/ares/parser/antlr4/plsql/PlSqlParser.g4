@@ -161,7 +161,8 @@ variable_declaration
 seq_of_statements:           (statement (SEMICOLON | EOF))+;
 
 statement
-    : assignment_statement
+    : transaction_statement
+    | assignment_statement
     | continue_statement
     | exit_statement
     | if_statement
@@ -170,6 +171,13 @@ statement
     | return_statement
     | sql_statement
     | call_statement
+    ;
+
+transaction_statement
+    : START TRANSACTION
+    | BEGIN TRANSACTION
+    | COMMIT
+    | ROLLBACK
     ;
 
 assignment_statement:        general_element ASSIGN_OP expression;
@@ -391,6 +399,7 @@ regular_id
     | SELECT | INSERT | UPDATE | DELETE | MERGE | INTO | FROM | WHERE
     | BEGIN | END | LOOP | FOR | WHILE | IF | THEN | ELSE | ELSIF | EXIT
     | CONTINUE | RAISE | RETURN | DECLARE | EXCEPTION | WHEN | PROCEDURE | FUNCTION
+    | START | TRANSACTION | COMMIT | ROLLBACK
     | CONSTANT | DEFAULT
     | INT | BIGINT | SMALLINT | BYTE | NUMBER | DECIMAL | DOUBLE | FLOAT
     | VARCHAR | VARCHAR2 | STRING | BOOLEAN | DATE | TIMESTAMP | BINARY | BLOB

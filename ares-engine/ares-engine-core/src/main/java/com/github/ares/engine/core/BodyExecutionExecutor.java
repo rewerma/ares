@@ -1,12 +1,15 @@
 package com.github.ares.engine.core;
 
 import com.github.ares.parser.plan.LogicalAssignment;
+import com.github.ares.parser.plan.LogicalCommit;
 import com.github.ares.parser.plan.LogicalForCursorLoop;
 import com.github.ares.parser.plan.LogicalForLoop;
 import com.github.ares.parser.plan.LogicalIfElse;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalReturnValue;
+import com.github.ares.parser.plan.LogicalRollback;
 import com.github.ares.parser.plan.LogicalSelectIntoSQL;
+import com.github.ares.parser.plan.LogicalStartTransaction;
 import com.github.ares.parser.plan.LogicalWhileLoop;
 
 import java.io.Serializable;
@@ -59,6 +62,15 @@ public class BodyExecutionExecutor extends AbstractBaseExecutor implements IBody
                     return CONTINUE_LOOP;
                 case FOR_CURSOR_LOOP:
                     lastData = executorManager.getForCursorLoopExecutor().execute((LogicalForCursorLoop) operation, plParams, this::execute);
+                    break;
+                case START_TRANSACTION:
+                    executorManager.getStartTransactionExecutor().execute((LogicalStartTransaction) operation);
+                    break;
+                case COMMIT:
+                    executorManager.getCommitExecutor().execute((LogicalCommit) operation);
+                    break;
+                case ROLLBACK:
+                    executorManager.getRollbackExecutor().execute((LogicalRollback) operation);
                     break;
                 case RETURN_VALUE:
                     executorManager.getReturnFunctionExecutor().execute((LogicalReturnValue) operation, plParams);

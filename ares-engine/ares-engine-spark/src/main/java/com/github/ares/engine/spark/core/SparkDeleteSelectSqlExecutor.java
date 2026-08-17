@@ -96,6 +96,10 @@ public class SparkDeleteSelectSqlExecutor extends DeleteSelectSqlExecutor implem
                         classLoader);
         AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
 
+        if (sparkExecutorManager.tryTransactionalSink(aresSink, resultDf, catalogTable,
+                dsSql.getSinkTable().getTableName())) {
+            return;
+        }
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
 
         if (executorManager.getSourceTables().containsKey(dsSql.getSinkTable().getTableName().toLowerCase())) {

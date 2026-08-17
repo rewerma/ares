@@ -67,6 +67,9 @@ public class PlFunctionBodyVisitor extends PlBodyVisitor {
             resultFlag = true;
         } else if (statementContext.raise_statement() != null) {
             resultFlag = true;
+        } else if (statementContext.transaction_statement() != null) {
+            result.add(PlBodyVisitor.toTransactionOperation(statementContext.transaction_statement()));
+            resultFlag = true;
         }
 
         return resultFlag;

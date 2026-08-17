@@ -191,6 +191,12 @@ public interface PlSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(PlSqlParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PlSqlParser#transaction_statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransaction_statement(PlSqlParser.Transaction_statementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PlSqlParser#assignment_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

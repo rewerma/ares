@@ -82,6 +82,18 @@ public class JdbcSink implements AresSink<AresRow, JdbcSinkState, Void, Void> {
         return "Jdbc";
     }
 
+    public JdbcSinkConfig getJdbcSinkConfig() {
+        return jdbcSinkConfig;
+    }
+
+    public JdbcDialect dialect() {
+        return getDialect();
+    }
+
+    public AresRowType getAresRowType() {
+        return aresRowType;
+    }
+
     @Override
     public SinkWriter<AresRow, Void, JdbcSinkState> createWriter(SinkWriter.Context context) {
         return new JdbcSinkWriter(getDialect(), jdbcSinkConfig, aresRowType);

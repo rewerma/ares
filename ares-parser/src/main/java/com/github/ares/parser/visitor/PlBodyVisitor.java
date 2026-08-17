@@ -3,9 +3,12 @@ package com.github.ares.parser.visitor;
 import com.github.ares.common.engine.PlType;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
+import com.github.ares.parser.plan.LogicalCommit;
 import com.github.ares.parser.plan.LogicalContinueLoop;
 import com.github.ares.parser.plan.LogicalExitLoop;
 import com.github.ares.parser.plan.LogicalOperation;
+import com.github.ares.parser.plan.LogicalRollback;
+import com.github.ares.parser.plan.LogicalStartTransaction;
 import com.github.ares.parser.utils.PLParserUtil;
 
 import java.util.ArrayList;
@@ -80,8 +83,21 @@ public class PlBodyVisitor {
             resultFlag = true;
         } else if (statementContext.raise_statement() != null) {
             resultFlag = true;
+        } else if (statementContext.transaction_statement() != null) {
+            result.add(toTransactionOperation(statementContext.transaction_statement()));
+            resultFlag = true;
         }
         return resultFlag;
+    }
+
+    static LogicalOperation toTransactionOperation(PlSqlParser.Transaction_statementContext tx) {
+        if (tx.COMMIT() != null) {
+            return new LogicalCommit();
+        }
+        if (tx.ROLLBACK() != null) {
+            return new LogicalRollback();
+        }
+        return new LogicalStartTransaction();
     }
 
     private boolean visitPlContext(

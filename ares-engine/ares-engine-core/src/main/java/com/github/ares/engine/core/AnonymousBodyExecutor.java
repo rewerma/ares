@@ -33,21 +33,29 @@ public class AnonymousBodyExecutor extends AbstractBaseExecutor implements Seria
         }
         Object result = null;
         LogicalExceptionHandler exHandler = anonymousBody.getExHandler();
-        if (exHandler != null) {
-            try {
-                result = executorManager.getBodyExecutionExecutor().execute(anonymousBody.getAnonymousBody(), plParams);
-            } catch (Exception e) {
-                PlParams plParamsCopy = new PlParams(plParams.getAllParams(), plParams.getParamTypes());
-                String message = exceptionMessageHandler.getMessage(e);
-                message = handleQuoteIdentifier(message);
-                plParamsCopy.put("ex.message", message, PlType.of(InternalFieldType.VARCHAR));
-                executorManager.getBodyExecutionExecutor().execute(exHandler.getExHandlerBody(), plParamsCopy);
-                if (exHandler.getWithRaise() != null && exHandler.getWithRaise()) {
-                    throw new AresException(e);
+        try {
+            if (exHandler != null) {
+                try {
+                    result = executorManager.getBodyExecutionExecutor().execute(anonymousBody.getAnonymousBody(), plParams);
+                } catch (Exception e) {
+                    executorManager.getTransactionManager().rollbackQuietly();
+                    PlParams plParamsCopy = new PlParams(plParams.getAllParams(), plParams.getParamTypes());
+                    String message = exceptionMessageHandler.getMessage(e);
+                    message = handleQuoteIdentifier(message);
+                    plParamsCopy.put("ex.message", message, PlType.of(InternalFieldType.VARCHAR));
+                    executorManager.getBodyExecutionExecutor().execute(exHandler.getExHandlerBody(), plParamsCopy);
+                    if (exHandler.getWithRaise() != null && exHandler.getWithRaise()) {
+                        throw new AresException(e);
+                    }
                 }
+            } else {
+                result = executorManager.getBodyExecutionExecutor().execute(anonymousBody.getAnonymousBody(), plParams);
             }
-        } else {
-            result = executorManager.getBodyExecutionExecutor().execute(anonymousBody.getAnonymousBody(), plParams);
+        } catch (Exception e) {
+            executorManager.getTransactionManager().rollbackQuietly();
+            throw e;
+        } finally {
+            executorManager.getTransactionManager().close();
         }
         traceLogger.info("Anonymous body: END");
         return result;
