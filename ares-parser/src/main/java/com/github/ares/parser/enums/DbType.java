@@ -4,25 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DbType {
-    /**
-     * MYSQL
-     */
+    /** MYSQL */
     MYSQL("mysql"),
-    /**
-     * ORACLE
-     */
+    /** ORACLE */
     ORACLE("oracle"),
-    /**
-     * PGSQL
-     */
+    /** PGSQL */
     PGSQL("postgresql"),
-    /**
-     * DAMENG
-     */
+    /** DAMENG */
     DAMENG("dm"),
-    /**
-     * OCEANBASE
-     */
+    /** OCEANBASE */
     OCEANBASE("oceanbase");
 
     private static final String JDBC_PREFIX = "jdbc:";

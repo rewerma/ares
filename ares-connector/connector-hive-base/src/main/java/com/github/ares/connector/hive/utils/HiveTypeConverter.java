@@ -1,11 +1,10 @@
 package com.github.ares.connector.hive.utils;
 
 import com.github.ares.common.exceptions.CommonError;
-import lombok.experimental.UtilityClass;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class HiveTypeConverter {

@@ -9,12 +9,16 @@ import org.junit.Test;
 public class Spark2FileFtpTest {
     @Test
     public void fileFtpTest() {
-        String[] args = new String[]{
-                "--master", Utils.getSparkMaster(),
-                "--sql", "../scripts/spark/connector/file-ftp-test.sql",
-                "--conf", "spark.jars="
-                + "../../ares-starter/ares-spark2-starter/target/ares-spark2-starter.jar"
-        };
+        String[] args =
+                new String[] {
+                    "--master",
+                    Utils.getSparkMaster(),
+                    "--sql",
+                    "../scripts/spark/connector/file-ftp-test.sql",
+                    "--conf",
+                    "spark.jars="
+                            + "../../ares-starter/ares-spark2-starter/target/ares-spark2-starter.jar"
+                };
         AresSparkStarter.main(args);
     }
 }

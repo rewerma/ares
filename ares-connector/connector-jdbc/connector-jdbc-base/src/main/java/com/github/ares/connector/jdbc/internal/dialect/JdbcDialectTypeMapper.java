@@ -17,20 +17,6 @@
 
 package com.github.ares.connector.jdbc.internal.dialect;
 
-import com.github.ares.api.table.catalog.Column;
-import com.github.ares.api.table.catalog.PhysicalColumn;
-import com.github.ares.api.table.connector.BasicTypeDefine;
-import com.github.ares.api.table.type.AresDataType;
-
-import java.io.Serializable;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static java.sql.Types.BINARY;
 import static java.sql.Types.BLOB;
 import static java.sql.Types.CHAR;
@@ -44,6 +30,19 @@ import static java.sql.Types.NVARCHAR;
 import static java.sql.Types.VARBINARY;
 import static java.sql.Types.VARCHAR;
 
+import com.github.ares.api.table.catalog.Column;
+import com.github.ares.api.table.catalog.PhysicalColumn;
+import com.github.ares.api.table.connector.BasicTypeDefine;
+import com.github.ares.api.table.type.AresDataType;
+import java.io.Serializable;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /** Separate the jdbc meta-information type to AresDataType into the interface. */
 public interface JdbcDialectTypeMapper extends Serializable {
 
@@ -55,8 +54,7 @@ public interface JdbcDialectTypeMapper extends Serializable {
      * @throws SQLException
      */
     @Deprecated
-    default AresDataType<?> mapping(ResultSetMetaData metadata, int colIndex)
-            throws SQLException {
+    default AresDataType<?> mapping(ResultSetMetaData metadata, int colIndex) throws SQLException {
         String columnName = metadata.getColumnLabel(colIndex);
         String nativeType = metadata.getColumnTypeName(colIndex);
         int isNullable = metadata.isNullable(colIndex);
@@ -90,7 +88,7 @@ public interface JdbcDialectTypeMapper extends Serializable {
             throws SQLException {
         List<Column> columns = new ArrayList<>();
         try (ResultSet rs =
-                     metadata.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern)) {
+                metadata.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern)) {
             while (rs.next()) {
                 String columnName = rs.getString("COLUMN_NAME");
                 String nativeType = rs.getString("TYPE_NAME");

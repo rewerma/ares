@@ -24,12 +24,10 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.connector.jdbc.exception.JdbcConnectorException;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectTypeMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PostgresTypeMapper implements JdbcDialectTypeMapper {
 
@@ -87,8 +85,7 @@ public class PostgresTypeMapper implements JdbcDialectTypeMapper {
 
     @SuppressWarnings("checkstyle:MagicNumber")
     @Override
-    public AresDataType<?> mapping(ResultSetMetaData metadata, int colIndex)
-            throws SQLException {
+    public AresDataType<?> mapping(ResultSetMetaData metadata, int colIndex) throws SQLException {
 
         String pgType = metadata.getColumnTypeName(colIndex);
 

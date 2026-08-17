@@ -9,14 +9,11 @@ public interface Collector<T> {
 
     void resetRowType(AresDataType<?> dataType);
 
-    default void markSchemaChangeBeforeCheckpoint() {
-    }
+    default void markSchemaChangeBeforeCheckpoint() {}
 
-    default void collect(SchemaChangeEvent event) {
-    }
+    default void collect(SchemaChangeEvent event) {}
 
-    default void markSchemaChangeAfterCheckpoint() {
-    }
+    default void markSchemaChangeAfterCheckpoint() {}
 
     /**
      * Returns the checkpoint lock.
@@ -29,6 +26,5 @@ public interface Collector<T> {
         return false;
     }
 
-    default void resetEmptyThisPollNext() {
-    }
+    default void resetEmptyThisPollNext() {}
 }

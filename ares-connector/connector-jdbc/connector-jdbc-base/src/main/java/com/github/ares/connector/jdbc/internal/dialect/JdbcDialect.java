@@ -7,8 +7,6 @@ import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider
 import com.github.ares.connector.jdbc.internal.converter.JdbcRowConverter;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
 import com.github.ares.connector.jdbc.source.JdbcSourceTable;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,10 +19,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a dialect of SQL implemented by a particular JDBC system. Dialects should be immutable
@@ -57,16 +53,12 @@ public interface JdbcDialect extends Serializable {
         return "ABS(MD5(" + quoteIdentifier(fieldName) + ") % " + mod + ")";
     }
 
-    /**
-     * Quotes the identifier for table name or field name
-     */
+    /** Quotes the identifier for table name or field name */
     default String quoteIdentifier(String identifier) {
         return identifier;
     }
 
-    /**
-     * Quotes the identifier for database name or field name
-     */
+    /** Quotes the identifier for database name or field name */
     default String quoteDatabaseIdentifier(String identifier) {
         return identifier;
     }
@@ -77,8 +69,8 @@ public interface JdbcDialect extends Serializable {
 
     /**
      * Constructs the dialects insert statement for a single row. The returned string will be used
-     * as a {@link PreparedStatement}. Fields in the statement must be in the same order as
-     * the {@code fieldNames} parameter.
+     * as a {@link PreparedStatement}. Fields in the statement must be in the same order as the
+     * {@code fieldNames} parameter.
      *
      * <pre>{@code
      * INSERT INTO table_name (column_name [, ...]) VALUES (value [, ...])
@@ -166,7 +158,7 @@ public interface JdbcDialect extends Serializable {
      * Approximate total number of entries in the lookup table.
      *
      * @param connection The JDBC connection object used to connect to the database.
-     * @param table      table info.
+     * @param table table info.
      * @return approximate row count statement.
      */
     default Long approximateRowCntStatement(Connection connection, JdbcSourceTable table)
@@ -181,11 +173,11 @@ public interface JdbcDialect extends Serializable {
      * Performs a sampling operation on the specified column of a table in a JDBC-connected
      * database.
      *
-     * @param connection   The JDBC connection object used to connect to the database.
-     * @param table        The table in which the column resides.
-     * @param columnName   The name of the column to be sampled.
+     * @param connection The JDBC connection object used to connect to the database.
+     * @param table The table in which the column resides.
+     * @param columnName The name of the column to be sampled.
      * @param samplingRate samplingRate The inverse of the fraction of the data to be sampled from
-     *                     the column. For example, a value of 1000 would mean 1/1000 of the data will be sampled.
+     *     the column. For example, a value of 1000 would mean 1/1000 of the data will be sampled.
      * @return Returns a List of sampled data from the specified column.
      * @throws SQLException If an SQL error occurs during the sampling operation.
      */
@@ -206,8 +198,8 @@ public interface JdbcDialect extends Serializable {
         }
 
         try (Statement stmt =
-                     connection.createStatement(
-                             ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+                connection.createStatement(
+                        ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
             stmt.setFetchSize(Integer.MIN_VALUE);
             try (ResultSet rs = stmt.executeQuery(sampleQuery)) {
                 int count = 0;
@@ -231,10 +223,10 @@ public interface JdbcDialect extends Serializable {
      * to <code>includedLowerBound</code> value [min_1, max_1), [min_2, max_2),... [min_n, null).
      * Each time this method is called it will return max1, max2...
      *
-     * @param connection         JDBC connection.
-     * @param table              table info.
-     * @param columnName         column name.
-     * @param chunkSize          chunk size.
+     * @param connection JDBC connection.
+     * @param table table info.
+     * @param columnName column name.
+     * @param chunkSize chunk size.
      * @param includedLowerBound the previous chunk end value.
      * @return next chunk end value.
      */

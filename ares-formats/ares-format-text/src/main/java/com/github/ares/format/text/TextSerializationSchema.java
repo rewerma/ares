@@ -12,8 +12,6 @@ import com.github.ares.common.utils.DateUtils;
 import com.github.ares.common.utils.TimeUtils;
 import com.github.ares.format.text.constant.TextFormatConstant;
 import com.github.ares.format.text.exception.AresTextFormatException;
-import lombok.NonNull;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -22,6 +20,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 
 public class TextSerializationSchema implements SerializationSchema {
     private final AresRowType aresRowType;

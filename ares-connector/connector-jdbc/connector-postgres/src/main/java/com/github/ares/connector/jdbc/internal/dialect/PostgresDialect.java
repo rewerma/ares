@@ -2,23 +2,15 @@ package com.github.ares.connector.jdbc.internal.dialect;
 
 import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.connector.jdbc.internal.converter.JdbcRowConverter;
-import com.github.ares.connector.jdbc.internal.dialect.DatabaseIdentifier;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectTypeMapper;
-import com.github.ares.connector.jdbc.internal.dialect.SQLUtils;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
 import com.github.ares.connector.jdbc.source.JdbcSourceTable;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class PostgresDialect implements JdbcDialect {

@@ -3,7 +3,6 @@ package com.github.ares.connector.fake.config;
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.Options;
-
 import java.util.List;
 import java.util.Map;
 

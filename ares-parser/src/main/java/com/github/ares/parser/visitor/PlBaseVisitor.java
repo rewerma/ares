@@ -9,7 +9,6 @@ import com.github.ares.parser.plan.LogicalExceptionHandler;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalSetConfig;
 import com.github.ares.parser.utils.PLParserUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -30,7 +29,8 @@ public class PlBaseVisitor {
      * @return a list of logical operations
      */
     public List<LogicalOperation> visitBase(PlSqlParser.Sql_scriptContext sqlScriptContext) {
-        List<PlSqlParser.Unit_statementContext> unitStatementContexts = sqlScriptContext.unit_statement();
+        List<PlSqlParser.Unit_statementContext> unitStatementContexts =
+                sqlScriptContext.unit_statement();
         if (unitStatementContexts == null) {
             return Collections.emptyList();
         }
@@ -40,27 +40,48 @@ public class PlBaseVisitor {
                     || visitSqlContext(unitStatementContext, result)) {
                 continue;
             }
-            throw new ParseException(String.format("Unsupported syntax: %s", PLParserUtil.getFullText(unitStatementContext)));
+            throw new ParseException(
+                    String.format(
+                            "Unsupported syntax: %s",
+                            PLParserUtil.getFullText(unitStatementContext)));
         }
 
         return result;
     }
 
-    private void visitAnonymousBody(PlSqlParser.Anonymous_bodyContext anonymousBodyContext, List<LogicalOperation> result) {
+    private void visitAnonymousBody(
+            PlSqlParser.Anonymous_bodyContext anonymousBodyContext, List<LogicalOperation> result) {
         Map<String, PlType> declaredParams = new LinkedHashMap<>();
-        LogicalOperation operation = visitorManager.getDeclareParamsVisitor()
-                .visitDeclareParams(anonymousBodyContext.seq_of_declare_specs(), declaredParams);
-        List<LogicalOperation> body = visitorManager.getBodyVisitor().visitBodyStatements(anonymousBodyContext.body().seq_of_statements(), new LinkedHashMap<>(),
-                new LinkedHashMap<>(), declaredParams, result, null);
+        LogicalOperation operation =
+                visitorManager
+                        .getDeclareParamsVisitor()
+                        .visitDeclareParams(
+                                anonymousBodyContext.seq_of_declare_specs(), declaredParams);
+        List<LogicalOperation> body =
+                visitorManager
+                        .getBodyVisitor()
+                        .visitBodyStatements(
+                                anonymousBodyContext.body().seq_of_statements(),
+                                new LinkedHashMap<>(),
+                                new LinkedHashMap<>(),
+                                declaredParams,
+                                result,
+                                null);
         LogicalAnonymousBody anonymousBody = new LogicalAnonymousBody();
         anonymousBody.setDeclareParams((LogicalDeclareParams) operation);
         anonymousBody.setAnonymousBody(body);
 
-        if (anonymousBodyContext.body().exception_handler() != null &&
-                !anonymousBodyContext.body().exception_handler().isEmpty()) {
-            LogicalExceptionHandler exHandler = visitorManager.getExceptionHandlerVisitor()
-                    .visitExceptionHandler(anonymousBodyContext.body().exception_handler().get(0),
-                            new LinkedHashMap<>(), new LinkedHashMap<>(), declaredParams, false);
+        if (anonymousBodyContext.body().exception_handler() != null
+                && !anonymousBodyContext.body().exception_handler().isEmpty()) {
+            LogicalExceptionHandler exHandler =
+                    visitorManager
+                            .getExceptionHandlerVisitor()
+                            .visitExceptionHandler(
+                                    anonymousBodyContext.body().exception_handler().get(0),
+                                    new LinkedHashMap<>(),
+                                    new LinkedHashMap<>(),
+                                    declaredParams,
+                                    false);
             if (exHandler != null) {
                 anonymousBody.setExHandler(exHandler);
             }
@@ -69,13 +90,18 @@ public class PlBaseVisitor {
         result.add(anonymousBody);
     }
 
-    private void visitCreateAsSQL(PlSqlParser.Create_tableContext createTableContext,
-                                  PlSqlParser.Sql_scriptContext sqlScriptContext, List<LogicalOperation> result) {
+    private void visitCreateAsSQL(
+            PlSqlParser.Create_tableContext createTableContext,
+            PlSqlParser.Sql_scriptContext sqlScriptContext,
+            List<LogicalOperation> result) {
         List<LogicalOperation> setConfigs = visit4SetConfig(sqlScriptContext);
         PlSqlParser.Create_withContext createWithContext = createTableContext.create_with();
         if (createWithContext != null) {
-            List<LogicalOperation> operations = visitorManager.getCreateTableWithVisitor()
-                    .visitCreateTableWith(createTableContext, createWithContext, setConfigs);
+            List<LogicalOperation> operations =
+                    visitorManager
+                            .getCreateTableWithVisitor()
+                            .visitCreateTableWith(
+                                    createTableContext, createWithContext, setConfigs);
             if (operations != null && !operations.isEmpty()) {
                 result.addAll(operations);
             }
@@ -84,89 +110,123 @@ public class PlBaseVisitor {
         }
     }
 
-    private void visitCreateProcedure(PlSqlParser.Create_procedure_bodyContext createProcedureBody, List<LogicalOperation> result) {
-        LogicalOperation operation = visitorManager.getCreateProcedureVisitor().visitCreateProcedure(createProcedureBody, result);
+    private void visitCreateProcedure(
+            PlSqlParser.Create_procedure_bodyContext createProcedureBody,
+            List<LogicalOperation> result) {
+        LogicalOperation operation =
+                visitorManager
+                        .getCreateProcedureVisitor()
+                        .visitCreateProcedure(createProcedureBody, result);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitCreateFunction(PlSqlParser.Create_function_bodyContext createFunctionBodyContext, List<LogicalOperation> result) {
-        LogicalOperation operation = visitorManager.getCreateFunctionVisitor().visitCreateFunction(createFunctionBodyContext, result);
+    private void visitCreateFunction(
+            PlSqlParser.Create_function_bodyContext createFunctionBodyContext,
+            List<LogicalOperation> result) {
+        LogicalOperation operation =
+                visitorManager
+                        .getCreateFunctionVisitor()
+                        .visitCreateFunction(createFunctionBodyContext, result);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitCallStatement(PlSqlParser.Call_statementContext callStatementContext, List<LogicalOperation> result) {
-        LogicalOperation operation = visitorManager.getCallStatementVisitor().
-                visitCallStatement(callStatementContext, new LinkedHashMap<>(), result, null);
+    private void visitCallStatement(
+            PlSqlParser.Call_statementContext callStatementContext, List<LogicalOperation> result) {
+        LogicalOperation operation =
+                visitorManager
+                        .getCallStatementVisitor()
+                        .visitCallStatement(
+                                callStatementContext, new LinkedHashMap<>(), result, null);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitSelectSQL(PlSqlParser.Select_blockContext selectBlockContext, List<LogicalOperation> result) {
+    private void visitSelectSQL(
+            PlSqlParser.Select_blockContext selectBlockContext, List<LogicalOperation> result) {
         String selectSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(selectBlockContext));
-        LogicalOperation operation = visitorManager.getSelectSQLVisitor()
-                .visitSelectSQL(selectSQL, selectSQL, new LinkedHashMap<>());
+        LogicalOperation operation =
+                visitorManager
+                        .getSelectSQLVisitor()
+                        .visitSelectSQL(selectSQL, selectSQL, new LinkedHashMap<>());
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitInsertSQL(PlSqlParser.Insert_blockContext insertBlockContext, List<LogicalOperation> result) {
+    private void visitInsertSQL(
+            PlSqlParser.Insert_blockContext insertBlockContext, List<LogicalOperation> result) {
         String insertSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(insertBlockContext));
-        LogicalOperation operation = visitorManager.getInsertSQLVisitor().visitInsertSQL(insertSQL, insertSQL);
+        LogicalOperation operation =
+                visitorManager.getInsertSQLVisitor().visitInsertSQL(insertSQL, insertSQL);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitUpdateSQL(PlSqlParser.Update_blockContext updateBlockContext, List<LogicalOperation> result) {
+    private void visitUpdateSQL(
+            PlSqlParser.Update_blockContext updateBlockContext, List<LogicalOperation> result) {
         String updateSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(updateBlockContext));
-        LogicalOperation operation = visitorManager.getUpdateSQLVisitor().visitUpdateSQL(updateSQL, updateSQL);
+        LogicalOperation operation =
+                visitorManager.getUpdateSQLVisitor().visitUpdateSQL(updateSQL, updateSQL);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitDeleteSQL(PlSqlParser.Delete_blockContext deleteBlockContext, List<LogicalOperation> result) {
+    private void visitDeleteSQL(
+            PlSqlParser.Delete_blockContext deleteBlockContext, List<LogicalOperation> result) {
         String deleteSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(deleteBlockContext));
-        LogicalOperation operation = visitorManager.getDeleteSQLVisitor().visitDeleteSQL(deleteSQL, deleteSQL);
+        LogicalOperation operation =
+                visitorManager.getDeleteSQLVisitor().visitDeleteSQL(deleteSQL, deleteSQL);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitMergeSQL(PlSqlParser.Merge_blockContext mergeBlockContext, List<LogicalOperation> result) {
+    private void visitMergeSQL(
+            PlSqlParser.Merge_blockContext mergeBlockContext, List<LogicalOperation> result) {
         String mergeSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(mergeBlockContext));
-        LogicalOperation operation = visitorManager.getMergeSQLVisitor().visitMergeSQL(mergeSQL, mergeSQL);
+        LogicalOperation operation =
+                visitorManager.getMergeSQLVisitor().visitMergeSQL(mergeSQL, mergeSQL);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitCreateTableAs(PlSqlParser.Create_table_asContext createTableAsContext, List<LogicalOperation> result) {
+    private void visitCreateTableAs(
+            PlSqlParser.Create_table_asContext createTableAsContext,
+            List<LogicalOperation> result) {
         String createSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(createTableAsContext));
         String innerTableName = createTableAsContext.table_name().getText();
-        LogicalOperation operation = visitorManager.getCreateAsSQLVisitor()
-                .visitCreateInnerTable(createSQL, createSQL, innerTableName);
+        LogicalOperation operation =
+                visitorManager
+                        .getCreateAsSQLVisitor()
+                        .visitCreateInnerTable(createSQL, createSQL, innerTableName);
         if (operation != null) {
             result.add(operation);
         }
     }
 
-    private void visitTruncateTable(PlSqlParser.Truncate_table_blockContext truncateTableBlockContext, List<LogicalOperation> result) {
-        String truncateSQL = PLParserUtil.cleanSQL(PLParserUtil.getFullText(truncateTableBlockContext));
-        LogicalOperation operation = visitorManager.getTruncateSQLVisitor().visitTruncateSQL(truncateSQL);
+    private void visitTruncateTable(
+            PlSqlParser.Truncate_table_blockContext truncateTableBlockContext,
+            List<LogicalOperation> result) {
+        String truncateSQL =
+                PLParserUtil.cleanSQL(PLParserUtil.getFullText(truncateTableBlockContext));
+        LogicalOperation operation =
+                visitorManager.getTruncateSQLVisitor().visitTruncateSQL(truncateSQL);
         if (operation != null) {
             result.add(operation);
         }
     }
 
     public List<LogicalOperation> visit4SetConfig(PlSqlParser.Sql_scriptContext sqlScriptContext) {
-        List<PlSqlParser.Unit_statementContext> unitStatementContexts = sqlScriptContext.unit_statement();
+        List<PlSqlParser.Unit_statementContext> unitStatementContexts =
+                sqlScriptContext.unit_statement();
         if (unitStatementContexts == null) {
             return Collections.emptyList();
         }
@@ -194,8 +254,10 @@ public class PlBaseVisitor {
         return setConfigs;
     }
 
-    private boolean visitPlContext(PlSqlParser.Unit_statementContext unitStatementContext,
-                                   PlSqlParser.Sql_scriptContext sqlScriptContext, List<LogicalOperation> result) {
+    private boolean visitPlContext(
+            PlSqlParser.Unit_statementContext unitStatementContext,
+            PlSqlParser.Sql_scriptContext sqlScriptContext,
+            List<LogicalOperation> result) {
         boolean resultFlag = false;
         if (unitStatementContext.anonymous_body() != null) {
             visitAnonymousBody(unitStatementContext.anonymous_body(), result);
@@ -218,7 +280,8 @@ public class PlBaseVisitor {
         return resultFlag;
     }
 
-    private boolean visitSqlContext(PlSqlParser.Unit_statementContext unitStatementContext, List<LogicalOperation> result) {
+    private boolean visitSqlContext(
+            PlSqlParser.Unit_statementContext unitStatementContext, List<LogicalOperation> result) {
         boolean resultFlag = false;
         if (unitStatementContext.select_block() != null) {
             visitSelectSQL(unitStatementContext.select_block(), result);

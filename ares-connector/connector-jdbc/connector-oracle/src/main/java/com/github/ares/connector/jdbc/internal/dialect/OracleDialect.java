@@ -21,19 +21,14 @@ import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.connector.jdbc.internal.converter.JdbcRowConverter;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
 import com.github.ares.connector.jdbc.source.JdbcSourceTable;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OracleDialect implements JdbcDialect {
     private static final Logger log = LoggerFactory.getLogger(OracleDialect.class);
@@ -45,8 +40,7 @@ public class OracleDialect implements JdbcDialect {
         this.fieldIde = fieldIde;
     }
 
-    public OracleDialect() {
-    }
+    public OracleDialect() {}
 
     @Override
     public String dialectName() {
@@ -126,7 +120,7 @@ public class OracleDialect implements JdbcDialect {
         boolean useTableStats =
                 StringUtils.isBlank(table.getQuery())
                         || (!table.getQuery().toLowerCase().contains("where")
-                        && table.getTablePath() != null);
+                                && table.getTablePath() != null);
         if (useTableStats) {
             TablePath tablePath = table.getTablePath();
             String analyzeTable =

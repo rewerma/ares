@@ -1,12 +1,10 @@
 package com.github.ares.spark.starter.execution;
 
 import com.github.ares.core.starter.execution.RuntimeEnvironment;
+import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
-
-import java.nio.file.Path;
-import java.util.Properties;
 
 public class SparkRuntimeEnvironment implements RuntimeEnvironment {
     private SparkConf sparkConf;
@@ -69,11 +67,12 @@ public class SparkRuntimeEnvironment implements RuntimeEnvironment {
             }
             sparkConfig.setJars(jars);
         }
-        properties.forEach((k, v) -> {
-            if (((String) k).startsWith("spark.")) {
-                sparkConfig.set((String) k, String.valueOf(v));
-            }
-        });
+        properties.forEach(
+                (k, v) -> {
+                    if (((String) k).startsWith("spark.")) {
+                        sparkConfig.set((String) k, String.valueOf(v));
+                    }
+                });
 
         return sparkConfig;
     }
@@ -95,14 +94,14 @@ public class SparkRuntimeEnvironment implements RuntimeEnvironment {
     }
 
     public static SparkRuntimeEnvironment getInstance(Properties properties) {
-//        if (INSTANCE == null) {
-//            synchronized (SparkRuntimeEnvironment.class) {
-//                if (INSTANCE == null) {
-//                    INSTANCE = new SparkRuntimeEnvironment(properties);
-//                }
-//            }
-//        }
-//        return INSTANCE;
+        //        if (INSTANCE == null) {
+        //            synchronized (SparkRuntimeEnvironment.class) {
+        //                if (INSTANCE == null) {
+        //                    INSTANCE = new SparkRuntimeEnvironment(properties);
+        //                }
+        //            }
+        //        }
+        //        return INSTANCE;
         return new SparkRuntimeEnvironment(properties);
     }
 }

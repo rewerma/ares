@@ -20,7 +20,6 @@ package com.github.ares.connector.jdbc.internal.dialect;
 import com.github.ares.api.source.TypeDefineUtils;
 import com.github.ares.api.table.catalog.Column;
 import com.github.ares.api.table.connector.BasicTypeDefine;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;

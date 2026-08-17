@@ -1,5 +1,7 @@
 package com.github.ares.spark.function.string;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
 
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
@@ -7,12 +9,8 @@ import com.github.ares.spark.function.utils.BinaryTypeExpression;
 import com.github.ares.spark.function.utils.StringTypeExpression;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.unsafe.types.UTF8String;
-
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
+import org.apache.spark.unsafe.types.UTF8String;
 
 @AutoService(SparkFuncInterface.class)
 public class Substring implements SparkFuncInterface {
@@ -28,7 +26,7 @@ public class Substring implements SparkFuncInterface {
 
     @Override
     public Object evaluate(List<Object> args) {
-        validateArgCount(functionName(), new int[]{2, 3}, args.size());
+        validateArgCount(functionName(), new int[] {2, 3}, args.size());
         Object arg1 = args.get(0);
         Number arg2 = toNumber(args.get(1));
         if (arg1 == null || arg2 == null) {
@@ -41,15 +39,21 @@ public class Substring implements SparkFuncInterface {
             if (args.size() == 3) {
                 len = toNumber(args.get(2)).intValue();
             }
-            substring = new org.apache.spark.sql.catalyst.expressions.Substring(new BinaryTypeExpression(), null, null);
+            substring =
+                    new org.apache.spark.sql.catalyst.expressions.Substring(
+                            new BinaryTypeExpression(), null, null);
             return substring.nullSafeEval(arg1, arg2.intValue(), len);
         } else {
             int len = arg1.toString().length();
             if (args.size() == 3) {
                 len = toNumber(args.get(2)).intValue();
             }
-            substring = new org.apache.spark.sql.catalyst.expressions.Substring(new StringTypeExpression(), null, null);
-            return substring.nullSafeEval(UTF8String.fromString(arg1.toString()), arg2.intValue(), len).toString();
+            substring =
+                    new org.apache.spark.sql.catalyst.expressions.Substring(
+                            new StringTypeExpression(), null, null);
+            return substring
+                    .nullSafeEval(UTF8String.fromString(arg1.toString()), arg2.intValue(), len)
+                    .toString();
         }
     }
 }

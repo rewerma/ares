@@ -2,7 +2,6 @@ package com.github.ares.api.table.type;
 
 import com.github.ares.common.engine.PlType;
 import com.github.ares.common.exceptions.AresException;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

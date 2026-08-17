@@ -5,10 +5,9 @@ import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
 import com.github.ares.connector.file.sink.util.XmlWriter;
-import org.apache.hadoop.fs.FSDataOutputStream;
-
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import org.apache.hadoop.fs.FSDataOutputStream;
 
 /**
  * An implementation of the AbstractWriteStrategy class that writes data in XML format.
@@ -54,7 +53,6 @@ public class XmlWriteStrategy extends AbstractWriteStrategy {
 
     private XmlWriter getOrCreateXmlWriter(String filePath) {
         return beingWrittenWriter.computeIfAbsent(
-                filePath,
-                k -> new XmlWriter(fileSinkConfig, sinkColumnsIndexInRow, aresRowType));
+                filePath, k -> new XmlWriter(fileSinkConfig, sinkColumnsIndexInRow, aresRowType));
     }
 }

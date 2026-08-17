@@ -19,7 +19,6 @@ package com.github.ares.connector.jdbc.state;
 
 import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.connector.jdbc.source.JdbcSourceSplit;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,8 @@ public class JdbcSourceState implements Serializable {
     private List<TablePath> pendingTables;
     private Map<Integer, List<JdbcSourceSplit>> pendingSplits;
 
-    public JdbcSourceState(List<TablePath> pendingTables, Map<Integer, List<JdbcSourceSplit>> pendingSplits) {
+    public JdbcSourceState(
+            List<TablePath> pendingTables, Map<Integer, List<JdbcSourceSplit>> pendingSplits) {
         this.pendingTables = pendingTables;
         this.pendingSplits = pendingSplits;
     }

@@ -15,7 +15,6 @@ import com.github.ares.connector.file.source.reader.ParquetReadStrategy;
 import com.github.ares.connector.file.source.reader.ReadStrategy;
 import com.github.ares.connector.file.source.reader.TextReadStrategy;
 import com.github.ares.connector.file.source.reader.XmlReadStrategy;
-
 import java.io.Serializable;
 
 public enum FileFormat implements Serializable {

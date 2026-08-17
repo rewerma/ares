@@ -1,33 +1,5 @@
 package com.github.ares.connector.hive.sink;
 
-import com.github.ares.api.common.PluginType;
-import com.github.ares.api.sink.SinkAggregatedCommitter;
-import com.github.ares.com.typesafe.config.Config;
-import com.github.ares.com.typesafe.config.ConfigValueFactory;
-import com.github.ares.common.configuration.CheckConfigUtil;
-import com.github.ares.common.configuration.CheckResult;
-import com.github.ares.common.exceptions.AresAPIErrorCode;
-import com.github.ares.common.exceptions.CommonErrorCode;
-import com.github.ares.connector.file.config.FileFormat;
-import com.github.ares.connector.file.config.HadoopConf;
-import com.github.ares.connector.file.hadoop.sink.BaseHdfsFileSink;
-import com.github.ares.connector.file.sink.commit.FileAggregatedCommitInfo;
-import com.github.ares.connector.file.sink.commit.FileCommitInfo;
-import com.github.ares.connector.hive.commit.HiveSinkAggregatedCommitter;
-import com.github.ares.connector.hive.config.HiveConfig;
-import com.github.ares.connector.hive.exception.HiveConnectorErrorCode;
-import com.github.ares.connector.hive.exception.HiveConnectorException;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hadoop.hive.metastore.api.FieldSchema;
-import org.apache.hadoop.hive.metastore.api.Table;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import static com.github.ares.connector.file.config.BaseSinkConfig.FIELD_DELIMITER;
 import static com.github.ares.connector.file.config.BaseSinkConfig.FILE_FORMAT_TYPE;
 import static com.github.ares.connector.file.config.BaseSinkConfig.FILE_NAME_EXPRESSION;
@@ -45,6 +17,33 @@ import static com.github.ares.connector.hive.config.HiveConfig.PARQUET_OUTPUT_FO
 import static com.github.ares.connector.hive.config.HiveConfig.TABLE_NAME;
 import static com.github.ares.connector.hive.config.HiveConfig.TEXT_OUTPUT_FORMAT_CLASSNAME;
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
+
+import com.github.ares.api.common.PluginType;
+import com.github.ares.api.sink.SinkAggregatedCommitter;
+import com.github.ares.com.typesafe.config.Config;
+import com.github.ares.com.typesafe.config.ConfigValueFactory;
+import com.github.ares.common.configuration.CheckConfigUtil;
+import com.github.ares.common.configuration.CheckResult;
+import com.github.ares.common.exceptions.AresAPIErrorCode;
+import com.github.ares.common.exceptions.CommonErrorCode;
+import com.github.ares.connector.file.config.FileFormat;
+import com.github.ares.connector.file.config.HadoopConf;
+import com.github.ares.connector.file.hadoop.sink.BaseHdfsFileSink;
+import com.github.ares.connector.file.sink.commit.FileAggregatedCommitInfo;
+import com.github.ares.connector.file.sink.commit.FileCommitInfo;
+import com.github.ares.connector.hive.commit.HiveSinkAggregatedCommitter;
+import com.github.ares.connector.hive.config.HiveConfig;
+import com.github.ares.connector.hive.exception.HiveConnectorErrorCode;
+import com.github.ares.connector.hive.exception.HiveConnectorException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.hive.metastore.api.FieldSchema;
+import org.apache.hadoop.hive.metastore.api.Table;
 
 public abstract class AbstractHiveSink extends BaseHdfsFileSink {
     private String dbName;

@@ -3,12 +3,11 @@ package com.github.ares.connector.jdbc.internal.connection;
 import com.github.ares.connector.jdbc.config.JdbcConnectionConfig;
 import com.github.ares.connector.jdbc.exception.JdbcConnectorException;
 import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** JDBC connection provider backed by a shared HikariCP pool. */
 public class PooledJdbcConnectionProvider implements JdbcConnectionProvider, Serializable {

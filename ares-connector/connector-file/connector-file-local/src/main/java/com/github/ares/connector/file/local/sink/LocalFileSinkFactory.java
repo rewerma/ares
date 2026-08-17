@@ -19,9 +19,11 @@ import com.github.ares.connector.file.sink.commit.FileAggregatedCommitInfo;
 import com.github.ares.connector.file.sink.commit.FileCommitInfo;
 import com.github.ares.connector.file.sink.state.FileSinkState;
 import com.google.auto.service.AutoService;
+
 @AutoService(Factory.class)
-public class LocalFileSinkFactory implements TableSinkFactory<
-        AresRow, FileSinkState, FileCommitInfo, FileAggregatedCommitInfo> {
+public class LocalFileSinkFactory
+        implements TableSinkFactory<
+                AresRow, FileSinkState, FileCommitInfo, FileAggregatedCommitInfo> {
     @Override
     public String factoryIdentifier() {
         return FileSystemType.LOCAL.getFileSystemPluginName();
@@ -82,8 +84,8 @@ public class LocalFileSinkFactory implements TableSinkFactory<
     }
 
     @Override
-    public TableSink<AresRow, FileSinkState, FileCommitInfo, FileAggregatedCommitInfo>
-            createSink(TableSinkFactoryContext context) {
+    public TableSink<AresRow, FileSinkState, FileCommitInfo, FileAggregatedCommitInfo> createSink(
+            TableSinkFactoryContext context) {
         ReadonlyConfig readonlyConfig = context.getOptions();
         CatalogTable catalogTable = context.getCatalogTable();
 

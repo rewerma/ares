@@ -5,14 +5,13 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.parser.enums.OperationType;
 import com.github.ares.parser.model.TableWith;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

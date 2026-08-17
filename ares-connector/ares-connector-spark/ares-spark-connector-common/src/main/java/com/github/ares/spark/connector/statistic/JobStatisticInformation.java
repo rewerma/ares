@@ -1,12 +1,11 @@
 package com.github.ares.spark.connector.statistic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class JobStatisticInformation {
     private static final Logger LOG = LoggerFactory.getLogger(JobStatisticInformation.class);
@@ -18,7 +17,8 @@ public final class JobStatisticInformation {
 
     private JobStatisticInformation() {}
 
-    public static void log(long startTimeMillis, long readCount, long writeCount, long failedCount) {
+    public static void log(
+            long startTimeMillis, long readCount, long writeCount, long failedCount) {
         long endTimeMillis = System.currentTimeMillis();
         long totalTimeSeconds = Math.max(0, (endTimeMillis - startTimeMillis) / 1000);
 
@@ -35,12 +35,8 @@ public final class JobStatisticInformation {
         builder.append("Total Time(s)             : ")
                 .append(formatCount(totalTimeSeconds))
                 .append('\n');
-        builder.append("Total Read Count          : ")
-                .append(formatCount(readCount))
-                .append('\n');
-        builder.append("Total Write Count         : ")
-                .append(formatCount(writeCount))
-                .append('\n');
+        builder.append("Total Read Count          : ").append(formatCount(readCount)).append('\n');
+        builder.append("Total Write Count         : ").append(formatCount(writeCount)).append('\n');
         builder.append("Total Failed Count        : ")
                 .append(formatCount(failedCount))
                 .append('\n');

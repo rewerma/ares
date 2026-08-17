@@ -1,11 +1,8 @@
 package com.github.ares.engine.core;
 
-import com.github.ares.com.google.inject.Inject;
-import com.github.ares.com.google.inject.Singleton;
 import com.github.ares.parser.config.PlProperties;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
+import org.slf4j.LoggerFactory;
 
 public class TraceLogger implements Serializable {
     private static final long serialVersionUID = -1L;

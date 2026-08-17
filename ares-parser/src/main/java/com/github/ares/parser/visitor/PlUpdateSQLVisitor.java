@@ -1,20 +1,19 @@
 package com.github.ares.parser.visitor;
 
+import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
+import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
+
 import com.github.ares.common.exceptions.ParseException;
-import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
-
 import java.util.Locale;
 import java.util.Map;
-
-import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
-import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 public class PlUpdateSQLVisitor {
     private Map<String, LogicalCreateSinkTable> sinkTables;
@@ -30,10 +29,12 @@ public class PlUpdateSQLVisitor {
     public LogicalOperation visitUpdateSQL(String originalSql, String updateSQL) {
         SQLUpdate sqlUpdate = sqlParser.parseUpdate(updateSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlUpdate.getTable().toLowerCase(Locale.ROOT));
+        LogicalCreateSinkTable sinkTable =
+                sinkTables.get(sqlUpdate.getTable().toLowerCase(Locale.ROOT));
 
         if (sinkTable == null) {
-            throw new ParseException(String.format("Sink table name not exists: %s", sqlUpdate.getTable()));
+            throw new ParseException(
+                    String.format("Sink table name not exists: %s", sqlUpdate.getTable()));
         }
         String selectSQL = sqlUpdate.getSourceSql();
         LogicalUpdateSelectSQL updateSelectSQL = new LogicalUpdateSelectSQL();

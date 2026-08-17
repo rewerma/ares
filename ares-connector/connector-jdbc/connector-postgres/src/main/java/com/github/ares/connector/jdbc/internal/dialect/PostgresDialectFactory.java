@@ -1,7 +1,6 @@
 package com.github.ares.connector.jdbc.internal.dialect;
 
 import com.google.auto.service.AutoService;
-
 import javax.annotation.Nonnull;
 
 @AutoService(JdbcDialectFactory.class)

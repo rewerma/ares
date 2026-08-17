@@ -38,8 +38,7 @@ public enum CommonErrorCode implements AresErrorCode {
             "COMMON-22",
             "<identifier> <operation> file '<fileName>' failed, because it not existed."),
     WRITE_ARES_ROW_ERROR(
-            "COMMON-23",
-            "<connector> write AresRow failed, the AresRow value is '<aresRow>'.");
+            "COMMON-23", "<connector> write AresRow failed, the AresRow value is '<aresRow>'.");
 
     private final String code;
     private final String description;

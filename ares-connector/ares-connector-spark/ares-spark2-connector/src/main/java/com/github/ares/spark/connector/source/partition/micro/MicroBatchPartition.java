@@ -24,11 +24,10 @@ import com.github.ares.spark.connector.source.reader.AresInputPartitionReader;
 import com.github.ares.spark.connector.source.reader.batch.ParallelBatchPartitionReader;
 import com.github.ares.spark.connector.source.reader.micro.CoordinatedMicroBatchPartitionReader;
 import com.github.ares.spark.connector.source.reader.micro.ParallelMicroBatchPartitionReader;
+import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.reader.InputPartition;
 import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
-
-import java.util.Map;
 
 public class MicroBatchPartition implements InputPartition<InternalRow> {
     protected final AresSource<AresRow, ?, ?> source;

@@ -2,7 +2,6 @@ package com.github.ares.spark.starter;
 
 import com.github.ares.api.env.EnvCommonOptions;
 import com.github.ares.com.google.inject.Injector;
-import com.github.ares.com.google.inject.Stage;
 import com.github.ares.common.configuration.DeployMode;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.common.utils.InjectorFactory;
@@ -24,10 +23,7 @@ import com.github.ares.parser.plan.LogicalProject;
 import com.github.ares.parser.plan.LogicalSetConfig;
 import com.github.ares.parser.utils.Constants;
 import com.github.ares.spark.starter.args.SparkCommandArgs;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -48,33 +44,24 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 
 public class SparkStarter implements Starter {
-    /**
-     * original commandline args
-     */
+    /** original commandline args */
     protected String[] args;
 
-    /**
-     * args parsed from {@link #args}
-     */
+    /** args parsed from {@link #args} */
     protected SparkCommandArgs commandArgs;
 
-    /**
-     * jars to include on the spark driver and executor classpaths
-     */
+    /** jars to include on the spark driver and executor classpaths */
     protected List<Path> jars = new ArrayList<>();
 
-    /**
-     * files to be placed in the working directory of each spark executor
-     */
+    /** files to be placed in the working directory of each spark executor */
     protected List<Path> files = new ArrayList<>();
 
     protected PlParser plParser;
 
-    /**
-     * spark configuration properties
-     */
+    /** spark configuration properties */
     protected Map<String, String> sparkConf;
 
     private SparkStarter(String[] args, SparkCommandArgs commandArgs) {
@@ -93,11 +80,7 @@ public class SparkStarter implements Starter {
 
     static SparkStarter getInstance(String[] args) {
         SparkCommandArgs commandArgs =
-                CommandLineUtils.parse(
-                        args,
-                        new SparkCommandArgs(),
-                        "",
-                        true);
+                CommandLineUtils.parse(args, new SparkCommandArgs(), "", true);
         DeployMode deployMode = commandArgs.getDeployMode();
         switch (deployMode) {
             case CLUSTER:
@@ -128,10 +111,7 @@ public class SparkStarter implements Starter {
         return buildFinal();
     }
 
-
-    /**
-     * parse spark configurations from Ares config file
-     */
+    /** parse spark configurations from Ares config file */
     private void setSparkConf() {
         commandArgs.getVariables().stream()
                 .filter(Objects::nonNull)
@@ -154,9 +134,7 @@ public class SparkStarter implements Starter {
         }
     }
 
-    /**
-     * append spark configurations to StringBuilder
-     */
+    /** append spark configurations to StringBuilder */
     protected void appendSparkConf(List<String> commands, Map<String, String> sparkConf) {
         for (Map.Entry<String, String> entry : sparkConf.entrySet()) {
             String key = entry.getKey();
@@ -165,24 +143,18 @@ public class SparkStarter implements Starter {
         }
     }
 
-    /**
-     * append option to StringBuilder
-     */
+    /** append option to StringBuilder */
     protected void appendOption(List<String> commands, String option, String value) {
         commands.add(option);
         commands.add("\"" + value.replace("\"", "\\\"") + "\"");
     }
 
-    /**
-     * append jars option to StringBuilder
-     */
+    /** append jars option to StringBuilder */
     protected void appendJars(List<String> commands, List<Path> paths) {
         appendPaths(commands, "--jars", paths);
     }
 
-    /**
-     * append comma-split paths option to StringBuilder
-     */
+    /** append comma-split paths option to StringBuilder */
     protected void appendPaths(List<String> commands, String option, List<Path> paths) {
         if (!paths.isEmpty()) {
             String values = paths.stream().map(Path::toString).collect(Collectors.joining(","));
@@ -190,9 +162,7 @@ public class SparkStarter implements Starter {
         }
     }
 
-    /**
-     * append files option to StringBuilder
-     */
+    /** append files option to StringBuilder */
     protected void appendFiles(List<String> commands, List<Path> paths) {
         Path scriptPath = Paths.get(this.commandArgs.getSqlFile());
         if (!paths.contains(scriptPath)) {
@@ -201,9 +171,7 @@ public class SparkStarter implements Starter {
         appendPaths(commands, "--files", paths);
     }
 
-    /**
-     * append appJar to StringBuilder
-     */
+    /** append appJar to StringBuilder */
     protected void appendAppJar(List<String> commands) {
         commands.add(
                 Common.appStarterDir().resolve(EngineType.SPARK3.getStarterJarName()).toString());
@@ -292,7 +260,8 @@ public class SparkStarter implements Starter {
                 .anyMatch(Common::requiresHadoopThirdPartyConnector);
     }
 
-    private static List<PluginIdentifier> getPluginIdentifiers(LogicalProject logicalProject, PluginType... pluginTypes) {
+    private static List<PluginIdentifier> getPluginIdentifiers(
+            LogicalProject logicalProject, PluginType... pluginTypes) {
         return Arrays.stream(pluginTypes)
                 .flatMap(
                         (Function<PluginType, Stream<PluginIdentifier>>)
@@ -303,40 +272,32 @@ public class SparkStarter implements Starter {
                                     } else {
                                         tableConfigs.addAll(logicalProject.getSinkTables());
                                     }
-                                    return tableConfigs.stream().map(sourceTableConf ->
-                                            PluginIdentifier.of(
-                                                    pluginType.getType(),
-                                                    sourceTableConf.getConnector()));
+                                    return tableConfigs.stream()
+                                            .map(
+                                                    sourceTableConf ->
+                                                            PluginIdentifier.of(
+                                                                    pluginType.getType(),
+                                                                    sourceTableConf
+                                                                            .getConnector()));
                                 })
                 .collect(Collectors.toList());
     }
 
-
     private static class ClientModeSparkStarter extends SparkStarter {
 
-        /**
-         * client mode specified spark options
-         */
+        /** client mode specified spark options */
         private enum ClientModeSparkConfigs {
 
-            /**
-             * Memory for driver in client mode
-             */
+            /** Memory for driver in client mode */
             DriverMemory("--driver-memory", "spark.driver.memory"),
 
-            /**
-             * Extra Java options to pass to the driver in client mode
-             */
+            /** Extra Java options to pass to the driver in client mode */
             DriverJavaOptions("--driver-java-options", "spark.driver.extraJavaOptions"),
 
-            /**
-             * Extra library path entries to pass to the driver in client mode
-             */
+            /** Extra library path entries to pass to the driver in client mode */
             DriverLibraryPath(" --driver-library-path", "spark.driver.extraLibraryPath"),
 
-            /**
-             * Extra class path entries to pass to the driver in client mode
-             */
+            /** Extra class path entries to pass to the driver in client mode */
             DriverClassPath("--driver-class-path", "spark.driver.extraClassPath");
 
             private final String optionName;
@@ -381,9 +342,7 @@ public class SparkStarter implements Starter {
         }
     }
 
-    /**
-     * a Starter for building spark-submit commands with cluster mode options
-     */
+    /** a Starter for building spark-submit commands with cluster mode options */
     private static class ClusterModeSparkStarter extends SparkStarter {
 
         private ClusterModeSparkStarter(String[] args, SparkCommandArgs commandArgs) {
@@ -394,9 +353,9 @@ public class SparkStarter implements Starter {
         public List<String> buildCommands() throws Exception {
             Common.setDeployMode(commandArgs.getDeployMode());
             Common.setStarter(true);
-//            Path pluginTarball = Common.pluginTarball();
-//            CompressionUtils.tarGzip(Common.pluginRootDir(), pluginTarball);
-//            this.files.add(pluginTarball);
+            //            Path pluginTarball = Common.pluginTarball();
+            //            CompressionUtils.tarGzip(Common.pluginRootDir(), pluginTarball);
+            //            this.files.add(pluginTarball);
             this.files.add(Paths.get(commandArgs.getSqlFile()));
             return super.buildCommands();
         }

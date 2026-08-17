@@ -1,16 +1,15 @@
 package com.github.ares.spark.function.string;
 
+import static com.github.ares.spark.function.utils.TypeUtil.handleStringType;
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static com.github.ares.spark.function.utils.TypeUtil.handleStringType;
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
 
 @AutoService(SparkFuncInterface.class)
 public class Crc32 implements SparkFuncInterface {
@@ -38,11 +37,19 @@ public class Crc32 implements SparkFuncInterface {
         } else if (arg instanceof byte[]) {
             bytes = (byte[]) arg;
         } else {
-            throw new AresException("cannot resolve 'crc32(" + handleStringType(arg) + ")' due to data type mismatch: " +
-                    "argument requires binary type, however, " + handleStringType(arg) + " is of " + arg.getClass().getSimpleName() + " type");
+            throw new AresException(
+                    "cannot resolve 'crc32("
+                            + handleStringType(arg)
+                            + ")' due to data type mismatch: "
+                            + "argument requires binary type, however, "
+                            + handleStringType(arg)
+                            + " is of "
+                            + arg.getClass().getSimpleName()
+                            + " type");
         }
 
-        org.apache.spark.sql.catalyst.expressions.Crc32 crc32 = new org.apache.spark.sql.catalyst.expressions.Crc32(null);
+        org.apache.spark.sql.catalyst.expressions.Crc32 crc32 =
+                new org.apache.spark.sql.catalyst.expressions.Crc32(null);
         return crc32.nullSafeEval(bytes);
     }
 }

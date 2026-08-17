@@ -17,6 +17,8 @@
 
 package com.github.ares.connector.jdbc.source;
 
+import static java.math.BigDecimal.ROUND_CEILING;
+
 import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRowType;
@@ -24,11 +26,6 @@ import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
 import com.github.ares.connector.jdbc.utils.JdbcSplitConditionUtils;
 import com.github.ares.connector.jdbc.utils.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -38,8 +35,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import static java.math.BigDecimal.ROUND_CEILING;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DynamicChunkSplitter extends ChunkSplitter {
     private static final Logger log = LoggerFactory.getLogger(DynamicChunkSplitter.class);
@@ -49,8 +48,8 @@ public class DynamicChunkSplitter extends ChunkSplitter {
     }
 
     @Override
-    protected Collection<JdbcSourceSplit> createSplits(
-            JdbcSourceTable table, AresRowType splitKey) throws SQLException {
+    protected Collection<JdbcSourceSplit> createSplits(JdbcSourceTable table, AresRowType splitKey)
+            throws SQLException {
         return createDynamicSplits(table, splitKey);
     }
 
@@ -130,8 +129,8 @@ public class DynamicChunkSplitter extends ChunkSplitter {
             boolean dataIsEvenlyDistributed =
                     ObjectUtils.doubleCompare(distributionFactor, distributionFactorLower) >= 0
                             && ObjectUtils.doubleCompare(
-                            distributionFactor, distributionFactorUpper)
-                            <= 0;
+                                            distributionFactor, distributionFactorUpper)
+                                    <= 0;
 
             if (dataIsEvenlyDistributed) {
                 // the minimum dynamic chunk size is at least 1
@@ -395,8 +394,10 @@ public class DynamicChunkSplitter extends ChunkSplitter {
         private ChunkRange(Object chunkStart, Object chunkEnd) {
             if (chunkStart != null || chunkEnd != null) {
                 if (Objects.equals(chunkStart, chunkEnd)) {
-                    throw new AresException(String.format("Chunk start %s shouldn't be equal to chunk end %s", chunkStart,
-                            chunkEnd));
+                    throw new AresException(
+                            String.format(
+                                    "Chunk start %s shouldn't be equal to chunk end %s",
+                                    chunkStart, chunkEnd));
                 }
             }
             this.chunkStart = chunkStart;

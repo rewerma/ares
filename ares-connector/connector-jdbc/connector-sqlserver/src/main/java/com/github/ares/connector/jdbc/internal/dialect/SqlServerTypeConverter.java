@@ -289,8 +289,11 @@ public class SqlServerTypeConverter implements TypeConverter<BasicTypeDefine> {
                 builder.dataType(LocalTimeType.LOCAL_DATE_TIME_TYPE);
                 break;
             default:
-                throw new AresException("Convert data type error, connector: " +
-                        DatabaseIdentifier.SQLSERVER + "data type: " + typeDefine.getName());
+                throw new AresException(
+                        "Convert data type error, connector: "
+                                + DatabaseIdentifier.SQLSERVER
+                                + "data type: "
+                                + typeDefine.getName());
         }
         return builder.build();
     }
@@ -469,8 +472,11 @@ public class SqlServerTypeConverter implements TypeConverter<BasicTypeDefine> {
                 builder.dataType(SQLSERVER_DATETIME2);
                 break;
             default:
-                throw new AresException("Convert data type error, connector: " +
-                        DatabaseIdentifier.SQLSERVER + "data type: " + column.getDataType().getSqlType().name());
+                throw new AresException(
+                        "Convert data type error, connector: "
+                                + DatabaseIdentifier.SQLSERVER
+                                + "data type: "
+                                + column.getDataType().getSqlType().name());
         }
         return builder.build();
     }

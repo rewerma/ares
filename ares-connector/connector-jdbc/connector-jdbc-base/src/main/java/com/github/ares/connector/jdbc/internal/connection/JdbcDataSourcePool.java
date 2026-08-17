@@ -4,28 +4,30 @@ import com.github.ares.connector.jdbc.config.JdbcConnectionConfig;
 import com.github.ares.connector.jdbc.exception.JdbcConnectorException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Shared HikariCP pools keyed by JDBC connection configuration. */
 final class JdbcDataSourcePool {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcDataSourcePool.class);
 
-    private static final ConcurrentHashMap<String, HikariDataSource> POOLS = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, HikariDataSource> POOLS =
+            new ConcurrentHashMap<>();
 
     private JdbcDataSourcePool() {}
 
     static HikariDataSource getDataSource(JdbcConnectionConfig jdbcConfig) {
-        return POOLS.computeIfAbsent(buildPoolKey(jdbcConfig), key -> createDataSource(jdbcConfig, key));
+        return POOLS.computeIfAbsent(
+                buildPoolKey(jdbcConfig), key -> createDataSource(jdbcConfig, key));
     }
 
-    private static HikariDataSource createDataSource(JdbcConnectionConfig jdbcConfig, String poolKey) {
+    private static HikariDataSource createDataSource(
+            JdbcConnectionConfig jdbcConfig, String poolKey) {
         loadDriverClass(jdbcConfig.getDriverName());
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setPoolName("ares-jdbc-" + poolKey);

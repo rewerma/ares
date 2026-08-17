@@ -17,10 +17,9 @@
 
 package com.github.ares.spark.connector.source.partition.micro;
 
-import org.apache.spark.sql.connector.read.streaming.PartitionOffset;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.spark.sql.connector.read.streaming.PartitionOffset;
 
 public class ReaderState implements PartitionOffset {
     private final Map<Integer, List<byte[]>> bytes;

@@ -1,15 +1,14 @@
 package com.github.ares.spark.function.number;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.unsafe.types.UTF8String;
-
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
+import org.apache.spark.unsafe.types.UTF8String;
 
 @AutoService(SparkFuncInterface.class)
 public class Conv implements SparkFuncInterface {
@@ -32,7 +31,8 @@ public class Conv implements SparkFuncInterface {
         Object arg = toNumber(args.get(0)).longValue();
         int arg1 = toNumber(args.get(1)).intValue();
         int arg2 = toNumber(args.get(2)).intValue();
-        org.apache.spark.sql.catalyst.expressions.Conv conv = new org.apache.spark.sql.catalyst.expressions.Conv(null, null, null);
+        org.apache.spark.sql.catalyst.expressions.Conv conv =
+                new org.apache.spark.sql.catalyst.expressions.Conv(null, null, null);
         return conv.nullSafeEval(UTF8String.fromString(arg.toString()), arg1, arg2).toString();
     }
 }

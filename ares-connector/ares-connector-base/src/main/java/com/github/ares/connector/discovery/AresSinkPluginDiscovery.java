@@ -1,7 +1,6 @@
 package com.github.ares.connector.discovery;
 
 import com.github.ares.api.sink.AresSink;
-
 import java.nio.file.Path;
 
 public class AresSinkPluginDiscovery extends AbstractPluginDiscovery<AresSink> {

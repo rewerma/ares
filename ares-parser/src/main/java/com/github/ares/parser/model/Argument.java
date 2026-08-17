@@ -1,10 +1,9 @@
 package com.github.ares.parser.model;
 
 import com.github.ares.common.engine.PlType;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
 
 @Getter
 @Setter

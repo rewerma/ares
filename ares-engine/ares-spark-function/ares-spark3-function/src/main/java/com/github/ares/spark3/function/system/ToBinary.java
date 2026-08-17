@@ -1,19 +1,17 @@
 package com.github.ares.spark3.function.system;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.ArrayType;
 import com.github.ares.common.exceptions.AresException;
-import com.github.ares.spark.function.string.Base64;
 import com.github.ares.spark.function.string.Unbase64;
 import com.github.ares.spark.function.string.Unhex;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class ToBinary implements SparkFuncInterface {
@@ -29,7 +27,7 @@ public class ToBinary implements SparkFuncInterface {
 
     @Override
     public Object evaluate(List<Object> args) {
-        validateArgCount(functionName(), new int[]{1, 2}, args.size());
+        validateArgCount(functionName(), new int[] {1, 2}, args.size());
         String arg1 = toStr(args.get(0));
         if (arg1 == null) {
             return null;
@@ -50,8 +48,15 @@ public class ToBinary implements SparkFuncInterface {
             case "HEX":
                 return Unhex.unhex(arg1);
             default:
-                throw new AresException("Cannot resolve \"to_binary(" + arg1 + ", " + format + ")\" due to data type mismatch: " +
-                        "The fmt value must to be a case-insensitive \"STRING\" literal of 'hex', 'utf-8', 'utf8', or 'base64', but got '" + format + "'.");
+                throw new AresException(
+                        "Cannot resolve \"to_binary("
+                                + arg1
+                                + ", "
+                                + format
+                                + ")\" due to data type mismatch: "
+                                + "The fmt value must to be a case-insensitive \"STRING\" literal of 'hex', 'utf-8', 'utf8', or 'base64', but got '"
+                                + format
+                                + "'.");
         }
     }
 }

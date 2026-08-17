@@ -1,5 +1,7 @@
 package com.github.ares.format.json;
 
+import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.ares.api.serialization.DeserializationSchema;
 import com.github.ares.api.source.Collector;
 import com.github.ares.api.table.type.AresDataType;
@@ -15,13 +17,9 @@ import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ares.com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.ares.com.fasterxml.jackson.databind.node.NullNode;
 import com.github.ares.common.exceptions.CommonError;
-import com.github.ares.format.json.exception.AresJsonFormatException;
-
 import com.github.ares.common.exceptions.CommonErrorCode;
-
+import com.github.ares.format.json.exception.AresJsonFormatException;
 import java.io.IOException;
-
-import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
 
 public class JsonDeserializationSchema implements DeserializationSchema<AresRow> {
     private static final long serialVersionUID = -1L;

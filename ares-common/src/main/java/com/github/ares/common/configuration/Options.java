@@ -1,16 +1,13 @@
 package com.github.ares.common.configuration;
 
-
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang3.StringUtils;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.lang3.StringUtils;
 
 public class Options {
 
@@ -43,68 +40,44 @@ public class Options {
             this.key = key;
         }
 
-        /**
-         * Defines that the value of the option should be of {@link Boolean} type.
-         */
+        /** Defines that the value of the option should be of {@link Boolean} type. */
         public TypedOptionBuilder<Boolean> booleanType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Boolean>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Boolean>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link Integer} type.
-         */
+        /** Defines that the value of the option should be of {@link Integer} type. */
         public TypedOptionBuilder<Integer> intType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Integer>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Integer>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link Long} type.
-         */
+        /** Defines that the value of the option should be of {@link Long} type. */
         public TypedOptionBuilder<Long> longType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Long>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Long>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link BigDecimal} type.
-         */
+        /** Defines that the value of the option should be of {@link BigDecimal} type. */
         public TypedOptionBuilder<BigDecimal> bigDecimalType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<BigDecimal>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<BigDecimal>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link Float} type.
-         */
+        /** Defines that the value of the option should be of {@link Float} type. */
         public TypedOptionBuilder<Float> floatType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Float>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Float>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link Double} type.
-         */
+        /** Defines that the value of the option should be of {@link Double} type. */
         public TypedOptionBuilder<Double> doubleType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Double>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Double>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link String} type.
-         */
+        /** Defines that the value of the option should be of {@link String} type. */
         public TypedOptionBuilder<String> stringType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<String>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<String>() {});
         }
 
-        /**
-         * Defines that the value of the option should be of {@link Duration} type.
-         */
+        /** Defines that the value of the option should be of {@link Duration} type. */
         public TypedOptionBuilder<Duration> durationType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Duration>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Duration>() {});
         }
 
         /**
@@ -128,8 +101,7 @@ public class Options {
          * represented as {@code Map<String, String>}.
          */
         public TypedOptionBuilder<Map<String, String>> mapType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<Map<String, String>>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<Map<String, String>>() {});
         }
 
         /**
@@ -137,8 +109,7 @@ public class Options {
          * represented as {@code List<String>}.
          */
         public TypedOptionBuilder<List<String>> listType() {
-            return new TypedOptionBuilder<>(key, new TypeReference<List<String>>() {
-            });
+            return new TypedOptionBuilder<>(key, new TypeReference<List<String>>() {});
         }
 
         /**
@@ -155,7 +126,7 @@ public class Options {
 
                                 @Override
                                 public Type[] getActualTypeArguments() {
-                                    return new Type[]{subClass};
+                                    return new Type[] {subClass};
                                 }
 
                                 @Override
@@ -183,9 +154,7 @@ public class Options {
                     });
         }
 
-        /**
-         * Construct an option with multiple options and only one of them can be selected
-         */
+        /** Construct an option with multiple options and only one of them can be selected */
         public <T> SingleChoiceOptionBuilder<T> singleChoice(
                 Class<T> optionType, List<T> optionValues) {
             return new SingleChoiceOptionBuilder<T>(
@@ -248,7 +217,8 @@ public class Options {
         private final String key;
         private final TypeReference<T> typeReference;
 
-        SingleChoiceOptionBuilder(String key, TypeReference<T> typeReference, List<T> optionValues) {
+        SingleChoiceOptionBuilder(
+                String key, TypeReference<T> typeReference, List<T> optionValues) {
             this.optionValues = optionValues;
             this.key = key;
             this.typeReference = typeReference;

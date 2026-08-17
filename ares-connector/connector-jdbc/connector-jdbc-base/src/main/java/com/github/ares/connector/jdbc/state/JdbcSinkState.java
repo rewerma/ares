@@ -17,8 +17,8 @@
 
 package com.github.ares.connector.jdbc.state;
 
-import javax.transaction.xa.Xid;
 import java.io.Serializable;
+import javax.transaction.xa.Xid;
 
 public class JdbcSinkState implements Serializable {
     private final Xid xid;

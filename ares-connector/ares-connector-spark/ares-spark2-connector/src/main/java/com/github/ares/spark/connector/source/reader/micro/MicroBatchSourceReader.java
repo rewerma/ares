@@ -24,16 +24,15 @@ import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.source.partition.micro.MicroBatchPartition;
 import com.github.ares.spark.connector.source.state.MicroBatchState;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.reader.InputPartition;
 import org.apache.spark.sql.sources.v2.reader.streaming.MicroBatchReader;
 import org.apache.spark.sql.sources.v2.reader.streaming.Offset;
 import org.apache.spark.sql.types.StructType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class MicroBatchSourceReader implements MicroBatchReader {
 

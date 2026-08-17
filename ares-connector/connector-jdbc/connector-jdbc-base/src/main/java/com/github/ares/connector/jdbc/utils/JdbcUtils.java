@@ -18,7 +18,6 @@ package com.github.ares.connector.jdbc.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -30,8 +29,7 @@ import java.sql.Timestamp;
 
 public final class JdbcUtils {
 
-    private JdbcUtils() {
-    }
+    private JdbcUtils() {}
 
     public static String getString(ResultSet resultSet, int columnIndex) throws SQLException {
         String value = resultSet.getString(columnIndex);

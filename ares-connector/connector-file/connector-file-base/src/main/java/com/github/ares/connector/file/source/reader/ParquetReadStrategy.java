@@ -16,6 +16,19 @@ import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Conversions;
 import org.apache.avro.data.TimeConversions;
@@ -37,20 +50,6 @@ import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.OriginalType;
 import org.apache.parquet.schema.Type;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 @Slf4j
 public class ParquetReadStrategy extends AbstractReadStrategy {
@@ -101,7 +100,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
                     fields = new Object[fieldsCount];
                 }
                 for (int i = 0; i < fieldsCount; i++) {
-                    Object data = record.get(/*indexes[i]*/i);
+                    Object data = record.get(/*indexes[i]*/ i);
                     fields[i] = resolveObject(data, aresRowType.getFieldType(i));
                 }
                 AresRow aresRow = new AresRow(fields);
@@ -237,8 +236,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
         } catch (IOException e) {
             String errorMsg =
                     String.format("Create parquet reader for this file [%s] failed", path);
-            throw new FileConnectorException(
-                    CommonErrorCode.READER_OPERATION_FAILED, errorMsg, e);
+            throw new FileConnectorException(CommonErrorCode.READER_OPERATION_FAILED, errorMsg, e);
         }
         FileMetaData fileMetaData = metadata.getFileMetaData();
         MessageType originalSchema = fileMetaData.getSchema();
@@ -329,8 +327,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
                 AresDataType<?>[] aresDataTypes = new AresDataType<?>[fields.size()];
                 for (int i = 0; i < fields.size(); i++) {
                     Type fieldType = fields.get(i);
-                    AresDataType<?> aresDataType =
-                            parquetType2AresType(fields.get(i), name);
+                    AresDataType<?> aresDataType = parquetType2AresType(fields.get(i), name);
                     fieldNames[i] = fieldType.getName();
                     aresDataTypes[i] = aresDataType;
                 }
@@ -339,8 +336,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
                 switch (logicalTypeAnnotation.toOriginalType()) {
                     case MAP:
                         GroupType groupType = type.asGroupType().getType(0).asGroupType();
-                        AresDataType<?> keyType =
-                                parquetType2AresType(groupType.getType(0), name);
+                        AresDataType<?> keyType = parquetType2AresType(groupType.getType(0), name);
                         AresDataType<?> valueType =
                                 parquetType2AresType(groupType.getType(1), name);
                         return new MapType<>(keyType, valueType);
@@ -351,8 +347,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
                         } catch (Exception e) {
                             elementType = type.asGroupType().getType(0);
                         }
-                        AresDataType<?> fieldType =
-                                parquetType2AresType(elementType, name);
+                        AresDataType<?> fieldType = parquetType2AresType(elementType, name);
                         switch (fieldType.getSqlType()) {
                             case STRING:
                                 return ArrayType.STRING_ARRAY_TYPE;
@@ -375,8 +370,7 @@ public class ParquetReadStrategy extends AbstractReadStrategy {
                                         PARQUET, type.toString(), name);
                         }
                     default:
-                        throw CommonError.convertToAresTypeError(
-                                PARQUET, type.toString(), name);
+                        throw CommonError.convertToAresTypeError(PARQUET, type.toString(), name);
                 }
             }
         }

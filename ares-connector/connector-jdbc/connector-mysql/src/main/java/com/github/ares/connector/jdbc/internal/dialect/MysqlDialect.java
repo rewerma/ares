@@ -4,24 +4,19 @@ import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.connector.jdbc.internal.converter.JdbcRowConverter;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
 import com.github.ares.connector.jdbc.source.JdbcSourceTable;
-import org.apache.commons.lang3.StringUtils;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public class MysqlDialect implements JdbcDialect {
     public String fieldIde = FieldIdeEnum.ORIGINAL.getValue();
 
-    public MysqlDialect() {
-    }
+    public MysqlDialect() {}
 
     public MysqlDialect(String fieldIde) {
         this.fieldIde = fieldIde;
@@ -88,7 +83,9 @@ public class MysqlDialect implements JdbcDialect {
             TablePath tablePath = table.getTablePath();
             String useDatabaseStatement = null;
             if (StringUtils.isNotBlank(tablePath.getDatabaseName())) {
-                useDatabaseStatement = String.format("USE %s;", quoteDatabaseIdentifier(tablePath.getDatabaseName()));
+                useDatabaseStatement =
+                        String.format(
+                                "USE %s;", quoteDatabaseIdentifier(tablePath.getDatabaseName()));
             }
             String rowCountQuery =
                     String.format("SHOW TABLE STATUS LIKE '%s';", tablePath.getTableName());

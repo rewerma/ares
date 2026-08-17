@@ -22,8 +22,6 @@ import com.github.ares.format.text.splitor.CsvLineSplitor;
 import com.github.ares.format.text.splitor.DefaultTextLineSplitor;
 import com.github.ares.format.text.splitor.TextLineSplitor;
 import io.airlift.compress.lzo.LzopCodec;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +29,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TextReadStrategy extends AbstractReadStrategy {
@@ -67,7 +66,7 @@ public class TextReadStrategy extends AbstractReadStrategy {
         }
 
         try (BufferedReader reader =
-                     new BufferedReader(new InputStreamReader(inputStream, encoding))) {
+                new BufferedReader(new InputStreamReader(inputStream, encoding))) {
             reader.lines()
                     .skip(skipHeaderNumber)
                     .forEach(
@@ -83,7 +82,7 @@ public class TextReadStrategy extends AbstractReadStrategy {
                                             fields =
                                                     new Object
                                                             [readColumns.size()
-                                                            + partitionsMap.size()];
+                                                                    + partitionsMap.size()];
                                         } else {
                                             fields = new Object[readColumns.size()];
                                         }
@@ -117,8 +116,7 @@ public class TextReadStrategy extends AbstractReadStrategy {
     @Override
     public AresRowType getAresRowTypeInfo(String path) {
         this.aresRowType = CatalogTableUtil.buildSimpleTextSchema();
-        this.aresRowTypeWithPartition =
-                mergePartitionTypes(fileNames.get(0), aresRowType);
+        this.aresRowTypeWithPartition = mergePartitionTypes(fileNames.get(0), aresRowType);
         initFormatter();
         if (pluginConfig.hasPath(BaseSourceConfigOptions.READ_COLUMNS.key())) {
             throw new FileConnectorException(
@@ -131,8 +129,7 @@ public class TextReadStrategy extends AbstractReadStrategy {
                         .delimiter(TextFormatConstant.PLACEHOLDER)
                         .textLineSplitor(textLineSplitor);
         if (isMergePartition) {
-            deserializationSchema =
-                    builder.aresRowType(this.aresRowTypeWithPartition).build();
+            deserializationSchema = builder.aresRowType(this.aresRowTypeWithPartition).build();
         } else {
             deserializationSchema = builder.aresRowType(this.aresRowType).build();
         }
@@ -172,8 +169,7 @@ public class TextReadStrategy extends AbstractReadStrategy {
                         .delimiter(fieldDelimiter)
                         .textLineSplitor(textLineSplitor);
         if (isMergePartition) {
-            deserializationSchema =
-                    builder.aresRowType(userDefinedRowTypeWithPartition).build();
+            deserializationSchema = builder.aresRowType(userDefinedRowTypeWithPartition).build();
         } else {
             deserializationSchema = builder.aresRowType(aresRowType).build();
         }
@@ -189,8 +185,7 @@ public class TextReadStrategy extends AbstractReadStrategy {
                 types[i] = aresRowType.getFieldType(indexes[i]);
             }
             this.aresRowType = new AresRowType(fields, types);
-            this.aresRowTypeWithPartition =
-                    mergePartitionTypes(fileNames.get(0), this.aresRowType);
+            this.aresRowTypeWithPartition = mergePartitionTypes(fileNames.get(0), this.aresRowType);
         } else {
             this.aresRowType = aresRowType;
             this.aresRowTypeWithPartition = userDefinedRowTypeWithPartition;

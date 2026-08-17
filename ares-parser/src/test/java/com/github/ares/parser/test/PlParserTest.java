@@ -13,12 +13,11 @@ import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalProject;
 import com.github.ares.parser.utils.Constants;
+import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.Properties;
 
 @Ignore
 public class PlParserTest {
@@ -32,7 +31,8 @@ public class PlParserTest {
         InjectorFactory.init(injector);
         plTransformation = injector.getInstance(PlParser.class);
         plTransformation.init();
-        SourceConfigPatcherFactory.register(Constants.DEFAULT_DATASOURCE_PATCHER,
+        SourceConfigPatcherFactory.register(
+                Constants.DEFAULT_DATASOURCE_PATCHER,
                 new PropertiesDataSourcePatcher(new Properties()));
     }
 
@@ -40,33 +40,42 @@ public class PlParserTest {
     public void parseCreateTable() {
         Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
-        String pl = "CREATE TABLE test1\n" +
-                "WITH (\n" +
-                "    'connector'='jdbc',\n" +
-                "    'url'='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false',\n" +
-                "    'driver'='com.mysql.cj.jdbc.Driver',\n" +
-                "    'user'='root',\n" +
-                "    'password'='123456',\n" +
-                "    -- 'query'='select * from t_user',\n" +
-                "    'table_name'='t_user',\n" +
-                "    'type' = 'source,sink'\n" +
-                ");";
+        String pl =
+                "CREATE TABLE test1\n"
+                        + "WITH (\n"
+                        + "    'connector'='jdbc',\n"
+                        + "    'url'='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false',\n"
+                        + "    'driver'='com.mysql.cj.jdbc.Driver',\n"
+                        + "    'user'='root',\n"
+                        + "    'password'='123456',\n"
+                        + "    -- 'query'='select * from t_user',\n"
+                        + "    'table_name'='t_user',\n"
+                        + "    'type' = 'source,sink'\n"
+                        + ");";
         LogicalProject logicalProject = plTransformation.parseToBaseBody(pl);
         Assert.assertEquals(2, logicalProject.getLogicalOperations().size());
-        LogicalCreateSourceTable logicalCreateSourceTable = (LogicalCreateSourceTable) logicalProject.getLogicalOperations().get(0);
+        LogicalCreateSourceTable logicalCreateSourceTable =
+                (LogicalCreateSourceTable) logicalProject.getLogicalOperations().get(0);
         Assert.assertEquals("jdbc", logicalCreateSourceTable.getConnector());
         Assert.assertEquals("test1", logicalCreateSourceTable.getTableName());
-        Assert.assertEquals("jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false", logicalCreateSourceTable.getOptions().get("url"));
-        Assert.assertEquals("com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
+        Assert.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false",
+                logicalCreateSourceTable.getOptions().get("url"));
+        Assert.assertEquals(
+                "com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
         Assert.assertEquals("root", logicalCreateSourceTable.getOptions().get("user"));
         Assert.assertEquals("123456", logicalCreateSourceTable.getOptions().get("password"));
         Assert.assertEquals("t_user", logicalCreateSourceTable.getOptions().get("table_name"));
 
-        LogicalCreateSinkTable logicalCreateSinkTable = (LogicalCreateSinkTable) logicalProject.getLogicalOperations().get(1);
+        LogicalCreateSinkTable logicalCreateSinkTable =
+                (LogicalCreateSinkTable) logicalProject.getLogicalOperations().get(1);
         Assert.assertEquals("jdbc", logicalCreateSinkTable.getConnector());
         Assert.assertEquals("test1", logicalCreateSinkTable.getTableName());
-        Assert.assertEquals("jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false", logicalCreateSinkTable.getOptions().get("url"));
-        Assert.assertEquals("com.mysql.cj.jdbc.Driver", logicalCreateSinkTable.getOptions().get("driver"));
+        Assert.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false",
+                logicalCreateSinkTable.getOptions().get("url"));
+        Assert.assertEquals(
+                "com.mysql.cj.jdbc.Driver", logicalCreateSinkTable.getOptions().get("driver"));
         Assert.assertEquals("root", logicalCreateSinkTable.getOptions().get("user"));
         Assert.assertEquals("123456", logicalCreateSinkTable.getOptions().get("password"));
         Assert.assertEquals("t_user", logicalCreateSinkTable.getOptions().get("table_name"));
@@ -76,35 +85,44 @@ public class PlParserTest {
     public void parseCreateTableWithDs() {
         Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
-        String pl = "SET datasource.mytest.connector=jdbc;\n" +
-                "SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false';\n" +
-                "SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;\n" +
-                "SET datasource.mytest.user=root;\n" +
-                "SET datasource.mytest.password=123456;\n" +
-                "\n" +
-                "CREATE TABLE test1\n" +
-                "WITH (\n" +
-                "    'datasource' = 'mytest',\n" +
-                "    -- 'query'='select * from t_user',\n" +
-                "    'table_name'='t_user',\n" +
-                "    'type' = 'source,sink'\n" +
-                ");";
+        String pl =
+                "SET datasource.mytest.connector=jdbc;\n"
+                        + "SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false';\n"
+                        + "SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;\n"
+                        + "SET datasource.mytest.user=root;\n"
+                        + "SET datasource.mytest.password=123456;\n"
+                        + "\n"
+                        + "CREATE TABLE test1\n"
+                        + "WITH (\n"
+                        + "    'datasource' = 'mytest',\n"
+                        + "    -- 'query'='select * from t_user',\n"
+                        + "    'table_name'='t_user',\n"
+                        + "    'type' = 'source,sink'\n"
+                        + ");";
         LogicalProject logicalProject = plTransformation.parseToBaseBody(pl);
         Assert.assertEquals(2, logicalProject.getLogicalOperations().size());
-        LogicalCreateSourceTable logicalCreateSourceTable = (LogicalCreateSourceTable) logicalProject.getLogicalOperations().get(0);
+        LogicalCreateSourceTable logicalCreateSourceTable =
+                (LogicalCreateSourceTable) logicalProject.getLogicalOperations().get(0);
         Assert.assertEquals("jdbc", logicalCreateSourceTable.getConnector());
         Assert.assertEquals("test1", logicalCreateSourceTable.getTableName());
-        Assert.assertEquals("jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false", logicalCreateSourceTable.getOptions().get("url"));
-        Assert.assertEquals("com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
+        Assert.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false",
+                logicalCreateSourceTable.getOptions().get("url"));
+        Assert.assertEquals(
+                "com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
         Assert.assertEquals("root", logicalCreateSourceTable.getOptions().get("user"));
         Assert.assertEquals("123456", logicalCreateSourceTable.getOptions().get("password"));
         Assert.assertEquals("t_user", logicalCreateSourceTable.getOptions().get("table_name"));
 
-        LogicalCreateSinkTable logicalCreateSinkTable = (LogicalCreateSinkTable) logicalProject.getLogicalOperations().get(1);
+        LogicalCreateSinkTable logicalCreateSinkTable =
+                (LogicalCreateSinkTable) logicalProject.getLogicalOperations().get(1);
         Assert.assertEquals("jdbc", logicalCreateSinkTable.getConnector());
         Assert.assertEquals("test1", logicalCreateSinkTable.getTableName());
-        Assert.assertEquals("jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false", logicalCreateSinkTable.getOptions().get("url"));
-        Assert.assertEquals("com.mysql.cj.jdbc.Driver", logicalCreateSinkTable.getOptions().get("driver"));
+        Assert.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false",
+                logicalCreateSinkTable.getOptions().get("url"));
+        Assert.assertEquals(
+                "com.mysql.cj.jdbc.Driver", logicalCreateSinkTable.getOptions().get("driver"));
         Assert.assertEquals("root", logicalCreateSinkTable.getOptions().get("user"));
         Assert.assertEquals("123456", logicalCreateSinkTable.getOptions().get("password"));
         Assert.assertEquals("t_user", logicalCreateSinkTable.getOptions().get("table_name"));
@@ -114,20 +132,22 @@ public class PlParserTest {
     public void parseSetConfigWithQuotedValues() {
         Injector injector = ParserInjectorFactory.create();
         InjectorFactory.init(injector);
-        String pl = "SET datasource.mytest.connector=mysql;\n" +
-                "SET datasource.mytest.driver='com.mysql.cj.jdbc.Driver';\n" +
-                "SET datasource.mytest.password='p@ss';\n" +
-                "\n" +
-                "CREATE TABLE test1\n" +
-                "WITH (\n" +
-                "    'datasource' = 'mytest',\n" +
-                "    'table_name'='t_user',\n" +
-                "    'type' = 'source'\n" +
-                ");";
+        String pl =
+                "SET datasource.mytest.connector=mysql;\n"
+                        + "SET datasource.mytest.driver='com.mysql.cj.jdbc.Driver';\n"
+                        + "SET datasource.mytest.password='p@ss';\n"
+                        + "\n"
+                        + "CREATE TABLE test1\n"
+                        + "WITH (\n"
+                        + "    'datasource' = 'mytest',\n"
+                        + "    'table_name'='t_user',\n"
+                        + "    'type' = 'source'\n"
+                        + ");";
         LogicalProject logicalProject = plTransformation.parseToBaseBody(pl);
         LogicalCreateSourceTable logicalCreateSourceTable =
                 (LogicalCreateSourceTable) logicalProject.getLogicalOperations().get(0);
-        Assert.assertEquals("com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
+        Assert.assertEquals(
+                "com.mysql.cj.jdbc.Driver", logicalCreateSourceTable.getOptions().get("driver"));
         Assert.assertEquals("p@ss", logicalCreateSourceTable.getOptions().get("password"));
     }
 }

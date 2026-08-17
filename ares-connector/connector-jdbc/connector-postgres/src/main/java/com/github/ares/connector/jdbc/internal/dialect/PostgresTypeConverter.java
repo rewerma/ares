@@ -12,7 +12,6 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.common.exceptions.CommonError;
-import com.github.ares.connector.jdbc.internal.dialect.DatabaseIdentifier;
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 

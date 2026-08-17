@@ -1,9 +1,8 @@
 package com.github.ares.common.configuration;
 
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
-import lombok.Getter;
-
 import java.util.List;
+import lombok.Getter;
 
 public class SingleChoiceOption<T> extends Option<T> {
 

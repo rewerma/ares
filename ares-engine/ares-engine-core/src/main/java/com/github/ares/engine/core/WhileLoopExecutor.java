@@ -1,26 +1,44 @@
 package com.github.ares.engine.core;
 
+import com.github.ares.parser.enums.OperationType;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalWhileLoop;
 
-import java.io.Serializable;
+public class WhileLoopExecutor extends AbstractBaseExecutor implements OperationHandler {
 
-import static com.github.ares.engine.utils.EngineUtil.replaceParams;
-import static com.github.ares.parser.enums.OperationType.EXIT_LOOP;
+    @Override
+    public OperationType handledType() {
+        return OperationType.WHILE_LOOP;
+    }
 
-public class WhileLoopExecutor extends AbstractBaseExecutor implements Serializable {
+    @Override
+    public Scope scope() {
+        return Scope.BODY;
+    }
+
+    @Override
+    public Object handle(
+            LogicalOperation operation, PlParams plParams, Object lastData, BodyCallback body) {
+        return execute((LogicalWhileLoop) operation, plParams, body);
+    }
 
     public Object execute(LogicalWhileLoop whileLoop, PlParams plParams, BodyCallback body) {
         traceLogger.info("While loop: {} BEGIN", whileLoop.getCondition().getExpr());
-        String expr = replaceParams(whileLoop.getCondition().getExpr(), plParams);
-        Object res = null;
-        while (executorManager.getExpressionExecutor().execute4Bool(expr)) {
-            res = body.invoke(whileLoop.getWhileBody(), plParams);
-            if (EXIT_LOOP == res) {
+        String expr = whileLoop.getCondition().getExpr();
+        Object lastData = null;
+        while (executorManager.getExpressionExecutor().execute4Bool(expr, plParams)) {
+            Object res = body.invoke(whileLoop.getWhileBody(), plParams);
+            if (LoopControl.isReturn(res)) {
+                return res;
+            }
+            if (LoopControl.isExit(res)) {
                 break;
             }
-            expr = replaceParams(whileLoop.getCondition().getExpr(), plParams);
+            if (!LoopControl.isContinue(res)) {
+                lastData = res;
+            }
         }
         traceLogger.info("While loop: {} END", whileLoop.getCondition().getExpr());
-        return res;
+        return lastData;
     }
 }

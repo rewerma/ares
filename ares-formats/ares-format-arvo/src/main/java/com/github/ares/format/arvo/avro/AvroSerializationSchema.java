@@ -5,13 +5,12 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.format.arvo.avro.exception.AresAvroFormatException;
 import com.github.ares.format.arvo.avro.exception.AvroFormatErrorCode;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 public class AvroSerializationSchema implements SerializationSchema {
 

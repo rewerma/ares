@@ -24,11 +24,9 @@ public class HiveTypeConverterTest {
 
     @Test
     public void convertComplexTypes() {
+        Assert.assertEquals("array<int>", HiveTypeConverter.convert(PLUGIN, "ids", "array<int>"));
         Assert.assertEquals(
-                "array<int>", HiveTypeConverter.convert(PLUGIN, "ids", "array<int>"));
-        Assert.assertEquals(
-                "map<string,int>",
-                HiveTypeConverter.convert(PLUGIN, "kv", "map<string,int>"));
+                "map<string,int>", HiveTypeConverter.convert(PLUGIN, "kv", "map<string,int>"));
         Assert.assertEquals(
                 "{id:int,name:string}",
                 HiveTypeConverter.convert(PLUGIN, "row", "struct<id:int,name:string>"));
@@ -39,8 +37,7 @@ public class HiveTypeConverterTest {
         String aresType = HiveTypeConverter.convert(PLUGIN, "amount", "decimal(10,2)");
         Assert.assertEquals(
                 SqlType.DECIMAL,
-                AresDataTypeConvertorUtil.deserializeAresDataType("amount", aresType)
-                        .getSqlType());
+                AresDataTypeConvertorUtil.deserializeAresDataType("amount", aresType).getSqlType());
         Assert.assertEquals(
                 BasicType.STRING_TYPE,
                 AresDataTypeConvertorUtil.deserializeAresDataType(

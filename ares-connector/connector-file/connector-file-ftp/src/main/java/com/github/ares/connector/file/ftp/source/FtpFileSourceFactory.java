@@ -10,8 +10,6 @@ import com.github.ares.connector.file.config.FileFormat;
 import com.github.ares.connector.file.config.FileSystemType;
 import com.github.ares.connector.file.ftp.config.FtpConfigOptions;
 import com.google.auto.service.AutoService;
-import org.apache.hadoop.fs.ftp.FTPInputStream;
-
 import java.util.Arrays;
 
 @AutoService(Factory.class)

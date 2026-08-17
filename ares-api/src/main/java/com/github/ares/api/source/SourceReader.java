@@ -17,22 +17,18 @@
 
 package com.github.ares.api.source;
 
-
 import java.io.IOException;
 import java.util.List;
 
 /**
  * The {@link SourceReader} is used to generate source record, and it will be running at worker.
  *
- * @param <T>      record type.
+ * @param <T> record type.
  * @param <SplitT> source split type.
  */
-public interface SourceReader<T, SplitT extends SourceSplit>
-        extends AutoCloseable {
+public interface SourceReader<T, SplitT extends SourceSplit> extends AutoCloseable {
 
-    /**
-     * Open the source reader.
-     */
+    /** Open the source reader. */
     void open() throws Exception;
 
     /**
@@ -82,24 +78,17 @@ public interface SourceReader<T, SplitT extends SourceSplit>
      *
      * @param sourceEvent source event.
      */
-    default void handleSourceEvent(SourceEvent sourceEvent) {
-    }
+    default void handleSourceEvent(SourceEvent sourceEvent) {}
 
     interface Context {
 
-        /**
-         * @return The index of this subtask.
-         */
+        /** @return The index of this subtask. */
         int getIndexOfSubtask();
 
-        /**
-         * @return boundedness of this reader.
-         */
+        /** @return boundedness of this reader. */
         Boundedness getBoundedness();
 
-        /**
-         * Indicator that the input has reached the end of data. Then will cancel this reader.
-         */
+        /** Indicator that the input has reached the end of data. Then will cancel this reader. */
         void signalNoMoreElement();
 
         /**

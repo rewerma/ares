@@ -4,4 +4,3 @@ public enum EngineType {
     SPARK,
     FLINK;
 }
-

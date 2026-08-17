@@ -1,7 +1,6 @@
 package com.github.ares.parser.plan;
 
 import com.github.ares.parser.enums.OperationType;
-
 import java.io.Serializable;
 
 public class LogicalRollback extends LogicalOperation implements Serializable {

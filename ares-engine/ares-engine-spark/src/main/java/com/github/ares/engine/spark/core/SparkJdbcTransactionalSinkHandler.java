@@ -10,10 +10,6 @@ import com.github.ares.connector.jdbc.sink.JdbcPlTransactionSession;
 import com.github.ares.connector.jdbc.sink.JdbcSink;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.TransactionalSinkHandler;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.storage.StorageLevel;
-
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -23,6 +19,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.storage.StorageLevel;
 
 public class SparkJdbcTransactionalSinkHandler implements TransactionalSinkHandler {
 
@@ -36,7 +35,11 @@ public class SparkJdbcTransactionalSinkHandler implements TransactionalSinkHandl
 
     @Override
     @SuppressWarnings("unchecked")
-    public void write(AresSink<?, ?, ?, ?> sink, Object dataset, CatalogTable catalogTable, String sinkTableName) {
+    public void write(
+            AresSink<?, ?, ?, ?> sink,
+            Object dataset,
+            CatalogTable catalogTable,
+            String sinkTableName) {
         if (!(sink instanceof JdbcSink)) {
             throw new AresException(
                     "START TRANSACTION only supports JDBC sink, got: " + sink.getPluginName());
@@ -69,11 +72,13 @@ public class SparkJdbcTransactionalSinkHandler implements TransactionalSinkHandl
                 executorManager.getReloadFunctionExecutor().reloadSourceTable(tableName);
             }
         }
+        dirtyTables.clear();
     }
 
     @Override
     public void rollbackQuietly() {
         session.rollbackQuietly();
+        dirtyTables.clear();
     }
 
     @Override

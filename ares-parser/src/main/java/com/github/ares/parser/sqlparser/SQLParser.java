@@ -7,7 +7,6 @@ import com.github.ares.parser.sqlparser.model.SQLMerge;
 import com.github.ares.parser.sqlparser.model.SQLSelect;
 import com.github.ares.parser.sqlparser.model.SQLTruncate;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
-
 import java.util.List;
 
 public interface SQLParser {
@@ -24,7 +23,8 @@ public interface SQLParser {
     SQLTruncate parseTruncate(String sql);
 
     default void visitCriteriaClause(CriteriaClause criteriaClause, List<String> items) {
-        if ("AND".equalsIgnoreCase(criteriaClause.getOperator()) || "OR".equalsIgnoreCase(criteriaClause.getOperator())) {
+        if ("AND".equalsIgnoreCase(criteriaClause.getOperator())
+                || "OR".equalsIgnoreCase(criteriaClause.getOperator())) {
             visitCriteriaClause(criteriaClause.getLeftCriteria(), items);
             visitCriteriaClause(criteriaClause.getRightCriteria(), items);
         } else {

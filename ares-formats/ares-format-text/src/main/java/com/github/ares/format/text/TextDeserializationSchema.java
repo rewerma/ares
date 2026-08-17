@@ -15,9 +15,6 @@ import com.github.ares.format.text.constant.TextFormatConstant;
 import com.github.ares.format.text.exception.AresTextFormatException;
 import com.github.ares.format.text.splitor.DefaultTextLineSplitor;
 import com.github.ares.format.text.splitor.TextLineSplitor;
-import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 public class TextDeserializationSchema implements DeserializationSchema<AresRow> {
     private final AresRowType aresRowType;
@@ -160,8 +159,7 @@ public class TextDeserializationSchema implements DeserializationSchema<AresRow>
         return splitsMap;
     }
 
-    private Object convert(
-            String field, AresDataType<?> fieldType, int level, String fieldName) {
+    private Object convert(String field, AresDataType<?> fieldType, int level, String fieldName) {
         if (StringUtils.isBlank(field)) {
             return null;
         }
@@ -273,8 +271,7 @@ public class TextDeserializationSchema implements DeserializationSchema<AresRow>
             default:
                 throw new AresTextFormatException(
                         String.format(
-                                "Ares not support this data type [%s]",
-                                fieldType.getSqlType()));
+                                "Ares not support this data type [%s]", fieldType.getSqlType()));
         }
     }
 }

@@ -16,7 +16,6 @@ import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.hadoop.source.config.HdfsSourceConfigOptions;
 import com.github.ares.connector.file.source.BaseFileSource;
 import com.github.ares.connector.file.source.reader.ReadStrategyFactory;
-
 import java.io.IOException;
 
 public abstract class BaseHdfsFileSource extends BaseFileSource {
@@ -50,8 +49,7 @@ public abstract class BaseHdfsFileSource extends BaseFileSource {
         }
 
         if (pluginConfig.hasPath(HdfsSourceConfigOptions.KRB5_PATH.key())) {
-            hadoopConf.setKrb5Path(
-                    pluginConfig.getString(HdfsSourceConfigOptions.KRB5_PATH.key()));
+            hadoopConf.setKrb5Path(pluginConfig.getString(HdfsSourceConfigOptions.KRB5_PATH.key()));
         }
 
         if (pluginConfig.hasPath(HdfsSourceConfigOptions.KERBEROS_PRINCIPAL.key())) {
@@ -90,7 +88,8 @@ public abstract class BaseHdfsFileSource extends BaseFileSource {
                         rowType = readStrategy.getAresRowTypeInfo(filePaths.get(0));
                     } catch (FileConnectorException e) {
                         String errorMsg =
-                                String.format("Get table schema from file [%s] failed", filePaths.get(0));
+                                String.format(
+                                        "Get table schema from file [%s] failed", filePaths.get(0));
                         throw new FileConnectorException(
                                 CommonErrorCode.TABLE_SCHEMA_GET_FAILED, errorMsg, e);
                     }
@@ -99,8 +98,7 @@ public abstract class BaseHdfsFileSource extends BaseFileSource {
         }
         if (!pluginConfig.hasPath(TableSchemaOptions.SCHEMA.key())) {
             throw new FileConnectorException(
-                    CommonErrorCode.ILLEGAL_ARGUMENT,
-                    "Ares does not supported this file format");
+                    CommonErrorCode.ILLEGAL_ARGUMENT, "Ares does not supported this file format");
         }
         AresRowType userDefinedSchema =
                 CatalogTableUtil.buildWithConfig(pluginConfig).getAresRowType();

@@ -25,15 +25,14 @@ import com.github.ares.connector.source.BaseSourceFunction;
 import com.github.ares.connector.source.ParallelSource;
 import com.github.ares.connector.utils.ThreadPoolExecutorFactory;
 import com.github.ares.spark.connector.serialization.InternalRowCollector;
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParallelBatchPartitionReader {
     private Logger log = LoggerFactory.getLogger(ParallelBatchPartitionReader.class);

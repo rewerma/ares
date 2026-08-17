@@ -1,16 +1,13 @@
 package com.github.ares.spark.function.number;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.sql.catalyst.expressions.Log;
-
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-
 
 @AutoService(SparkFuncInterface.class)
 public class Log10 implements SparkFuncInterface {
@@ -32,7 +29,8 @@ public class Log10 implements SparkFuncInterface {
             return null;
         }
 
-        org.apache.spark.sql.catalyst.expressions.Log10 log10 = new org.apache.spark.sql.catalyst.expressions.Log10(null);
+        org.apache.spark.sql.catalyst.expressions.Log10 log10 =
+                new org.apache.spark.sql.catalyst.expressions.Log10(null);
         return log10.nullSafeEval(arg.doubleValue());
     }
 }

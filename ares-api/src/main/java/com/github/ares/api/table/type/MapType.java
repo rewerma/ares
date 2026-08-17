@@ -28,14 +28,14 @@ public class MapType<K, V> implements CompositeType<Map<K, V>> {
     private final AresDataType<V> valueType;
 
     public MapType(AresDataType<K> keyType, AresDataType<V> valueType) {
-        if(keyType==null){
+        if (keyType == null) {
             throw new RuntimeException("The key type is required.");
         }
-        if(valueType==null){
+        if (valueType == null) {
             throw new RuntimeException("The value type is required.");
         }
-        if(!SUPPORTED_KEY_TYPES.contains(keyType.getSqlType())){
-            throw new RuntimeException(String.format("Unsupported key types: %s",keyType));
+        if (!SUPPORTED_KEY_TYPES.contains(keyType.getSqlType())) {
+            throw new RuntimeException(String.format("Unsupported key types: %s", keyType));
         }
         this.keyType = keyType;
         this.valueType = valueType;

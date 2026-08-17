@@ -1,5 +1,7 @@
 package com.github.ares.spark.function.string;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
 
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
@@ -7,13 +9,9 @@ import com.github.ares.spark.function.utils.BinaryTypeExpression;
 import com.github.ares.spark.function.utils.StringTypeExpression;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
+import java.util.List;
 import org.apache.spark.sql.catalyst.expressions.Substring;
 import org.apache.spark.unsafe.types.UTF8String;
-
-import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
 
 @AutoService(SparkFuncInterface.class)
 public class Right implements SparkFuncInterface {
@@ -38,11 +36,17 @@ public class Right implements SparkFuncInterface {
         Substring substring;
         if (arg1 instanceof byte[]) {
             substring = new Substring(new BinaryTypeExpression(), null, null);
-            return substring.nullSafeEval(arg1, ((byte[]) arg1).length - arg2.intValue() + 1, arg2.intValue());
+            return substring.nullSafeEval(
+                    arg1, ((byte[]) arg1).length - arg2.intValue() + 1, arg2.intValue());
         } else {
             String str = arg1.toString();
             substring = new Substring(new StringTypeExpression(), null, null);
-            return substring.nullSafeEval(UTF8String.fromString(str), str.length() - arg2.intValue() + 1, arg2.intValue()).toString();
+            return substring
+                    .nullSafeEval(
+                            UTF8String.fromString(str),
+                            str.length() - arg2.intValue() + 1,
+                            arg2.intValue())
+                    .toString();
         }
     }
 }

@@ -5,7 +5,6 @@ import com.github.ares.api.sink.SinkAggregatedCommitter;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.utils.PluginClassLoader;
-
 import java.io.IOException;
 
 public final class SinkAggregatedCommitterLoader {
@@ -22,8 +21,7 @@ public final class SinkAggregatedCommitterLoader {
             return pluginSink.createAggregatedCommitter().orElse(null);
         } catch (IOException e) {
             throw new AresException(
-                    "Failed to create SinkAggregatedCommitter for plugin "
-                            + sink.getPluginName(),
+                    "Failed to create SinkAggregatedCommitter for plugin " + sink.getPluginName(),
                     e);
         }
     }

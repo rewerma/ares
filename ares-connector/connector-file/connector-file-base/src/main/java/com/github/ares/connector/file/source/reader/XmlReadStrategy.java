@@ -17,17 +17,6 @@ import com.github.ares.connector.file.config.BaseSourceConfigOptions;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.exception.FileConnectorErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorException;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
@@ -39,6 +28,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 
 /** The XmlReadStrategy class is used to read data from XML files in Ares. */
 @Slf4j
@@ -117,8 +116,7 @@ public class XmlReadStrategy extends AbstractReadStrategy {
                                                 fieldIndex,
                                                 convert(
                                                         field.getText(),
-                                                        aresRowType
-                                                                .getFieldTypes()[fieldIndex]));
+                                                        aresRowType.getFieldTypes()[fieldIndex]));
                                     });
 
                             if (isMergePartition) {
@@ -151,8 +149,7 @@ public class XmlReadStrategy extends AbstractReadStrategy {
 
         if (readColumns.isEmpty()) {
             this.aresRowType = aresRowType;
-            this.aresRowTypeWithPartition =
-                    mergePartitionTypes(fileNames.get(0), aresRowType);
+            this.aresRowTypeWithPartition = mergePartitionTypes(fileNames.get(0), aresRowType);
         } else {
             if (readColumns.retainAll(Arrays.asList(aresRowType.getFieldNames()))) {
                 log.warn(
@@ -168,8 +165,7 @@ public class XmlReadStrategy extends AbstractReadStrategy {
                 types[i] = aresRowType.getFieldType(indexes[i]);
             }
             this.aresRowType = new AresRowType(fields, types);
-            this.aresRowTypeWithPartition =
-                    mergePartitionTypes(fileNames.get(0), this.aresRowType);
+            this.aresRowTypeWithPartition = mergePartitionTypes(fileNames.get(0), this.aresRowType);
         }
     }
 

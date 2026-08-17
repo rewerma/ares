@@ -5,9 +5,7 @@ import com.github.ares.api.table.type.SqlType;
 
 public class TypeUtil {
 
-    /**
-     * Check if the data type can be converted to another data type.
-     */
+    /** Check if the data type can be converted to another data type. */
     public static boolean canConvert(AresDataType<?> from, AresDataType<?> to) {
         // any type can be converted to string
         if (from == to || to.getSqlType() == SqlType.STRING) {

@@ -9,6 +9,11 @@ import com.github.ares.spark.connector.sink.write.AresSparkDataWriterFactory;
 import com.github.ares.spark.connector.sink.write.AresSparkWriterCommitMessage;
 import com.github.ares.spark.connector.statistic.JobStatisticInformation;
 import com.github.ares.spark.connector.statistic.WriterStatistic;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.spark.sql.connector.write.BatchWrite;
 import org.apache.spark.sql.connector.write.DataWriterFactory;
 import org.apache.spark.sql.connector.write.PhysicalWriteInfo;
@@ -16,18 +21,13 @@ import org.apache.spark.sql.connector.write.WriterCommitMessage;
 import org.apache.spark.sql.connector.write.streaming.StreamingDataWriterFactory;
 import org.apache.spark.sql.connector.write.streaming.StreamingWrite;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 public class AresBatchWrite<StateT, CommitInfoT, AggregatedCommitInfoT>
         implements BatchWrite, StreamingWrite {
 
     private final AresSink<AresRow, StateT, CommitInfoT, AggregatedCommitInfoT> sink;
 
-//    private final SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> aggregatedCommitter;
+    //    private final SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT>
+    // aggregatedCommitter;
 
     private final CatalogTable catalogTable;
 
@@ -40,7 +40,7 @@ public class AresBatchWrite<StateT, CommitInfoT, AggregatedCommitInfoT>
         this.sink = sink;
         this.catalogTable = catalogTable;
         this.startTimeMillis = System.currentTimeMillis();
-//        this.aggregatedCommitter = sink.createAggregatedCommitter().orElse(null);
+        //        this.aggregatedCommitter = sink.createAggregatedCommitter().orElse(null);
     }
 
     @Override

@@ -27,9 +27,6 @@ import com.github.ares.api.table.catalog.TableSchema;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectTypeMapper;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -45,6 +42,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class CatalogUtils {
     public static String getFieldIde(String identifier, String fieldIde) {
@@ -249,7 +248,8 @@ public class CatalogUtils {
             }
         }
         if (!unsupported.isEmpty()) {
-            throw  new AresException("unsupported get catalog table with field data types"); // CommonError.getCatalogTableWithUnsupportedType("UNKNOWN", sqlQuery, unsupported);
+            throw new AresException(
+                    "unsupported get catalog table with field data types"); // CommonError.getCatalogTableWithUnsupportedType("UNKNOWN", sqlQuery, unsupported);
         }
         String catalogName = "jdbc_catalog";
         return CatalogTable.of(

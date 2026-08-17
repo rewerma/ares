@@ -1,11 +1,8 @@
 package com.github.ares.engine.spark.core;
 
-import com.github.ares.com.google.inject.Singleton;
 import com.github.ares.engine.core.ExceptionMessageHandler;
-import org.apache.spark.SparkException;
-
 import java.io.Serializable;
-
+import org.apache.spark.SparkException;
 
 public class SparkExceptionMessageHandler extends ExceptionMessageHandler implements Serializable {
     private static final long serialVersionUID = -1L;

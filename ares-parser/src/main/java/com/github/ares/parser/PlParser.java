@@ -12,14 +12,12 @@ import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser.Sql_scriptContext;
 import com.github.ares.parser.plan.LogicalProject;
 import com.github.ares.parser.visitor.PlVisitorManager;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class PlParser {
-    @Inject
-    private PlVisitorManager visitorManager;
+    @Inject private PlVisitorManager visitorManager;
 
     public void init() {
         visitorManager.init();

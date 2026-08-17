@@ -18,8 +18,6 @@
 package com.github.ares.common.utils;
 
 import com.github.ares.common.exceptions.AresException;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 public class SerializationUtils {
 

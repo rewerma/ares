@@ -1,15 +1,14 @@
 package com.github.ares.engine.core;
 
+import static com.github.ares.common.utils.StringUtils.println;
+
 import com.github.ares.engine.utils.JsonUtil;
 import com.github.ares.parser.plan.LogicalProject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import static com.github.ares.common.utils.StringUtils.println;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRootExecutor extends AbstractBaseExecutor implements Serializable {
     private static final long serialVersionUID = -1L;
@@ -18,7 +17,8 @@ public abstract class AbstractRootExecutor extends AbstractBaseExecutor implemen
 
     public void execute(LogicalProject baseBody) {
         try {
-            Object lastRes = executorManager.projectExecutor.execute(baseBody.getLogicalOperations());
+            Object lastRes =
+                    executorManager.projectExecutor.execute(baseBody.getLogicalOperations());
             if (lastRes != null) {
                 List<Map<String, Object>> lines = lastDataHandler(lastRes);
                 String jsonStr = JsonUtil.getJsonMapper().writeValueAsString(lines);

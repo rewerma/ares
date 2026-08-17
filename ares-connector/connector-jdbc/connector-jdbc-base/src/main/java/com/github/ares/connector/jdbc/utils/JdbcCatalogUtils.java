@@ -14,10 +14,6 @@ import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
 import com.github.ares.connector.jdbc.source.JdbcSourceTable;
 import com.google.common.base.Strings;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -28,6 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcCatalogUtils {
     private static final Logger log = LoggerFactory.getLogger(JdbcCatalogUtils.class);
@@ -49,9 +48,15 @@ public class JdbcCatalogUtils {
             for (JdbcSourceTableConfig tableConfig : tablesConfig) {
                 CatalogTable catalogTable = getCatalogTable(tableConfig, connection, jdbcDialect);
                 TablePath tablePath = catalogTable.getTableId().toTablePath();
-                JdbcSourceTable jdbcSourceTable = new JdbcSourceTable(tablePath, tableConfig.getQuery(), tableConfig.getPartitionColumn(), tableConfig.getPartitionNumber(),
-                        tableConfig.getPartitionStart(), tableConfig.getPartitionEnd(), catalogTable);
-
+                JdbcSourceTable jdbcSourceTable =
+                        new JdbcSourceTable(
+                                tablePath,
+                                tableConfig.getQuery(),
+                                tableConfig.getPartitionColumn(),
+                                tableConfig.getPartitionNumber(),
+                                tableConfig.getPartitionStart(),
+                                tableConfig.getPartitionEnd(),
+                                catalogTable);
 
                 tables.put(tablePath, jdbcSourceTable);
                 log.info("Loaded catalog table : {}, {}", tablePath, jdbcSourceTable);
@@ -91,12 +96,12 @@ public class JdbcCatalogUtils {
                                 column ->
                                         columnsOfPath.containsKey(column.getName())
                                                 && columnsOfPath
-                                                .get(column.getName())
-                                                .getDataType()
-                                                .equals(
-                                                        columnsOfQuery
-                                                                .get(column.getName())
-                                                                .getDataType()))
+                                                        .get(column.getName())
+                                                        .getDataType()
+                                                        .equals(
+                                                                columnsOfQuery
+                                                                        .get(column.getName())
+                                                                        .getDataType()))
                         .map(column -> columnsOfPath.get(column.getName()))
                         .collect(Collectors.toList());
         boolean schemaIncludeAllColumns = columnsOfMerge.size() == columnKeysOfQuery.size();

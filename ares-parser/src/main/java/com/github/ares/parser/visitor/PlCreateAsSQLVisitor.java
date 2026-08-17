@@ -1,20 +1,19 @@
 package com.github.ares.parser.visitor;
 
+import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
+import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
+
 import com.github.ares.common.exceptions.ParseException;
-import com.github.ares.parser.plan.LogicalOperation;
-import com.github.ares.parser.plan.LogicalCreateTableAsSQL;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
+import com.github.ares.parser.plan.LogicalCreateTableAsSQL;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLSelect;
 import com.github.ares.parser.utils.PLParserUtil;
-
 import java.util.Map;
-
-import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
-import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 public class PlCreateAsSQLVisitor {
     private Map<String, LogicalCreateSourceTable> sourceTables;
@@ -27,16 +26,17 @@ public class PlCreateAsSQLVisitor {
         sqlParser = sqlParserFactory.getParser();
     }
 
-    public LogicalOperation visitCreateInnerTable(String originalSql, String createSQL, String innerTableName) {
+    public LogicalOperation visitCreateInnerTable(
+            String originalSql, String createSQL, String innerTableName) {
         if (sourceTables.containsKey(innerTableName.toLowerCase())) {
-            throw new ParseException(String.format("Source table: %s exists, SQL: %s", innerTableName, createSQL));
+            throw new ParseException(
+                    String.format("Source table: %s exists, SQL: %s", innerTableName, createSQL));
         }
         sourceTables.put(innerTableName.toLowerCase(), null);
         int idx = createSQL.indexOf(innerTableName);
         idx = createSQL.toUpperCase().indexOf(" AS ", idx);
         String selectSQL = createSQL.substring(idx + 4);
         selectSQL = PLParserUtil.cleanSQL(selectSQL);
-
 
         LogicalCreateTableAsSQL createTableAsSQL = new LogicalCreateTableAsSQL();
         createTableAsSQL.setTableName(innerTableName);
@@ -53,7 +53,6 @@ public class PlCreateAsSQLVisitor {
                     setRepartition(hint, createTableAsSQL);
                 }
             }
-
         }
         return createTableAsSQL;
     }

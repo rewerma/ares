@@ -6,7 +6,6 @@ import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigParseOptions;
 import com.typesafe.config.ConfigSyntax;
 import com.typesafe.config.ConfigValueFactory;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;

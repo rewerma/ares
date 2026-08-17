@@ -7,6 +7,10 @@ import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.api.table.type.SqlType;
 import com.github.ares.sql.expression.exception.ExpressionException;
 import com.github.ares.sql.function.FunctionInterface;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CastExpression;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -25,11 +29,6 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.ComparisonOperator;
 import net.sf.jsqlparser.schema.Column;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class SimpleSqlType implements Serializable {
     private static final long serialVersionUID = -1L;
@@ -96,14 +95,21 @@ public class SimpleSqlType implements Serializable {
         }
         if (expression instanceof Column) {
             Column column = (Column) expression;
-            if ("true".equalsIgnoreCase(column.getColumnName()) || "false".equalsIgnoreCase(column.getColumnName())) {
+            if ("true".equalsIgnoreCase(column.getColumnName())
+                    || "false".equalsIgnoreCase(column.getColumnName())) {
                 return BasicType.BOOLEAN_TYPE;
+            }
+            if (ParamPlaceholder.nameOf(column.getColumnName()) != null) {
+                // Runtime type comes from bound values; INT is enough for parse-time arithmetic
+                // checks.
+                return BasicType.INT_TYPE;
             }
         }
         if (expression instanceof BinaryExpression) {
             BinaryExpression binaryExpression = (BinaryExpression) expression;
 
-            if (binaryExpression instanceof ComparisonOperator || binaryExpression instanceof AndExpression
+            if (binaryExpression instanceof ComparisonOperator
+                    || binaryExpression instanceof AndExpression
                     || binaryExpression instanceof OrExpression) {
                 return BasicType.BOOLEAN_TYPE;
             }
@@ -119,7 +125,7 @@ public class SimpleSqlType implements Serializable {
             }
             if ((leftType.getSqlType() == SqlType.INT || leftType.getSqlType() == SqlType.BIGINT)
                     && (rightType.getSqlType() == SqlType.INT
-                    || rightType.getSqlType() == SqlType.BIGINT)) {
+                            || rightType.getSqlType() == SqlType.BIGINT)) {
                 return BasicType.LONG_TYPE;
             }
             if (leftType.getSqlType() == SqlType.DECIMAL
@@ -140,7 +146,7 @@ public class SimpleSqlType implements Serializable {
             }
             if ((leftType.getSqlType() == SqlType.FLOAT || leftType.getSqlType() == SqlType.DOUBLE)
                     || (rightType.getSqlType() == SqlType.FLOAT
-                    || rightType.getSqlType() == SqlType.DOUBLE)) {
+                            || rightType.getSqlType() == SqlType.DOUBLE)) {
                 return BasicType.DOUBLE_TYPE;
             }
         }
@@ -209,7 +215,8 @@ public class SimpleSqlType implements Serializable {
                 return LocalTimeType.LOCAL_DATE_TIME_TYPE;
             default:
                 throw new ExpressionException(
-                        String.format("Unsupported TimeKey expression: %s ",
+                        String.format(
+                                "Unsupported TimeKey expression: %s ",
                                 timeKeyExpression.getStringValue()));
         }
     }

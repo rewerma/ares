@@ -1,7 +1,6 @@
 package com.github.ares.parser.sqlparser.model;
 
 import com.github.ares.api.common.CriteriaClause;
-
 import java.io.Serializable;
 import java.util.List;
 

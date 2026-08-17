@@ -4,7 +4,6 @@ import com.github.ares.api.common.EngineTypeVersion;
 import com.github.ares.common.exceptions.TaskExecuteException;
 import com.github.ares.core.starter.execution.TaskExecution;
 import com.github.ares.engine.spark.core.MainExecutor;
-
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -15,7 +14,8 @@ public class SparkExecution implements TaskExecution {
     private final Properties properties;
     private EngineTypeVersion engineTypeVersion;
 
-    public SparkExecution(EngineTypeVersion engineTypeVersion, Path sqlScript, Properties properties) {
+    public SparkExecution(
+            EngineTypeVersion engineTypeVersion, Path sqlScript, Properties properties) {
         this.engineTypeVersion = engineTypeVersion;
         this.sparkRuntimeEnvironment = SparkRuntimeEnvironment.getInstance(properties);
         this.sqlScript = sqlScript;
@@ -26,7 +26,11 @@ public class SparkExecution implements TaskExecution {
     public void execute() throws TaskExecuteException {
         MainExecutor mainExecutor = MainExecutor.getInstance();
         try {
-            mainExecutor.init(engineTypeVersion, sparkRuntimeEnvironment.getSparkSession(), sqlScript, properties);
+            mainExecutor.init(
+                    engineTypeVersion,
+                    sparkRuntimeEnvironment.getSparkSession(),
+                    sqlScript,
+                    properties);
             mainExecutor.run();
         } finally {
             mainExecutor.close();

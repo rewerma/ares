@@ -2,7 +2,6 @@ package com.github.ares.connector.jdbc.utils;
 
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -91,7 +90,8 @@ public final class JdbcSplitConditionUtils {
         appendLexicographicBound(rowType, dialect, sql, "<", "<=");
     }
 
-    private static void appendEquality(AresRowType rowType, JdbcDialect dialect, StringBuilder sql) {
+    private static void appendEquality(
+            AresRowType rowType, JdbcDialect dialect, StringBuilder sql) {
         for (int i = 0; i < rowType.getTotalFields(); i++) {
             if (i > 0) {
                 sql.append(" AND ");

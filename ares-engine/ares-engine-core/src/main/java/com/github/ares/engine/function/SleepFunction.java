@@ -4,7 +4,6 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.UdfInterface;
 import com.google.auto.service.AutoService;
-
 import java.util.Collections;
 import java.util.List;
 

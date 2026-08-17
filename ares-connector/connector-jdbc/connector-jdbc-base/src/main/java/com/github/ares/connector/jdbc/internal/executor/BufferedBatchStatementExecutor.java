@@ -1,7 +1,6 @@
 package com.github.ares.connector.jdbc.internal.executor;
 
 import com.github.ares.api.table.type.AresRow;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,7 +12,9 @@ public class BufferedBatchStatementExecutor implements JdbcBatchStatementExecuto
     private final Function<AresRow, AresRow> valueTransform;
     private final List<AresRow> buffer = new ArrayList<>();
 
-    public BufferedBatchStatementExecutor(JdbcBatchStatementExecutor<AresRow> statementExecutor, Function<AresRow, AresRow> valueTransform) {
+    public BufferedBatchStatementExecutor(
+            JdbcBatchStatementExecutor<AresRow> statementExecutor,
+            Function<AresRow, AresRow> valueTransform) {
         this.statementExecutor = statementExecutor;
         this.valueTransform = valueTransform;
     }

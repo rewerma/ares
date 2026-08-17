@@ -9,9 +9,6 @@ import com.github.ares.api.source.SourceSplitEnumerator;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.serialization.Serializer;
 import com.github.ares.connector.utils.ThreadPoolExecutorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +22,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CoordinatedSource<T, SplitT extends SourceSplit, StateT extends Serializable>
         implements BaseSourceFunction<T> {
@@ -48,9 +47,7 @@ public class CoordinatedSource<T, SplitT extends SourceSplit, StateT extends Ser
     protected final AtomicInteger completedReader = new AtomicInteger(0);
     protected transient volatile ScheduledThreadPoolExecutor executorService;
 
-    /**
-     * Flag indicating whether the consumer is still running.
-     */
+    /** Flag indicating whether the consumer is still running. */
     protected volatile boolean running = true;
 
     public CoordinatedSource(

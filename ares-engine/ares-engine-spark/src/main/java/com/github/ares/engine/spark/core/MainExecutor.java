@@ -1,5 +1,7 @@
 package com.github.ares.engine.spark.core;
 
+import static com.github.ares.common.utils.Constants.DEPLOY_MODE_KEY;
+
 import com.github.ares.api.common.EngineType;
 import com.github.ares.api.common.EngineTypeVersion;
 import com.github.ares.api.common.ExecutionEngineType;
@@ -27,11 +29,6 @@ import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalProject;
 import com.github.ares.parser.plan.LogicalSetConfig;
 import com.github.ares.parser.utils.Constants;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.spark.SparkContext;
-import org.apache.spark.SparkFiles;
-import org.apache.spark.sql.SparkSession;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -43,34 +40,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-
-import static com.github.ares.common.utils.Constants.DEPLOY_MODE_KEY;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.spark.SparkContext;
+import org.apache.spark.SparkFiles;
+import org.apache.spark.sql.SparkSession;
 
 public class MainExecutor {
     private Properties properties;
     private Path scriptFile;
     private LogicalProject logicalProject;
 
-    @Inject
-    private AbstractRootExecutor rootExecutor;
-    @Inject
-    private SparkExecutorManager sparkExecutorManager;
-    @Inject
-    private PlProperties plProperties;
-    @Inject
-    private PlParser plParser;
+    @Inject private AbstractRootExecutor rootExecutor;
+    @Inject private SparkExecutorManager sparkExecutorManager;
+    @Inject private PlProperties plProperties;
+    @Inject private PlParser plParser;
 
     public static MainExecutor getInstance() {
         Injector injector = SparkInjectorFactory.getInjector();
         return injector.getInstance(MainExecutor.class);
     }
 
-    public void init(EngineTypeVersion engineTypeVersion, SparkSession sparkSession, Path sqlScriptPath, Properties properties) {
+    public void init(
+            EngineTypeVersion engineTypeVersion,
+            SparkSession sparkSession,
+            Path sqlScriptPath,
+            Properties properties) {
         ExecutionEngineType.init(EngineType.SPARK, engineTypeVersion);
         this.properties = properties;
         // register datasource patcher
-        SourceConfigPatcherFactory.register(Constants.DEFAULT_DATASOURCE_PATCHER,
-                new PropertiesDataSourcePatcher(properties));
+        SourceConfigPatcherFactory.register(
+                Constants.DEFAULT_DATASOURCE_PATCHER, new PropertiesDataSourcePatcher(properties));
 
         plParser.init();
 
@@ -90,22 +89,28 @@ public class MainExecutor {
 
         // initialize source plugins
         List<LogicalCreateSourceTable> sourceTables = new ArrayList<>();
-        logicalProject.getLogicalOperations().forEach(logicalOperation -> {
-            if (logicalOperation instanceof LogicalCreateSourceTable) {
-                sourceTables.add((LogicalCreateSourceTable) logicalOperation);
-            }
-        });
+        logicalProject
+                .getLogicalOperations()
+                .forEach(
+                        logicalOperation -> {
+                            if (logicalOperation instanceof LogicalCreateSourceTable) {
+                                sourceTables.add((LogicalCreateSourceTable) logicalOperation);
+                            }
+                        });
         Map<String, SourceTableInfo> sourceTableMap = initializeSourcePlugins(sourceTables);
         sparkExecutorManager.getSourceTables().putAll(sourceTableMap);
         rootExecutor.init(sparkExecutorManager);
 
         // initialize sink plugins
         List<LogicalCreateSinkTable> sinkTables = new ArrayList<>();
-        logicalProject.getLogicalOperations().forEach(logicalOperation -> {
-            if (logicalOperation instanceof LogicalCreateSinkTable) {
-                sinkTables.add((LogicalCreateSinkTable) logicalOperation);
-            }
-        });
+        logicalProject
+                .getLogicalOperations()
+                .forEach(
+                        logicalOperation -> {
+                            if (logicalOperation instanceof LogicalCreateSinkTable) {
+                                sinkTables.add((LogicalCreateSinkTable) logicalOperation);
+                            }
+                        });
         initializeSinkPlugins(sinkTables);
     }
 
@@ -127,8 +132,8 @@ public class MainExecutor {
         // set log level
         String logLevel = properties.getProperty("spark.log.level");
         if (StringUtils.isNotEmpty(logLevel)) {
-            SparkContext sc = sparkExecutorManager.getSparkSessionManager()
-                    .getSparkSession().sparkContext();
+            SparkContext sc =
+                    sparkExecutorManager.getSparkSessionManager().getSparkSession().sparkContext();
             sc.setLogLevel(logLevel);
         }
 
@@ -149,7 +154,8 @@ public class MainExecutor {
         }
     }
 
-    protected Map<String, SourceTableInfo> initializeSourcePlugins(List<LogicalCreateSourceTable> createSourceTables) {
+    protected Map<String, SourceTableInfo> initializeSourcePlugins(
+            List<LogicalCreateSourceTable> createSourceTables) {
         AresFactoryDiscovery factoryDiscovery = new AresFactoryDiscovery(TableSourceFactory.class);
 
         Map<String, SourceTableInfo> sources = new LinkedHashMap<>();
@@ -158,27 +164,30 @@ public class MainExecutor {
                     PluginIdentifier.of("source", sourceTable.getConnector());
             SourceTableInfo source =
                     PluginUtil.createSource(
-                            factoryDiscovery,
-                            pluginIdentifier,
-                            sourceTable.getSourceTableConfig());
+                            factoryDiscovery, pluginIdentifier, sourceTable.getSourceTableConfig());
             sources.put(sourceTable.getTableName(), source);
         }
         return sources;
     }
 
     protected void initializeSinkPlugins(List<LogicalCreateSinkTable> sinkTables) {
-        AresFactoryDiscovery factoryDiscovery =
-                new AresFactoryDiscovery(TableSinkFactory.class);
+        AresFactoryDiscovery factoryDiscovery = new AresFactoryDiscovery(TableSinkFactory.class);
         AresSinkPluginDiscovery sinkPluginDiscovery = new AresSinkPluginDiscovery();
         Map<String, Optional<? extends Factory>> sinks = new LinkedHashMap<>();
         for (LogicalCreateSinkTable sinkTable : sinkTables) {
             if (sinks.containsKey(sinkTable.getTableName())) {
                 continue;
             }
-            Optional<? extends Factory> factory = PluginUtil.createSinkFactory(factoryDiscovery, sinkPluginDiscovery,
-                    sinkTable.getConnector(), new ArrayList<>());
+            Optional<? extends Factory> factory =
+                    PluginUtil.createSinkFactory(
+                            factoryDiscovery,
+                            sinkPluginDiscovery,
+                            sinkTable.getConnector(),
+                            new ArrayList<>());
             sinks.put(sinkTable.getTableName(), factory);
-            sparkExecutorManager.getSinkPluginManager().registerPlugin(sinkTable.getTableName(), factory);
+            sparkExecutorManager
+                    .getSinkPluginManager()
+                    .registerPlugin(sinkTable.getTableName(), factory);
         }
     }
 

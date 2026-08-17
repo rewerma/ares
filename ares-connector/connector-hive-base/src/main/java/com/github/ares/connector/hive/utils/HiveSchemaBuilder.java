@@ -1,12 +1,11 @@
 package com.github.ares.connector.hive.utils;
 
-import lombok.experimental.UtilityClass;
-import org.apache.hadoop.hive.metastore.api.FieldSchema;
-import org.apache.hadoop.hive.metastore.api.Table;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
+import org.apache.hadoop.hive.metastore.api.FieldSchema;
+import org.apache.hadoop.hive.metastore.api.Table;
 
 @UtilityClass
 public class HiveSchemaBuilder {

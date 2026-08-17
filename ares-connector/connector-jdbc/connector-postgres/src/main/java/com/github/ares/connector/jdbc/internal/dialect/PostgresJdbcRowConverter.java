@@ -22,7 +22,6 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.connector.jdbc.exception.JdbcConnectorException;
 import com.github.ares.connector.jdbc.internal.converter.AbstractJdbcRowConverter;
-
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;

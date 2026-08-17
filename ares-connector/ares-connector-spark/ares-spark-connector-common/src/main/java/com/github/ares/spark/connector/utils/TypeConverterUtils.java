@@ -1,5 +1,7 @@
 package com.github.ares.spark.connector.utils;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.ares.api.table.catalog.PrimitiveByteArrayType;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRowType;
@@ -9,6 +11,8 @@ import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.api.table.type.SqlType;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
@@ -16,15 +20,9 @@ import org.apache.spark.sql.types.MetadataBuilder;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class TypeConverterUtils {
 
-    private static final Map<DataType, AresDataType<?>> TO_SEA_TUNNEL_TYPES =
-            new HashMap<>(16);
+    private static final Map<DataType, AresDataType<?>> TO_SEA_TUNNEL_TYPES = new HashMap<>(16);
     public static final String ROW_KIND_FIELD = "op";
     public static final String LOGICAL_TIME_TYPE_FLAG = "logical_time_type";
 

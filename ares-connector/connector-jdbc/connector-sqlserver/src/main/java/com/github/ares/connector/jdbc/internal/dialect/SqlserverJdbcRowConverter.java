@@ -7,7 +7,6 @@ import com.github.ares.api.table.type.SqlType;
 import com.github.ares.connector.jdbc.exception.JdbcConnectorException;
 import com.github.ares.connector.jdbc.internal.converter.AbstractJdbcRowConverter;
 import com.github.ares.connector.jdbc.utils.JdbcFieldTypeUtils;
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,8 +33,7 @@ public class SqlserverJdbcRowConverter extends AbstractJdbcRowConverter {
     }
 
     public PreparedStatement toExternal(
-            AresRowType rowType, AresRow row, PreparedStatement statement)
-            throws SQLException {
+            AresRowType rowType, AresRow row, PreparedStatement statement) throws SQLException {
         for (int fieldIndex = 0; fieldIndex < rowType.getTotalFields(); fieldIndex++) {
             AresDataType<?> aresDataType = rowType.getFieldType(fieldIndex);
             int statementIndex = fieldIndex + 1;
@@ -83,8 +81,7 @@ public class SqlserverJdbcRowConverter extends AbstractJdbcRowConverter {
                     break;
                 case TIMESTAMP:
                     LocalDateTime localDateTime = (LocalDateTime) row.getField(fieldIndex);
-                    statement.setTimestamp(
-                            statementIndex, Timestamp.valueOf(localDateTime));
+                    statement.setTimestamp(statementIndex, Timestamp.valueOf(localDateTime));
                     break;
                 case BYTES:
                     if (row.getField(fieldIndex) == null) {
@@ -100,8 +97,7 @@ public class SqlserverJdbcRowConverter extends AbstractJdbcRowConverter {
                 case ARRAY:
                 case ROW:
                 default:
-                    throw new JdbcConnectorException(
-                            "Unexpected value: " + aresDataType);
+                    throw new JdbcConnectorException("Unexpected value: " + aresDataType);
             }
         }
         return statement;

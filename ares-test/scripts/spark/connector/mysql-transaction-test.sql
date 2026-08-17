@@ -24,8 +24,8 @@ INSERT INTO test2 (id, name, c_time) SELECT id, name, c_time FROM test1 WHERE id
 DECLARE
     cnt INT := 0;
 BEGIN
-    START TRANSACTION;
     FOR cur IN (SELECT * FROM test2 WHERE id > 0 LIMIT 10) LOOP
+        START TRANSACTION;
         UPDATE test2 SET name = :cur.name||'_', c_time = :cur.c_time WHERE id = :cur.id;
         cnt := cnt + 1;
         IF cnt >= 3 THEN
@@ -33,7 +33,9 @@ BEGIN
             cnt := 0;
         END IF;
     END LOOP;
-    COMMIT;
+    IF cnt > 0 THEN
+        COMMIT;
+    END IF;
 EXCEPTION
     WHEN ex THEN
         ROLLBACK;

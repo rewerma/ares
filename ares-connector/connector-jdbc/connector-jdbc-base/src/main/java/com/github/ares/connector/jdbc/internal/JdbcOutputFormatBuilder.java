@@ -28,9 +28,8 @@ import com.github.ares.connector.jdbc.internal.executor.BufferedBatchStatementEx
 import com.github.ares.connector.jdbc.internal.executor.FieldNamedPreparedStatement;
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import com.github.ares.connector.jdbc.internal.executor.SimpleBatchStatementExecutor;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 
 public class JdbcOutputFormatBuilder {
     private final JdbcDialect dialect;

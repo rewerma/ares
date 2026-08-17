@@ -18,7 +18,6 @@
 package com.github.ares.api.table.connector;
 
 import com.github.ares.api.table.catalog.Column;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;

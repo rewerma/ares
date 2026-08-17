@@ -1,10 +1,9 @@
 package com.github.ares.connector.jdbc.internal.connection;
 
+import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.ares.connector.jdbc.config.JdbcConnectionConfig;
 import com.github.ares.connector.jdbc.exception.JdbcConnectorException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -12,8 +11,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
-
-import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Simple JDBC connection provider. */
 public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Serializable {
@@ -60,9 +59,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
         try {
             return (Driver) clazz.getDeclaredConstructor().newInstance();
         } catch (Exception ex) {
-            throw new JdbcConnectorException(
-                    "Fail to create driver of class " + driverName,
-                    ex);
+            throw new JdbcConnectorException("Fail to create driver of class " + driverName, ex);
         }
     }
 
@@ -91,8 +88,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
         if (connection == null) {
             // Throw same exception as DriverManager.getConnection when no driver found to match
             // caller expectation.
-            throw new JdbcConnectorException(
-                    "No suitable driver found for " + jdbcConfig.getUrl());
+            throw new JdbcConnectorException("No suitable driver found for " + jdbcConfig.getUrl());
         }
 
         connection.setAutoCommit(jdbcConfig.isAutoCommit());

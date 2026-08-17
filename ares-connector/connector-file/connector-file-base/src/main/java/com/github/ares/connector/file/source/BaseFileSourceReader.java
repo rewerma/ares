@@ -6,13 +6,12 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.connector.file.source.reader.ReadStrategy;
 import com.github.ares.connector.file.source.split.FileSourceSplit;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BaseFileSourceReader implements SourceReader<AresRow, FileSourceSplit> {
@@ -71,6 +70,6 @@ public class BaseFileSourceReader implements SourceReader<AresRow, FileSourceSpl
         noMoreSplit = true;
     }
 
-//    @Override
-//    public void notifyCheckpointComplete(long checkpointId) throws Exception {}
+    //    @Override
+    //    public void notifyCheckpointComplete(long checkpointId) throws Exception {}
 }

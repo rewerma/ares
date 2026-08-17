@@ -2,10 +2,6 @@ package com.github.ares.connector.jdbc.config;
 
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.common.configuration.ReadonlyConfig;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,6 +9,8 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcConnectionConfig implements Serializable {
     private static final long serialVersionUID = 2L;
@@ -149,8 +147,7 @@ public class JdbcConnectionConfig implements Serializable {
         private String compatibleMode;
         private int connectionCheckTimeoutSeconds =
                 JdbcOptions.CONNECTION_CHECK_TIMEOUT_SEC.defaultValue();
-        private boolean connectionPoolEnabled =
-                JdbcOptions.CONNECTION_POOL_ENABLED.defaultValue();
+        private boolean connectionPoolEnabled = JdbcOptions.CONNECTION_POOL_ENABLED.defaultValue();
         private int poolSize = JdbcOptions.POOL_SIZE.defaultValue();
         private int queryTimeoutSec = JdbcOptions.QUERY_TIMEOUT_SEC.defaultValue();
         private int maxRetries = JdbcOptions.MAX_RETRIES.defaultValue();

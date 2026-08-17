@@ -1,31 +1,44 @@
 package com.github.ares.engine.core;
 
 import com.github.ares.api.table.factory.Factory;
-import com.github.ares.common.exceptions.AresException;
-import com.github.ares.engine.utils.ElapsedTimeWrapper;
-import com.github.ares.parser.plan.LogicalCreateSinkTable;
+import com.github.ares.parser.enums.OperationType;
 import com.github.ares.parser.plan.LogicalMergeIntoSQL;
-
-import java.io.Serializable;
+import com.github.ares.parser.plan.LogicalOperation;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class MergeIntoSqlExecutor extends AbstractBaseExecutor implements Serializable {
+public abstract class MergeIntoSqlExecutor extends AbstractBaseExecutor
+        implements OperationHandler {
     private static final long serialVersionUID = -1L;
 
-    public void execute(LogicalMergeIntoSQL mergeIntoSQL, PlParams plParams) {
-        Map<String, Optional<? extends Factory>> sinkPlugins = executorManager.getSinkPlugins();
-        if (!sinkPlugins.containsKey(mergeIntoSQL.getSinkTable().getTableName())) {
-            throw new AresException(String.format("Sink table undefined %s", mergeIntoSQL.getSinkTable().getTableName()));
-        }
-        ElapsedTimeWrapper.execute(mergeIntoSQL.getOriginSQL(), () -> {
-            Optional<? extends Factory> sinkFactory = sinkPlugins.get(mergeIntoSQL.getSinkTable().getTableName());
-            LogicalCreateSinkTable sinkTable = mergeIntoSQL.getSinkTable();
-            execute(sinkTable.getOptions(), sinkFactory, mergeIntoSQL, plParams);
-        });
+    @Override
+    public OperationType handledType() {
+        return OperationType.MERGE_INTO_SQL;
     }
 
-    public abstract void execute(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
-                                 LogicalMergeIntoSQL mergeIntoSQL, PlParams plParams);
+    @Override
+    public Scope scope() {
+        return Scope.DIRECT;
+    }
 
+    @Override
+    public Object handle(
+            LogicalOperation operation, PlParams plParams, Object lastData, BodyCallback body) {
+        execute((LogicalMergeIntoSQL) operation, plParams);
+        return lastData;
+    }
+
+    public void execute(LogicalMergeIntoSQL mergeIntoSQL, PlParams plParams) {
+        SinkExecutorSupport.execute(
+                executorManager,
+                mergeIntoSQL.getSinkTable(),
+                mergeIntoSQL.getOriginSQL(),
+                (options, factory) -> execute(options, factory, mergeIntoSQL, plParams));
+    }
+
+    public abstract void execute(
+            Map<String, Object> sinkConfig,
+            Optional<? extends Factory> sinkFactory,
+            LogicalMergeIntoSQL mergeIntoSQL,
+            PlParams plParams);
 }

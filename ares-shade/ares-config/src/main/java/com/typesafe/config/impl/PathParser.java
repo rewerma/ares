@@ -5,7 +5,6 @@ import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigParseOptions;
 import com.typesafe.config.ConfigSyntax;
 import com.typesafe.config.ConfigValueType;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;

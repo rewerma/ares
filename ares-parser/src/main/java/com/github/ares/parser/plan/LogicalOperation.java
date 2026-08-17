@@ -1,9 +1,8 @@
 package com.github.ares.parser.plan;
 
 import com.github.ares.parser.enums.OperationType;
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public abstract class LogicalOperation implements Serializable {
@@ -14,5 +13,4 @@ public abstract class LogicalOperation implements Serializable {
     protected LogicalOperation(OperationType operationType) {
         this.operationType = operationType;
     }
-
 }

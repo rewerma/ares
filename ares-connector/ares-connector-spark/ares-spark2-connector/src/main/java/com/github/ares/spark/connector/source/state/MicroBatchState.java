@@ -18,9 +18,8 @@
 package com.github.ares.spark.connector.source.state;
 
 import com.github.ares.common.utils.SerializationUtils;
-import org.apache.spark.sql.sources.v2.reader.streaming.Offset;
-
 import java.io.Serializable;
+import org.apache.spark.sql.sources.v2.reader.streaming.Offset;
 
 public class MicroBatchState extends Offset implements Serializable {
 

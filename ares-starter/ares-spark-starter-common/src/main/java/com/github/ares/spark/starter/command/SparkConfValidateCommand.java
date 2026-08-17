@@ -17,16 +17,12 @@
 
 package com.github.ares.spark.starter.command;
 
-
 import com.github.ares.core.starter.command.Command;
 import com.github.ares.core.starter.utils.FileUtils;
 import com.github.ares.spark.starter.args.SparkCommandArgs;
-
 import java.nio.file.Path;
 
-/**
- * Use to validate the configuration of the Ares API.
- */
+/** Use to validate the configuration of the Ares API. */
 public class SparkConfValidateCommand implements Command<SparkCommandArgs> {
 
     private final SparkCommandArgs sparkCommandArgs;
@@ -40,5 +36,4 @@ public class SparkConfValidateCommand implements Command<SparkCommandArgs> {
         Path sqlPath = FileUtils.getSqlPath(sparkCommandArgs);
         // TODO: validate the config by new api
     }
-
 }

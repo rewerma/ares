@@ -9,5 +9,4 @@ public class Btrim extends Trim implements SparkFuncInterface {
     public String functionName() {
         return "BTRIM";
     }
-
 }

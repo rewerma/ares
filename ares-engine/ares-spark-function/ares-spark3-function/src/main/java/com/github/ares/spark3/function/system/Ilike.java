@@ -1,16 +1,15 @@
 package com.github.ares.spark3.function.system;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
+import java.util.List;
 import org.apache.spark.sql.catalyst.expressions.Like;
 import org.apache.spark.unsafe.types.UTF8String;
-
-import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class Ilike implements SparkFuncInterface {
@@ -34,7 +33,8 @@ public class Ilike implements SparkFuncInterface {
             return null;
         }
         Like like = new Like(null, null);
-        return like.nullSafeEval(UTF8String.fromString(arg1.toLowerCase()),
+        return like.nullSafeEval(
+                UTF8String.fromString(arg1.toLowerCase()),
                 UTF8String.fromString(arg2.toLowerCase()));
     }
 }

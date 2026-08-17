@@ -1,5 +1,7 @@
 package com.github.ares.connector.file.hadoop.sink;
 
+import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
+
 import com.github.ares.api.common.PluginType;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.configuration.CheckConfigUtil;
@@ -9,8 +11,6 @@ import com.github.ares.connector.file.config.BaseSinkConfig;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.BaseFileSink;
-
-import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
 
 public abstract class BaseHdfsFileSink extends BaseFileSink {
 

@@ -8,6 +8,8 @@ import com.github.ares.common.utils.PluginClassLoader;
 import com.github.ares.spark.connector.source.scan.AresScanBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
 import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.connector.catalog.SupportsRead;
@@ -18,12 +20,7 @@ import org.apache.spark.sql.connector.read.ScanBuilder;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-import java.util.Map;
-import java.util.Set;
-
-/**
- * The basic unit of Ares DataSource generated, supporting read and write
- */
+/** The basic unit of Ares DataSource generated, supporting read and write */
 @Slf4j
 public class AresSourceTable implements Table, SupportsRead {
     private static final String SOURCE_TABLE_NAME = "AresSourceTable";
@@ -47,7 +44,7 @@ public class AresSourceTable implements Table, SupportsRead {
      * Returns a {@link ScanBuilder} which can be used to build a {@link Scan}
      *
      * @param caseInsensitiveStringMap The options for reading, which is an immutable
-     *                                 case-insensitive string-to-string map.
+     *     case-insensitive string-to-string map.
      */
     @Override
     public ScanBuilder newScanBuilder(CaseInsensitiveStringMap caseInsensitiveStringMap) {
@@ -56,25 +53,19 @@ public class AresSourceTable implements Table, SupportsRead {
         return new AresScanBuilder(source, parallelism, caseInsensitiveStringMap);
     }
 
-    /**
-     * A name to identify this table
-     */
+    /** A name to identify this table */
     @Override
     public String name() {
         return SOURCE_TABLE_NAME;
     }
 
-    /**
-     * Returns the schema of this table
-     */
+    /** Returns the schema of this table */
     @Override
     public StructType schema() {
         return (StructType) TypeConverterUtils.convert(source.getProducedType());
     }
 
-    /**
-     * Returns the set of capabilities for this table
-     */
+    /** Returns the set of capabilities for this table */
     @Override
     public Set<TableCapability> capabilities() {
         return Sets.newHashSet(TableCapability.BATCH_READ, TableCapability.MICRO_BATCH_READ);

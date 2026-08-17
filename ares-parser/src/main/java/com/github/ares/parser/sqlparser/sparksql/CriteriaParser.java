@@ -1,16 +1,15 @@
 package com.github.ares.parser.sqlparser.sparksql;
 
+import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG;
+import static com.github.ares.parser.utils.PLParserUtil.getFullText;
+
 import com.github.ares.api.common.CriteriaClause;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-
-import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG;
-import static com.github.ares.parser.utils.PLParserUtil.getFullText;
 
 public class CriteriaParser {
 
@@ -29,52 +28,74 @@ public class CriteriaParser {
     private static final String OP_LIKE = "LIKE";
     private static final String OP_NOT_LIKE = "NOT LIKE";
 
-    private CriteriaParser() {
-    }
+    private CriteriaParser() {}
 
     /**
      * parse where clause
      *
      * @param booleanExpressionContext boolean expression context
-     * @param criteriaClause           criteria clause for result
-     * @param targetTableAlias         target table alias
+     * @param criteriaClause criteria clause for result
+     * @param targetTableAlias target table alias
      */
-    public static void parseWhereClause(SqlBaseParser.BooleanExpressionContext booleanExpressionContext, CriteriaClause criteriaClause, String targetTableAlias) {
+    public static void parseWhereClause(
+            SqlBaseParser.BooleanExpressionContext booleanExpressionContext,
+            CriteriaClause criteriaClause,
+            String targetTableAlias) {
         if (booleanExpressionContext instanceof SqlBaseParser.LogicalBinaryContext) {
-            parseLogicalBinaryContext((SqlBaseParser.LogicalBinaryContext) booleanExpressionContext, criteriaClause, targetTableAlias);
+            parseLogicalBinaryContext(
+                    (SqlBaseParser.LogicalBinaryContext) booleanExpressionContext,
+                    criteriaClause,
+                    targetTableAlias);
         } else if (booleanExpressionContext instanceof SqlBaseParser.PredicatedContext) {
-            SqlBaseParser.PredicatedContext predicatedContext = (SqlBaseParser.PredicatedContext) booleanExpressionContext;
+            SqlBaseParser.PredicatedContext predicatedContext =
+                    (SqlBaseParser.PredicatedContext) booleanExpressionContext;
             SqlBaseParser.PrimaryExpressionContext primaryExpressionContext;
             if (predicatedContext.valueExpression() instanceof SqlBaseParser.ComparisonContext) {
-                primaryExpressionContext = parseComparisonContext((SqlBaseParser.ComparisonContext) predicatedContext.valueExpression(), criteriaClause);
-            } else if (predicatedContext.valueExpression() instanceof SqlBaseParser.ValueExpressionDefaultContext) {
-                SqlBaseParser.ValueExpressionDefaultContext valueExpressionDefaultContext = (SqlBaseParser.ValueExpressionDefaultContext) predicatedContext.valueExpression();
+                primaryExpressionContext =
+                        parseComparisonContext(
+                                (SqlBaseParser.ComparisonContext)
+                                        predicatedContext.valueExpression(),
+                                criteriaClause);
+            } else if (predicatedContext.valueExpression()
+                    instanceof SqlBaseParser.ValueExpressionDefaultContext) {
+                SqlBaseParser.ValueExpressionDefaultContext valueExpressionDefaultContext =
+                        (SqlBaseParser.ValueExpressionDefaultContext)
+                                predicatedContext.valueExpression();
                 primaryExpressionContext = valueExpressionDefaultContext.primaryExpression();
 
-                if (primaryExpressionContext instanceof SqlBaseParser.ParenthesizedExpressionContext) {
-                    SqlBaseParser.ParenthesizedExpressionContext parenthesizedExpressionContext = (SqlBaseParser.ParenthesizedExpressionContext) primaryExpressionContext;
-                    SqlBaseParser.BooleanExpressionContext expressionContext = parenthesizedExpressionContext.expression().booleanExpression();
+                if (primaryExpressionContext
+                        instanceof SqlBaseParser.ParenthesizedExpressionContext) {
+                    SqlBaseParser.ParenthesizedExpressionContext parenthesizedExpressionContext =
+                            (SqlBaseParser.ParenthesizedExpressionContext) primaryExpressionContext;
+                    SqlBaseParser.BooleanExpressionContext expressionContext =
+                            parenthesizedExpressionContext.expression().booleanExpression();
                     parseWhereClause(expressionContext, criteriaClause, targetTableAlias);
                     return;
                 } else {
                     parseOtherConditionContext(predicatedContext, criteriaClause);
                 }
             } else {
-                throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(booleanExpressionContext)));
+                throw new ParseException(
+                        String.format(UNSUPPORTED_EXP_MSG, getFullText(booleanExpressionContext)));
             }
 
             if (primaryExpressionContext instanceof SqlBaseParser.ColumnReferenceContext) {
                 criteriaClause.setLeftExpr(primaryExpressionContext.getText());
             } else if (primaryExpressionContext instanceof SqlBaseParser.DereferenceContext) {
-                SqlBaseParser.DereferenceContext dereferenceContext = (SqlBaseParser.DereferenceContext) primaryExpressionContext;
+                SqlBaseParser.DereferenceContext dereferenceContext =
+                        (SqlBaseParser.DereferenceContext) primaryExpressionContext;
                 String field = dereferenceContext.fieldName.getText();
                 criteriaClause.setLeftExpr(field);
                 String alias = dereferenceContext.primaryExpression().getText();
                 if (!alias.equalsIgnoreCase(targetTableAlias)) {
-                    throw new ParseException(String.format("cannot found alias '%s' of field: '%s' in WHERE clause: %s", alias, field, getFullText(booleanExpressionContext)));
+                    throw new ParseException(
+                            String.format(
+                                    "cannot found alias '%s' of field: '%s' in WHERE clause: %s",
+                                    alias, field, getFullText(booleanExpressionContext)));
                 }
             } else {
-                throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(booleanExpressionContext)));
+                throw new ParseException(
+                        String.format(UNSUPPORTED_EXP_MSG, getFullText(booleanExpressionContext)));
             }
         }
     }
@@ -94,26 +115,39 @@ public class CriteriaParser {
             conditionSql.append(" ) ");
         } else if (clause.getLeftExpr() != null) {
             if (clause.getRightExpr() != null) {
-                conditionSql.append(clause.getLeftExpr()).append(" ").append(clause.getOperator()).append(" ").append(clause.getRightExpr());
+                conditionSql
+                        .append(clause.getLeftExpr())
+                        .append(" ")
+                        .append(clause.getOperator())
+                        .append(" ")
+                        .append(clause.getRightExpr());
             } else if (clause.getInItems() != null) {
                 List<String> placeholders = new ArrayList<>();
                 for (int i = 0; i < clause.getInItems().size(); i++) {
                     placeholders.add(clause.getRightExpr());
                 }
-                conditionSql.append(clause.getLeftExpr()).append(" IN ( ").append(String.join(", ", placeholders)).append(" ) ");
+                conditionSql
+                        .append(clause.getLeftExpr())
+                        .append(" IN ( ")
+                        .append(String.join(", ", placeholders))
+                        .append(" ) ");
             }
         } else {
             throw new AresException("Unsupported where clause: " + clause);
         }
     }
 
-    private static void parseLogicalBinaryContext(SqlBaseParser.LogicalBinaryContext logicalBinaryContext, CriteriaClause criteriaClause, String targetTableAlias) {
+    private static void parseLogicalBinaryContext(
+            SqlBaseParser.LogicalBinaryContext logicalBinaryContext,
+            CriteriaClause criteriaClause,
+            String targetTableAlias) {
         if (OP_AND.equalsIgnoreCase(logicalBinaryContext.operator.getText())) {
             criteriaClause.setOperator(OP_AND);
         } else if (OP_OR.equalsIgnoreCase(logicalBinaryContext.operator.getText())) {
             criteriaClause.setOperator(OP_OR);
         } else {
-            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(logicalBinaryContext)));
+            throw new ParseException(
+                    String.format(UNSUPPORTED_EXP_MSG, getFullText(logicalBinaryContext)));
         }
 
         CriteriaClause leftClause = new CriteriaClause();
@@ -143,39 +177,50 @@ public class CriteriaParser {
         } else if (OP_LE.equals(operator)) {
             criteriaClause.setOperator(OP_LE);
         } else {
-            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(comparisonContext)));
+            throw new ParseException(
+                    String.format(UNSUPPORTED_EXP_MSG, getFullText(comparisonContext)));
         }
         if (!(comparisonContext.left instanceof SqlBaseParser.ValueExpressionDefaultContext)) {
-            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(comparisonContext)));
+            throw new ParseException(
+                    String.format(UNSUPPORTED_EXP_MSG, getFullText(comparisonContext)));
         }
         criteriaClause.setRightExpr(getFullText(comparisonContext.right));
-        return ((SqlBaseParser.ValueExpressionDefaultContext) comparisonContext.left).primaryExpression();
+        return ((SqlBaseParser.ValueExpressionDefaultContext) comparisonContext.left)
+                .primaryExpression();
     }
 
-    private static void parseOtherConditionContext(SqlBaseParser.PredicatedContext predicatedContext, CriteriaClause criteriaClause) {
+    private static void parseOtherConditionContext(
+            SqlBaseParser.PredicatedContext predicatedContext, CriteriaClause criteriaClause) {
         if (predicatedContext.predicate().IN() != null) {
             criteriaClause.setOperator(OP_IN);
-        } else if (predicatedContext.predicate().NOT() != null && predicatedContext.predicate().LIKE() != null) {
+        } else if (predicatedContext.predicate().NOT() != null
+                && predicatedContext.predicate().LIKE() != null) {
             criteriaClause.setOperator(OP_NOT_LIKE);
         } else if (predicatedContext.predicate().LIKE() != null) {
             criteriaClause.setOperator(OP_LIKE);
         } else {
-            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(predicatedContext)));
+            throw new ParseException(
+                    String.format(UNSUPPORTED_EXP_MSG, getFullText(predicatedContext)));
         }
 
         if (OP_IN.equalsIgnoreCase(criteriaClause.getOperator())) {
             if (predicatedContext.predicate().expression().isEmpty()) {
-                throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(predicatedContext)));
+                throw new ParseException(
+                        String.format(UNSUPPORTED_EXP_MSG, getFullText(predicatedContext)));
             }
             criteriaClause.setInItems(new ArrayList<>());
-            predicatedContext.predicate().expression().forEach(expr ->
-                    criteriaClause.getInItems().add(getFullText(expr)));
+            predicatedContext
+                    .predicate()
+                    .expression()
+                    .forEach(expr -> criteriaClause.getInItems().add(getFullText(expr)));
         } else {
             if (predicatedContext.predicate().valueExpression().isEmpty()) {
-                throw new ParseException(String.format(UNSUPPORTED_EXP_MSG, getFullText(predicatedContext)));
+                throw new ParseException(
+                        String.format(UNSUPPORTED_EXP_MSG, getFullText(predicatedContext)));
             }
             StringJoiner joiner = new StringJoiner(" ");
-            for (SqlBaseParser.ValueExpressionContext expressionContext : predicatedContext.predicate().valueExpression()) {
+            for (SqlBaseParser.ValueExpressionContext expressionContext :
+                    predicatedContext.predicate().valueExpression()) {
                 joiner.add(getFullText(expressionContext));
             }
             String rightExpr = joiner.toString();

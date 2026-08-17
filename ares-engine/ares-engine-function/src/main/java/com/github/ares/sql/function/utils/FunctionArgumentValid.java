@@ -1,7 +1,6 @@
 package com.github.ares.sql.function.utils;
 
 import com.github.ares.common.exceptions.AresException;
-
 import java.util.StringJoiner;
 
 public class FunctionArgumentValid {

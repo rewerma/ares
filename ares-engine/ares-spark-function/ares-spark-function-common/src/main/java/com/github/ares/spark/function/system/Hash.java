@@ -7,16 +7,15 @@ import com.github.ares.common.utils.DateTimeUtils;
 import com.github.ares.common.utils.Tuple2;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.apache.spark.sql.catalyst.expressions.Murmur3Hash;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Decimal;
 import org.apache.spark.sql.types.DecimalType;
 import org.apache.spark.unsafe.types.UTF8String;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @AutoService(SparkFuncInterface.class)
 public class Hash implements SparkFuncInterface {
@@ -35,7 +34,8 @@ public class Hash implements SparkFuncInterface {
         if (args.isEmpty()) {
             throw new AresException(
                     String.format(
-                            "The `hash` requires > 0 parameters but the actual number is %d", args.size()));
+                            "The `hash` requires > 0 parameters but the actual number is %d",
+                            args.size()));
         }
         int hash = 42;
         int i = 0;
@@ -85,9 +85,10 @@ public class Hash implements SparkFuncInterface {
             return Tuple2.of(((LocalDate) arg).toEpochDay(), DataTypes.DateType);
         }
         if (arg instanceof LocalDateTime) {
-            return Tuple2.of(DateTimeUtils.localDateTimeToMicros((LocalDateTime) arg), DataTypes.DateType);
+            return Tuple2.of(
+                    DateTimeUtils.localDateTimeToMicros((LocalDateTime) arg), DataTypes.DateType);
         }
-        throw new AresException(String.format("Unsupported data type: %s", arg.getClass().getSimpleName()));
+        throw new AresException(
+                String.format("Unsupported data type: %s", arg.getClass().getSimpleName()));
     }
-
 }

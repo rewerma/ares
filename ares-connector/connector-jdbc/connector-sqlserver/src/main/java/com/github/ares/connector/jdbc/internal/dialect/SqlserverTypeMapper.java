@@ -2,11 +2,10 @@ package com.github.ares.connector.jdbc.internal.dialect;
 
 import com.github.ares.api.table.catalog.Column;
 import com.github.ares.api.table.connector.BasicTypeDefine;
-import lombok.extern.slf4j.Slf4j;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SqlserverTypeMapper implements JdbcDialectTypeMapper {

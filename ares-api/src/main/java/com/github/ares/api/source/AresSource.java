@@ -7,7 +7,6 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.serialization.DefaultSerializer;
 import com.github.ares.common.serialization.Serializer;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,13 +14,12 @@ import java.util.List;
  * The interface for Source. It acts like a factory class that helps construct the {@link
  * SourceSplitEnumerator} and {@link SourceReader} and corresponding serializers.
  *
- * @param <T>      The type of records produced by the source.
+ * @param <T> The type of records produced by the source.
  * @param <SplitT> The type of splits handled by the source.
  * @param <StateT> The type of checkpoint states.
  */
 public interface AresSource<T, SplitT extends SourceSplit, StateT extends Serializable>
-        extends Serializable,
-        PluginIdentifierInterface {
+        extends Serializable, PluginIdentifierInterface {
 
     /**
      * Get the boundedness of this source.
@@ -86,7 +84,7 @@ public interface AresSource<T, SplitT extends SourceSplit, StateT extends Serial
      * restore from checkpoint.
      *
      * @param enumeratorContext enumerator context.
-     * @param checkpointState   checkpoint state.
+     * @param checkpointState checkpoint state.
      * @return source split enumerator.
      * @throws Exception when create enumerator failed.
      */

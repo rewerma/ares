@@ -29,8 +29,7 @@ import java.util.Set;
  * @param <SplitT> source split type
  * @param <StateT>source split state type
  */
-public interface SourceSplitEnumerator<SplitT extends SourceSplit, StateT>
-        extends AutoCloseable {
+public interface SourceSplitEnumerator<SplitT extends SourceSplit, StateT> extends AutoCloseable {
 
     void open();
 

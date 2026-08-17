@@ -17,22 +17,6 @@
 
 package com.github.ares.connector.jdbc.sink;
 
-import com.github.ares.api.table.catalog.CatalogTable;
-import com.github.ares.api.table.catalog.Column;
-import com.github.ares.api.table.connector.TableSink;
-import com.github.ares.api.table.factory.TableSinkFactory;
-import com.github.ares.api.table.factory.TableSinkFactoryContext;
-import com.github.ares.common.configuration.ReadonlyConfig;
-import com.github.ares.common.configuration.utils.OptionRule;
-import com.github.ares.connector.jdbc.config.JdbcOptions;
-import com.github.ares.connector.jdbc.config.JdbcSinkConfig;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
-import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.ares.connector.jdbc.config.JdbcOptions.AUTO_COMMIT;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.BATCH_SIZE;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.COMPATIBLE_MODE;
@@ -45,6 +29,21 @@ import static com.github.ares.connector.jdbc.config.JdbcOptions.POOL_SIZE;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.QUERY_TIMEOUT_SEC;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.URL;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.USER;
+
+import com.github.ares.api.table.catalog.CatalogTable;
+import com.github.ares.api.table.catalog.Column;
+import com.github.ares.api.table.connector.TableSink;
+import com.github.ares.api.table.factory.TableSinkFactory;
+import com.github.ares.api.table.factory.TableSinkFactoryContext;
+import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.common.configuration.utils.OptionRule;
+import com.github.ares.connector.jdbc.config.JdbcOptions;
+import com.github.ares.connector.jdbc.config.JdbcSinkConfig;
+import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
+import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
+import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JdbcSinkFactory implements TableSinkFactory {
     @Override
@@ -81,7 +80,10 @@ public class JdbcSinkFactory implements TableSinkFactory {
             return () -> new JdbcSink(sinkConfig, dialect, null);
         }
         return () ->
-                new JdbcSink(sinkConfig, dialect, finalCatalogTable.getTableSchema().toPhysicalRowDataType());
+                new JdbcSink(
+                        sinkConfig,
+                        dialect,
+                        finalCatalogTable.getTableSchema().toPhysicalRowDataType());
     }
 
     @Override

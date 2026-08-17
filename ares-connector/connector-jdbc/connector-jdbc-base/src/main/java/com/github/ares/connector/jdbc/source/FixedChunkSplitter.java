@@ -24,11 +24,6 @@ import com.github.ares.api.table.type.SqlType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
 import com.github.ares.connector.jdbc.internal.split.JdbcNumericBetweenParametersProvider;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -41,6 +36,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FixedChunkSplitter extends ChunkSplitter {
     private static final Logger log = LoggerFactory.getLogger(FixedChunkSplitter.class);
@@ -50,8 +49,8 @@ public class FixedChunkSplitter extends ChunkSplitter {
     }
 
     @Override
-    protected Collection<JdbcSourceSplit> createSplits(
-            JdbcSourceTable table, AresRowType splitKey) throws SQLException {
+    protected Collection<JdbcSourceSplit> createSplits(JdbcSourceTable table, AresRowType splitKey)
+            throws SQLException {
 
         String splitKeyName = splitKey.getFieldNames()[0];
         AresDataType splitKeyType = splitKey.getFieldType(0);

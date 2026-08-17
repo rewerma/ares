@@ -9,6 +9,8 @@ import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.write.AresWriteBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
 import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.connector.catalog.SupportsWrite;
 import org.apache.spark.sql.connector.catalog.Table;
@@ -16,9 +18,6 @@ import org.apache.spark.sql.connector.catalog.TableCapability;
 import org.apache.spark.sql.connector.write.LogicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
-
-import java.util.Map;
-import java.util.Set;
 
 public class AresSinkTable implements Table, SupportsWrite {
 
@@ -34,8 +33,7 @@ public class AresSinkTable implements Table, SupportsWrite {
             throw new IllegalArgumentException(Constants.SINK_SERIALIZATION + " must be specified");
         }
         this.aresSink =
-                PluginClassLoader.deserializePlugin(
-                        sinkSerialization, getClass().getClassLoader());
+                PluginClassLoader.deserializePlugin(sinkSerialization, getClass().getClassLoader());
 
         String sinkCatalogTableSerialization =
                 properties.getOrDefault(SparkSinkInjector.SINK_CATALOG_TABLE, "");

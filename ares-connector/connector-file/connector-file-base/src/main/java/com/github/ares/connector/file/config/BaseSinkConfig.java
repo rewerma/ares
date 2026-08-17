@@ -6,7 +6,6 @@ import com.github.ares.common.utils.DateTimeUtils;
 import com.github.ares.common.utils.DateUtils;
 import com.github.ares.common.utils.TimeUtils;
 import com.github.ares.format.text.constant.TextFormatConstant;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -1,7 +1,5 @@
 package com.github.ares.common.utils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Base64;
@@ -9,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Unified entry point for plugin classloader operations: jar discovery, isolated classloader
@@ -92,8 +91,7 @@ public final class PluginClassLoader {
         return SerializationUtils.deserialize(pluginBytes, classLoader);
     }
 
-    public static <T> T callWithContextClassLoader(
-            ClassLoader classLoader, Supplier<T> action) {
+    public static <T> T callWithContextClassLoader(ClassLoader classLoader, Supplier<T> action) {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);

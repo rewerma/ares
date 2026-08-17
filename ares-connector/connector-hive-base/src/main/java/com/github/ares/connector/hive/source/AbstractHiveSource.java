@@ -1,5 +1,13 @@
 package com.github.ares.connector.hive.source;
 
+import static com.github.ares.connector.file.config.BaseSourceConfigOptions.FILE_FORMAT_TYPE;
+import static com.github.ares.connector.file.config.BaseSourceConfigOptions.FILE_PATH;
+import static com.github.ares.connector.file.config.BaseSourceConfigOptions.TARGET_PARTITIONS;
+import static com.github.ares.connector.hive.config.HiveConfig.ORC_INPUT_FORMAT_CLASSNAME;
+import static com.github.ares.connector.hive.config.HiveConfig.PARQUET_INPUT_FORMAT_CLASSNAME;
+import static com.github.ares.connector.hive.config.HiveConfig.TEXT_INPUT_FORMAT_CLASSNAME;
+import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
+
 import com.github.ares.api.common.PluginType;
 import com.github.ares.api.table.catalog.schema.TableSchemaOptions;
 import com.github.ares.com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,23 +27,14 @@ import com.github.ares.connector.hive.config.HiveConfig;
 import com.github.ares.connector.hive.exception.HiveConnectorErrorCode;
 import com.github.ares.connector.hive.exception.HiveConnectorException;
 import com.github.ares.connector.hive.utils.HiveSchemaBuilder;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hadoop.hive.metastore.api.FieldSchema;
-import org.apache.hadoop.hive.metastore.api.Table;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.github.ares.connector.file.config.BaseSourceConfigOptions.FILE_FORMAT_TYPE;
-import static com.github.ares.connector.file.config.BaseSourceConfigOptions.FILE_PATH;
-import static com.github.ares.connector.file.config.BaseSourceConfigOptions.TARGET_PARTITIONS;
-import static com.github.ares.connector.hive.config.HiveConfig.ORC_INPUT_FORMAT_CLASSNAME;
-import static com.github.ares.connector.hive.config.HiveConfig.PARQUET_INPUT_FORMAT_CLASSNAME;
-import static com.github.ares.connector.hive.config.HiveConfig.TEXT_INPUT_FORMAT_CLASSNAME;
-import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.hive.metastore.api.FieldSchema;
+import org.apache.hadoop.hive.metastore.api.Table;
 
 public abstract class AbstractHiveSource extends BaseHdfsFileSource {
     private transient Table tableInformation;

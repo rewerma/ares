@@ -1,12 +1,11 @@
-
 package com.github.ares.api.table.catalog;
 
 import com.github.ares.api.table.type.AresDataType;
+import java.io.Serializable;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Map;
 @Data
 @AllArgsConstructor
 @SuppressWarnings("PMD.AbstractClassShouldStartWithAbstractNamingRule")

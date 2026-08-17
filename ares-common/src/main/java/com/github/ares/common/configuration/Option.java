@@ -1,32 +1,22 @@
 package com.github.ares.common.configuration;
 
-
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class Option<T> {
-    /**
-     * The current key for that config option.
-     */
+    /** The current key for that config option. */
     private final String key;
 
-    /**
-     * Type of the value that this Option describes.
-     */
+    /** Type of the value that this Option describes. */
     private final TypeReference<T> typeReference;
 
-    /**
-     * The default value for this option.
-     */
+    /** The default value for this option. */
     private final T defaultValue;
 
-    /**
-     * The description for this option.
-     */
+    /** The description for this option. */
     String description = "";
 
     private final List<String> fallbackKeys;

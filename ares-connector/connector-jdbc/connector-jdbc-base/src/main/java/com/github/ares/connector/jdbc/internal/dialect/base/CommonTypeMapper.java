@@ -9,11 +9,10 @@ import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.internal.dialect.DatabaseIdentifier;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectTypeMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommonTypeMapper implements JdbcDialectTypeMapper {
 
@@ -72,8 +71,7 @@ public class CommonTypeMapper implements JdbcDialectTypeMapper {
     private static final String COMMON_GEOMETRY = "GEOMETRY";
 
     @Override
-    public AresDataType<?> mapping(ResultSetMetaData metadata, int colIndex)
-            throws SQLException {
+    public AresDataType<?> mapping(ResultSetMetaData metadata, int colIndex) throws SQLException {
         String mysqlType = metadata.getColumnTypeName(colIndex).toUpperCase();
         String columnName = metadata.getColumnName(colIndex);
         int precision = metadata.getPrecision(colIndex);
@@ -151,12 +149,17 @@ public class CommonTypeMapper implements JdbcDialectTypeMapper {
             case COMMON_BINARY:
                 return PrimitiveByteArrayType.INSTANCE;
 
-            // Doesn't support yet
+                // Doesn't support yet
             case COMMON_GEOMETRY:
             case COMMON_UNKNOWN:
             default:
                 final String jdbcColumnName = metadata.getColumnName(colIndex);
-                throw new AresException(DatabaseIdentifier.MYSQL + " unsupported convert type " + mysqlType + " of " + jdbcColumnName);
+                throw new AresException(
+                        DatabaseIdentifier.MYSQL
+                                + " unsupported convert type "
+                                + mysqlType
+                                + " of "
+                                + jdbcColumnName);
         }
     }
 }

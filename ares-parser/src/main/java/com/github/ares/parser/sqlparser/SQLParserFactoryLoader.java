@@ -44,7 +44,8 @@ public class SQLParserFactoryLoader {
                     .forEachRemaining(result::add);
             return result;
         } catch (ServiceConfigurationError e) {
-            throw new RuntimeException("Could not load service provider for sql parser factory.", e);
+            throw new RuntimeException(
+                    "Could not load service provider for sql parser factory.", e);
         }
     }
 }

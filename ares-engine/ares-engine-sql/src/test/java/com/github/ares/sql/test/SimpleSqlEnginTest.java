@@ -1,12 +1,12 @@
-//package com.github.ares.sql.test;
+// package com.github.ares.sql.test;
 //
-//import com.github.ares.api.common.EngineType;
-//import com.github.ares.api.common.EngineTypeVersion;
-//import com.github.ares.api.common.ExecutionEngineType;
-//import com.github.ares.sql.expression.sql.ExpressionEngine;
-//import org.junit.Test;
+// import com.github.ares.api.common.EngineType;
+// import com.github.ares.api.common.EngineTypeVersion;
+// import com.github.ares.api.common.ExecutionEngineType;
+// import com.github.ares.sql.expression.sql.ExpressionEngine;
+// import org.junit.Test;
 //
-//public class SimpleSqlEnginTest {
+// public class SimpleSqlEnginTest {
 //    @Test
 //    public void test01() {
 //        ExecutionEngineType.init(EngineType.SPARK, EngineTypeVersion.SPARK3);
@@ -22,4 +22,4 @@
 //        Object val = sqlEngine.evaluate(sql);
 //        val = val;
 //    }
-//}
+// }

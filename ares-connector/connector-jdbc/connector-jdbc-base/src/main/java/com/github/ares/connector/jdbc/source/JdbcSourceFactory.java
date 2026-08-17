@@ -17,18 +17,6 @@
 
 package com.github.ares.connector.jdbc.source;
 
-import com.github.ares.api.source.AresSource;
-import com.github.ares.api.source.SourceSplit;
-import com.github.ares.api.source.TableSource;
-import com.github.ares.api.table.factory.TableSourceFactory;
-import com.github.ares.api.table.factory.TableSourceFactoryContext;
-import com.github.ares.common.configuration.utils.OptionRule;
-import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
-import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
-
-import java.io.Serializable;
-
 import static com.github.ares.connector.jdbc.config.JdbcOptions.COMPATIBLE_MODE;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.CONNECTION_CHECK_TIMEOUT_SEC;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.CONNECTION_POOL_ENABLED;
@@ -54,6 +42,17 @@ import static com.github.ares.connector.jdbc.config.JdbcSourceOptions.TABLE_LIST
 import static com.github.ares.connector.jdbc.config.JdbcSourceOptions.TABLE_NAME;
 import static com.github.ares.connector.jdbc.config.JdbcSourceOptions.WHERE_CONDITION;
 
+import com.github.ares.api.source.AresSource;
+import com.github.ares.api.source.SourceSplit;
+import com.github.ares.api.source.TableSource;
+import com.github.ares.api.table.factory.TableSourceFactory;
+import com.github.ares.api.table.factory.TableSourceFactoryContext;
+import com.github.ares.common.configuration.utils.OptionRule;
+import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
+import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
+import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
+import java.io.Serializable;
+
 public class JdbcSourceFactory implements TableSourceFactory {
     @Override
     public String factoryIdentifier() {
@@ -62,7 +61,7 @@ public class JdbcSourceFactory implements TableSourceFactory {
 
     @Override
     public <T, SplitT extends SourceSplit, StateT extends Serializable>
-    TableSource<T, SplitT, StateT> createSource(TableSourceFactoryContext context) {
+            TableSource<T, SplitT, StateT> createSource(TableSourceFactoryContext context) {
         JdbcSourceConfig config = JdbcSourceConfig.of(context.getOptions());
         JdbcDialect jdbcDialect =
                 JdbcDialectLoader.load(

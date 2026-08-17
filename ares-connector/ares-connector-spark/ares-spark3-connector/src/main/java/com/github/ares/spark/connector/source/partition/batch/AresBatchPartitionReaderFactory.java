@@ -3,13 +3,12 @@ package com.github.ares.spark.connector.source.partition.batch;
 import com.github.ares.api.source.AresSource;
 import com.github.ares.api.source.SupportCoordinate;
 import com.github.ares.api.table.type.AresRow;
+import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.read.InputPartition;
 import org.apache.spark.sql.connector.read.PartitionReader;
 import org.apache.spark.sql.connector.read.PartitionReaderFactory;
 import org.apache.spark.util.LongAccumulator;
-
-import java.util.Map;
 
 public class AresBatchPartitionReaderFactory implements PartitionReaderFactory {
     private final LongAccumulator readAccumulator;

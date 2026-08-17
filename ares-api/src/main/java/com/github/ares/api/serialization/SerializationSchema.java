@@ -1,7 +1,6 @@
 package com.github.ares.api.serialization;
 
 import com.github.ares.api.table.type.AresRow;
-
 import java.io.Serializable;
 
 public interface SerializationSchema extends Serializable {

@@ -2,14 +2,14 @@ package com.github.ares.connector.jdbc.internal.converter;
 
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
-
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Converter that is responsible to convert between JDBC object and Ares data structure {@link AresRow}.
+ * Converter that is responsible to convert between JDBC object and Ares data structure {@link
+ * AresRow}.
  */
 public interface JdbcRowConverter extends Serializable {
 
@@ -20,7 +20,6 @@ public interface JdbcRowConverter extends Serializable {
      */
     AresRow toInternal(ResultSet rs, AresRowType typeInfo) throws SQLException;
 
-    PreparedStatement toExternal(
-            AresRowType rowType, AresRow row, PreparedStatement statement)
+    PreparedStatement toExternal(AresRowType rowType, AresRow row, PreparedStatement statement)
             throws SQLException;
 }

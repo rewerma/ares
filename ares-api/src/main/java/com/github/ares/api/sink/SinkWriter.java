@@ -18,7 +18,6 @@
 package com.github.ares.api.sink;
 
 import com.github.ares.api.table.event.SchemaChangeEvent;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;

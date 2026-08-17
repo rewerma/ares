@@ -1,7 +1,6 @@
 package com.github.ares.connector.jdbc.config;
 
 import com.github.ares.common.configuration.ReadonlyConfig;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -10,9 +9,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//@Data
-//@Builder
-//@JsonIgnoreProperties(ignoreUnknown = true)
+// @Data
+// @Builder
+// @JsonIgnoreProperties(ignoreUnknown = true)
 public class JdbcSourceTableConfig implements Serializable {
     private static final int DEFAULT_PARTITION_NUMBER = 10;
 
@@ -34,8 +33,7 @@ public class JdbcSourceTableConfig implements Serializable {
     //    @JsonProperty("partition_upper_bound")
     private BigDecimal partitionEnd;
 
-    public JdbcSourceTableConfig() {
-    }
+    public JdbcSourceTableConfig() {}
 
     public String getTablePath() {
         return tablePath;
@@ -85,7 +83,6 @@ public class JdbcSourceTableConfig implements Serializable {
         this.partitionEnd = partitionEnd;
     }
 
-
     public static List<JdbcSourceTableConfig> of(ReadonlyConfig connectorConfig) {
         List<JdbcSourceTableConfig> tableList;
         if (connectorConfig.getOptional(JdbcSourceOptions.TABLE_LIST).isPresent()) {
@@ -96,8 +93,7 @@ public class JdbcSourceTableConfig implements Serializable {
             }
             tableList = connectorConfig.get(JdbcSourceOptions.TABLE_LIST);
         } else {
-            JdbcSourceTableConfig tableProperty =
-                    new JdbcSourceTableConfig();
+            JdbcSourceTableConfig tableProperty = new JdbcSourceTableConfig();
             tableProperty.setTablePath(connectorConfig.get(JdbcSourceOptions.TABLE_NAME));
             tableProperty.setQuery(connectorConfig.get(JdbcOptions.QUERY));
             if (tableProperty.getQuery() == null && tableProperty.getTablePath() != null) {

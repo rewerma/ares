@@ -18,15 +18,12 @@
 
 package com.github.ares.api.table.catalog;
 
-
-
 import com.github.ares.api.table.type.AresDataType;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /** Representation of a physical column. */
 @EqualsAndHashCode(callSuper = true)
@@ -35,8 +32,7 @@ public class PhysicalColumn extends Column {
 
     private static final long serialVersionUID = -1L;
 
-    public PhysicalColumn(
-            String name, AresDataType<?> dataType, Long columnLength, Integer scale) {
+    public PhysicalColumn(String name, AresDataType<?> dataType, Long columnLength, Integer scale) {
         super(name, dataType, columnLength, scale);
     }
 
@@ -327,4 +323,3 @@ public class PhysicalColumn extends Column {
                 longColumnLength);
     }
 }
-

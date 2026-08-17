@@ -1,28 +1,33 @@
 package com.github.ares.engine.core;
 
 import com.github.ares.com.google.inject.Inject;
-import com.github.ares.com.google.inject.Singleton;
-import com.github.ares.common.engine.InternalFieldType;
-import com.github.ares.common.engine.PlType;
-import com.github.ares.common.exceptions.AresException;
 import com.github.ares.parser.enums.OperationType;
 import com.github.ares.parser.plan.LogicalAnonymousBody;
 import com.github.ares.parser.plan.LogicalDeclareParams;
 import com.github.ares.parser.plan.LogicalExceptionHandler;
 import com.github.ares.parser.plan.LogicalOperation;
 
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.github.ares.engine.utils.EngineUtil.handleQuoteIdentifier;
-
-public class AnonymousBodyExecutor extends AbstractBaseExecutor implements Serializable {
+public class AnonymousBodyExecutor extends AbstractBaseExecutor implements OperationHandler {
     private static final long serialVersionUID = -1L;
 
-    @Inject
-    private ExceptionMessageHandler exceptionMessageHandler;
+    @Inject private ExceptionMessageHandler exceptionMessageHandler;
+
+    @Override
+    public OperationType handledType() {
+        return OperationType.ANONYMOUS_BODY;
+    }
+
+    @Override
+    public Scope scope() {
+        return Scope.PROJECT;
+    }
+
+    @Override
+    public Object handle(
+            LogicalOperation operation, PlParams plParams, Object lastData, BodyCallback body) {
+        Object lastResult = execute((LogicalAnonymousBody) operation);
+        return lastResult != null ? lastResult : lastData;
+    }
 
     public Object execute(LogicalAnonymousBody anonymousBody) {
         traceLogger.info("Anonymous body: BEGIN");
@@ -33,24 +38,20 @@ public class AnonymousBodyExecutor extends AbstractBaseExecutor implements Seria
         }
         Object result = null;
         LogicalExceptionHandler exHandler = anonymousBody.getExHandler();
+        BodyCallback body = executorManager.getBodyExecutionExecutor()::execute;
         try {
-            if (exHandler != null) {
-                try {
-                    result = executorManager.getBodyExecutionExecutor().execute(anonymousBody.getAnonymousBody(), plParams);
-                } catch (Exception e) {
-                    executorManager.getTransactionManager().rollbackQuietly();
-                    PlParams plParamsCopy = new PlParams(plParams.getAllParams(), plParams.getParamTypes());
-                    String message = exceptionMessageHandler.getMessage(e);
-                    message = handleQuoteIdentifier(message);
-                    plParamsCopy.put("ex.message", message, PlType.of(InternalFieldType.VARCHAR));
-                    executorManager.getBodyExecutionExecutor().execute(exHandler.getExHandlerBody(), plParamsCopy);
-                    if (exHandler.getWithRaise() != null && exHandler.getWithRaise()) {
-                        throw new AresException(e);
-                    }
-                }
-            } else {
-                result = executorManager.getBodyExecutionExecutor().execute(anonymousBody.getAnonymousBody(), plParams);
-            }
+            result =
+                    PlExceptionHandler.run(
+                            executorManager,
+                            exceptionMessageHandler,
+                            exHandler,
+                            plParams,
+                            body,
+                            () ->
+                                    executorManager
+                                            .getBodyExecutionExecutor()
+                                            .execute(anonymousBody.getAnonymousBody(), plParams),
+                            null);
         } catch (Exception e) {
             executorManager.getTransactionManager().rollbackQuietly();
             throw e;

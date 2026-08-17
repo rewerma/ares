@@ -1,5 +1,7 @@
 package com.github.ares.connector.file.config;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.common.SinkType;
 import com.github.ares.com.typesafe.config.Config;
@@ -7,15 +9,12 @@ import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.utils.DateTimeUtils;
 import com.github.ares.common.utils.DateUtils;
 import com.github.ares.common.utils.TimeUtils;
-import lombok.Data;
-import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.Locale;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import lombok.Data;
+import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
@@ -35,7 +34,8 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
     public BaseFileSinkConfig(@NonNull Config config) {
         SinkType sinkType = SinkType.valueOf(config.getString(CommonOptions.SINK_TYPE.key()));
         if (SinkType.INSERT != sinkType && SinkType.TRUNCATE != sinkType) {
-            throw new AresException(String.format("Unsupported sink type: %s for file sink", sinkType));
+            throw new AresException(
+                    String.format("Unsupported sink type: %s for file sink", sinkType));
         }
         if (config.hasPath(BaseSinkConfig.COMPRESS_CODEC.key())) {
             String compressCodec = config.getString(BaseSinkConfig.COMPRESS_CODEC.key());
@@ -65,7 +65,7 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
 
         if (config.hasPath(BaseSinkConfig.FILE_NAME_EXPRESSION.key())
                 && !StringUtils.isBlank(
-                config.getString(BaseSinkConfig.FILE_NAME_EXPRESSION.key()))) {
+                        config.getString(BaseSinkConfig.FILE_NAME_EXPRESSION.key()))) {
             this.fileNameExpression = config.getString(BaseSinkConfig.FILE_NAME_EXPRESSION.key());
         }
 
@@ -98,6 +98,5 @@ public class BaseFileSinkConfig implements DelimiterConfig, Serializable {
         }
     }
 
-    public BaseFileSinkConfig() {
-    }
+    public BaseFileSinkConfig() {}
 }

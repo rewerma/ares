@@ -17,10 +17,10 @@
 
 package com.github.ares.core.starter.command;
 
-import com.github.ares.common.configuration.DeployMode;
-import com.github.ares.com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
+import com.github.ares.com.google.common.annotations.VisibleForTesting;
+import com.github.ares.common.configuration.DeployMode;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+import org.apache.commons.lang3.StringUtils;
 
 public class Common {
 
@@ -92,11 +91,11 @@ public class Common {
 
     /**
      * Root dir varies between different spark master and deploy mode, it also varies between
-     * relative and absolute path. When running Ares in --master local, you can put plugins
-     * related files in $project_dir/plugins, then these files will be automatically copied to
-     * $project_dir/ares-core/target and token in effect if you start ares in IDE tools
-     * such as IDEA. When running ares in --master yarn or --master mesos, you can put plugins
-     * related files in plugins dir.
+     * relative and absolute path. When running Ares in --master local, you can put plugins related
+     * files in $project_dir/plugins, then these files will be automatically copied to
+     * $project_dir/ares-core/target and token in effect if you start ares in IDE tools such as
+     * IDEA. When running ares in --master yarn or --master mesos, you can put plugins related files
+     * in plugins dir.
      */
     public static Path appRootDir() {
         if (DeployMode.CLIENT == MODE || DeployMode.RUN == MODE || STARTER) {

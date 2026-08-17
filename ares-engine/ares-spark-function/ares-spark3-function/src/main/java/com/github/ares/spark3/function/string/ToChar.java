@@ -1,19 +1,18 @@
 package com.github.ares.spark3.function.string;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
+import java.util.List;
+import java.util.Locale;
 import org.apache.spark.sql.catalyst.util.ToNumberParser;
 import org.apache.spark.sql.types.Decimal;
 import scala.math.BigDecimal;
-
-import java.util.List;
-import java.util.Locale;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class ToChar implements SparkFuncInterface {
@@ -38,7 +37,8 @@ public class ToChar implements SparkFuncInterface {
         }
         try {
             ToNumberParser toNumberParser = new ToNumberParser(arg2.toUpperCase(Locale.ROOT), true);
-            return toNumberParser.format(new Decimal().set(new BigDecimal(new java.math.BigDecimal(arg1.toString()))));
+            return toNumberParser.format(
+                    new Decimal().set(new BigDecimal(new java.math.BigDecimal(arg1.toString()))));
         } catch (NumberFormatException e) {
             return null;
         }

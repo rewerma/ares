@@ -17,24 +17,21 @@
 
 package com.github.ares.connector.jdbc.internal;
 
+import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.config.JdbcConnectionConfig;
 import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
-
-/**
- * A JDBC outputFormat
- */
+/** A JDBC outputFormat */
 public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implements Serializable {
 
     protected final JdbcConnectionProvider connectionProvider;
@@ -60,16 +57,12 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
     }
 
-    /**
-     * Connects to the target database and initializes the prepared statement.
-     */
+    /** Connects to the target database and initializes the prepared statement. */
     public void open() throws IOException {
         try {
             connectionProvider.getOrEstablishConnection();
         } catch (Exception e) {
-            throw new AresException(
-                    "unable to open JDBC writer",
-                    e);
+            throw new AresException("unable to open JDBC writer", e);
         }
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
     }
@@ -79,18 +72,14 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
         try {
             exec.prepareStatements(connectionProvider.getConnection());
         } catch (SQLException e) {
-            throw new AresException(
-                    "unable to open JDBC writer",
-                    e);
+            throw new AresException("unable to open JDBC writer", e);
         }
         return exec;
     }
 
     public void checkFlushException() {
         if (flushException != null) {
-            throw new AresException(
-                    "Writing records to JDBC failed.",
-                    flushException);
+            throw new AresException("Writing records to JDBC failed.", flushException);
         }
     }
 
@@ -104,9 +93,7 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
                 flush();
             }
         } catch (Exception e) {
-            throw new AresException(
-                    "Writing records to JDBC failed.",
-                    e);
+            throw new AresException("Writing records to JDBC failed.", e);
         }
     }
 
@@ -141,17 +128,14 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
                     LOG.error(
                             "JDBC connection is not valid, and reestablish connection failed.",
                             exception);
-                    throw new AresException(
-                            "Reestablish JDBC connection failed",
-                            exception);
+                    throw new AresException("Reestablish JDBC connection failed", exception);
                 }
                 try {
                     Thread.sleep(sleepMs * i);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     throw new AresException(
-                            "unable to flush; interrupted while doing another attempt",
-                            e);
+                            "unable to flush; interrupted while doing another attempt", e);
                 }
             }
         }
@@ -161,9 +145,7 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
         jdbcStatementExecutor.executeBatch();
     }
 
-    /**
-     * Executes prepared statement and closes all resources of this instance.
-     */
+    /** Executes prepared statement and closes all resources of this instance. */
     public synchronized void close() {
         if (!closed) {
             closed = true;
@@ -173,10 +155,7 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
                     flush();
                 } catch (Exception e) {
                     LOG.warn("Writing records to JDBC failed.", e);
-                    flushException =
-                            new AresException(
-                                    "Writing records to JDBC failed.",
-                                    e);
+                    flushException = new AresException("Writing records to JDBC failed.", e);
                 }
             }
 
@@ -213,6 +192,5 @@ public class JdbcOutputFormat<I, E extends JdbcBatchStatementExecutor<I>> implem
      * @param <T> The type of instance.
      */
     public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>>
-            extends Supplier<T>, Serializable {
-    }
+            extends Supplier<T>, Serializable {}
 }

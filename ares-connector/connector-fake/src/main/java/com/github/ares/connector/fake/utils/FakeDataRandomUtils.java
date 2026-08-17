@@ -1,15 +1,14 @@
 package com.github.ares.connector.fake.utils;
 
 import com.github.ares.connector.fake.config.FakeConfig;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 public class FakeDataRandomUtils {
     private final FakeConfig fakeConfig;

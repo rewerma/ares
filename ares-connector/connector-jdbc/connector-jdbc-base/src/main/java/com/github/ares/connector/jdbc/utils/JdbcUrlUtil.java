@@ -18,12 +18,11 @@
 package com.github.ares.connector.jdbc.utils;
 
 import com.github.ares.common.exceptions.AresException;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 public final class JdbcUrlUtil {
     private static final Pattern URL_PATTERN =

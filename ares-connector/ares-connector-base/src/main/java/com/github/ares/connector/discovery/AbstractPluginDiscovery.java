@@ -5,11 +5,6 @@ import com.github.ares.common.configuration.Common;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.utils.IsolatedClassLoader;
 import com.github.ares.common.utils.PluginClassLoader;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,6 +17,10 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
     private static final Logger log = LoggerFactory.getLogger(AbstractPluginDiscovery.class);
@@ -58,7 +57,6 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
                 .distinct()
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public T createPluginInstance(PluginIdentifier pluginIdentifier) {
@@ -156,10 +154,17 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
                 pluginDir
                         .toFile()
                         .listFiles(
-                                pathname -> pathname.getName().endsWith(".jar")
-                                        && StringUtils.startsWithIgnoreCase(
-                                        pathname.getName(), "connector-" +
-                                                StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(pluginName), '-').toLowerCase()));
+                                pathname ->
+                                        pathname.getName().endsWith(".jar")
+                                                && StringUtils.startsWithIgnoreCase(
+                                                        pathname.getName(),
+                                                        "connector-"
+                                                                + StringUtils.join(
+                                                                                StringUtils
+                                                                                        .splitByCharacterTypeCamelCase(
+                                                                                                pluginName),
+                                                                                '-')
+                                                                        .toLowerCase()));
         if (ArrayUtils.isEmpty(targetPluginFiles)) {
             return Optional.empty();
         }
@@ -167,8 +172,8 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
             throw new IllegalArgumentException(
                     "Found multiple plugin jar: "
                             + Arrays.stream(targetPluginFiles)
-                            .map(File::getPath)
-                            .collect(Collectors.joining(","))
+                                    .map(File::getPath)
+                                    .collect(Collectors.joining(","))
                             + " for pluginIdentifier: "
                             + pluginIdentifier);
         }

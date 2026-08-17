@@ -8,7 +8,6 @@ import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -28,65 +27,69 @@ public class JdbcSinkTypeHandler {
         String quotedTable = dialect.tableIdentifier(tablePath);
         String resultSql;
         switch (sinkType) {
-            case INSERT: {
-                StringBuilder sql = new StringBuilder("INSERT INTO ").append(quotedTable);
-                List<String> insertColumns = config.get(CommonOptions.INSERT_COLUMNS);
-                if (insertColumns != null && !insertColumns.isEmpty()) {
-                    String quotedColumns =
-                            insertColumns.stream()
-                                    .map(dialect::quoteIdentifier)
-                                    .collect(Collectors.joining(", "));
-                    sql.append(" (").append(quotedColumns).append(") ");
+            case INSERT:
+                {
+                    StringBuilder sql = new StringBuilder("INSERT INTO ").append(quotedTable);
+                    List<String> insertColumns = config.get(CommonOptions.INSERT_COLUMNS);
+                    if (insertColumns != null && !insertColumns.isEmpty()) {
+                        String quotedColumns =
+                                insertColumns.stream()
+                                        .map(dialect::quoteIdentifier)
+                                        .collect(Collectors.joining(", "));
+                        sql.append(" (").append(quotedColumns).append(") ");
+                    }
+                    sql.append(" VALUES (");
+                    StringJoiner sj = new StringJoiner(", ");
+                    for (int j = 0; j < sourceColumns.size(); j++) {
+                        sj.add("?");
+                    }
+                    sql.append(sj).append(")");
+                    resultSql = sql.toString();
+                    break;
                 }
-                sql.append(" VALUES (");
-                StringJoiner sj = new StringJoiner(", ");
-                for (int j = 0; j < sourceColumns.size(); j++) {
-                    sj.add("?");
+            case UPDATE:
+                {
+                    StringBuilder sql =
+                            new StringBuilder("UPDATE ").append(quotedTable).append(" SET ");
+                    List<String> updateColumns = config.get(CommonOptions.UPDATE_COLUMNS);
+                    CriteriaClause whereClause = config.get(CommonOptions.WHERE_CLAUSE);
+                    if (updateColumns == null
+                            || updateColumns.isEmpty()
+                            || whereClause == null
+                            || whereClause.getOperator() == null) {
+                        throw new AresException("Update set or where columns is empty");
+                    }
+                    StringJoiner setSj = new StringJoiner(", ");
+                    for (String updateColumn : updateColumns) {
+                        setSj.add(dialect.quoteIdentifier(updateColumn) + "=?");
+                    }
+                    sql.append(setSj).append(" WHERE ");
+                    StringBuilder whereSql = new StringBuilder();
+                    visitWhereClause(whereClause, whereSql, dialect);
+                    sql.append(whereSql);
+                    resultSql = sql.toString();
+                    break;
                 }
-                sql.append(sj).append(")");
-                resultSql = sql.toString();
-                break;
-            }
-            case UPDATE: {
-                StringBuilder sql =
-                        new StringBuilder("UPDATE ").append(quotedTable).append(" SET ");
-                List<String> updateColumns = config.get(CommonOptions.UPDATE_COLUMNS);
-                CriteriaClause whereClause = config.get(CommonOptions.WHERE_CLAUSE);
-                if (updateColumns == null
-                        || updateColumns.isEmpty()
-                        || whereClause == null
-                        || whereClause.getOperator() == null) {
-                    throw new AresException("Update set or where columns is empty");
+            case DELETE:
+                {
+                    StringBuilder sql = new StringBuilder("DELETE FROM ").append(quotedTable);
+                    CriteriaClause whereClause = config.get(CommonOptions.WHERE_CLAUSE);
+                    if (whereClause == null) {
+                        throw new AresException("Delete where clause is empty");
+                    }
+                    sql.append(" WHERE ");
+                    StringBuilder whereSql = new StringBuilder();
+                    visitWhereClause(whereClause, whereSql, dialect);
+                    sql.append(whereSql);
+                    resultSql = sql.toString();
+                    break;
                 }
-                StringJoiner setSj = new StringJoiner(", ");
-                for (String updateColumn : updateColumns) {
-                    setSj.add(dialect.quoteIdentifier(updateColumn) + "=?");
-                }
-                sql.append(setSj).append(" WHERE ");
-                StringBuilder whereSql = new StringBuilder();
-                visitWhereClause(whereClause, whereSql, dialect);
-                sql.append(whereSql);
-                resultSql = sql.toString();
-                break;
-            }
-            case DELETE: {
-                StringBuilder sql = new StringBuilder("DELETE FROM ").append(quotedTable);
-                CriteriaClause whereClause = config.get(CommonOptions.WHERE_CLAUSE);
-                if (whereClause == null) {
-                    throw new AresException("Delete where clause is empty");
-                }
-                sql.append(" WHERE ");
-                StringBuilder whereSql = new StringBuilder();
-                visitWhereClause(whereClause, whereSql, dialect);
-                sql.append(whereSql);
-                resultSql = sql.toString();
-                break;
-            }
             case TRUNCATE:
                 resultSql = "TRUNCATE TABLE " + quotedTable;
                 break;
             default:
-                throw new AresException(String.format("Unsupported sink type: %s for JDBC", sinkType));
+                throw new AresException(
+                        String.format("Unsupported sink type: %s for JDBC", sinkType));
         }
         return resultSql;
     }

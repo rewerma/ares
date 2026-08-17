@@ -17,11 +17,10 @@
 
 package com.github.ares.connector.file.sink.commit;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class FileAggregatedCommitInfo implements Serializable {
@@ -43,11 +42,11 @@ public class FileAggregatedCommitInfo implements Serializable {
      */
     private LinkedHashMap<String, List<String>> partitionDirAndValuesMap;
 
-    public FileAggregatedCommitInfo() {
-    }
+    public FileAggregatedCommitInfo() {}
 
-    public FileAggregatedCommitInfo(LinkedHashMap<String, LinkedHashMap<String, String>> transactionMap,
-                                    LinkedHashMap<String, List<String>> partitionDirAndValuesMap) {
+    public FileAggregatedCommitInfo(
+            LinkedHashMap<String, LinkedHashMap<String, String>> transactionMap,
+            LinkedHashMap<String, List<String>> partitionDirAndValuesMap) {
         this.transactionMap = transactionMap;
         this.partitionDirAndValuesMap = partitionDirAndValuesMap;
     }

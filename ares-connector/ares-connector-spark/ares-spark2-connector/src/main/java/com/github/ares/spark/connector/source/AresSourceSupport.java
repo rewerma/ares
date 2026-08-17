@@ -25,6 +25,8 @@ import com.github.ares.common.utils.Constants;
 import com.github.ares.common.utils.PluginClassLoader;
 import com.github.ares.spark.connector.source.reader.batch.BatchSourceReader;
 import com.github.ares.spark.connector.source.reader.micro.MicroBatchSourceReader;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -39,9 +41,6 @@ import org.apache.spark.sql.sources.v2.reader.streaming.MicroBatchReader;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.Optional;
 
 public class AresSourceSupport
         implements DataSourceV2, ReadSupport, MicroBatchReadSupport, DataSourceRegister {
@@ -99,11 +98,12 @@ public class AresSourceSupport
     }
 
     private AresSource<AresRow, ?, ?> getAresSource(DataSourceOptions options) {
-        String sourceSerialization = options.get(Constants.SOURCE_SERIALIZATION)
-                .orElseThrow(
-                        () ->
-                                new UnsupportedOperationException(
-                                        "Serialization information for the AresSource is required"));
+        String sourceSerialization =
+                options.get(Constants.SOURCE_SERIALIZATION)
+                        .orElseThrow(
+                                () ->
+                                        new UnsupportedOperationException(
+                                                "Serialization information for the AresSource is required"));
         return PluginClassLoader.deserializePlugin(
                 sourceSerialization, getClass().getClassLoader());
     }

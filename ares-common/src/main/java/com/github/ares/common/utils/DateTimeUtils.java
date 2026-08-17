@@ -1,7 +1,12 @@
 package com.github.ares.common.utils;
 
-import com.github.ares.common.exceptions.AresException;
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
+import static java.time.temporal.ChronoField.YEAR;
+import static java.util.concurrent.TimeUnit.MICROSECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
+import com.github.ares.common.exceptions.AresException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,12 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
-import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
-import static java.time.temporal.ChronoField.YEAR;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class DateTimeUtils {
     private static final Map<Formatter, DateTimeFormatter> FORMATTER_MAP =
@@ -150,14 +149,22 @@ public class DateTimeUtils {
                 YYYY_MM_DD_HH_MM_SS_M19_FORMATTER_MAP.entrySet());
     }
 
-    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS3 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS4 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS5 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSS");
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS6 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+    public static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS2 =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS3 =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS4 =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS5 =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSS");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_MILLIS6 =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     public static String localDateTimeToString(LocalDateTime localDateTime) {
         long nano = localDateTime.getNano();
@@ -213,7 +220,9 @@ public class DateTimeUtils {
                 zoneId = parsedZoneId;
             }
             long nanoseconds = MICROSECONDS.toNanos(segments.get(6));
-            LocalTime localTime = LocalTime.of(segments.get(3), segments.get(4), segments.get(5), (int) nanoseconds);
+            LocalTime localTime =
+                    LocalTime.of(
+                            segments.get(3), segments.get(4), segments.get(5), (int) nanoseconds);
             LocalDate localDate;
             if (justTime) {
                 localDate = LocalDate.now(zoneId);
@@ -228,7 +237,7 @@ public class DateTimeUtils {
 
     private static Object[] parseTimestampString(String s) {
         Object[] result = new Object[3];
-        Object[] emptyResult = new Object[]{new ArrayList<>(), null, false};
+        Object[] emptyResult = new Object[] {new ArrayList<>(), null, false};
         if (s == null || s.trim().isEmpty()) {
             return emptyResult;
         }
@@ -342,7 +351,8 @@ public class DateTimeUtils {
                 if (i == 6) {
                     digitsMilli += 1;
                 }
-                // We will truncate the nanosecond part if there are more than 6 digits, which results
+                // We will truncate the nanosecond part if there are more than 6 digits, which
+                // results
                 // in loss of precision
                 if (i != 6 || currentSegmentDigits < 6) {
                     currentSegmentValue = currentSegmentValue * 10 + parsedValue;
@@ -380,24 +390,32 @@ public class DateTimeUtils {
         // A Long is able to represent a timestamp within [+-]200 thousand years
         int maxDigitsYear = 6;
         // For the nanosecond part, more than 6 digits is allowed, but will be truncated.
-        return segment == 6 || (segment == 0 && digits >= 4 && digits <= maxDigitsYear) ||
-                // For the zoneId segment(7), it's could be zero digits when it's a region-based zone ID
-                (segment == 7 && digits <= 2) ||
-                (segment != 0 && segment != 6 && segment != 7 && digits > 0 && digits <= 2);
+        return segment == 6
+                || (segment == 0 && digits >= 4 && digits <= maxDigitsYear)
+                ||
+                // For the zoneId segment(7), it's could be zero digits when it's a region-based
+                // zone ID
+                (segment == 7 && digits <= 2)
+                || (segment != 0 && segment != 6 && segment != 7 && digits > 0 && digits <= 2);
     }
 
     private static ZoneId getZoneId(String timeZoneId) {
-        String formattedZoneId = timeZoneId
-                // To support the (+|-)h:mm format because it was supported before Spark 3.0.
-                .replaceFirst("(\\+|\\-)(\\d):", "$10$2:")
-                // To support the (+|-)hh:m format because it was supported before Spark 3.0.
-                .replaceFirst("(\\+|\\-)(\\d\\d):(\\d)$", "$1$2:0$3");
+        String formattedZoneId =
+                timeZoneId
+                        // To support the (+|-)h:mm format because it was supported before Spark
+                        // 3.0.
+                        .replaceFirst("(\\+|\\-)(\\d):", "$10$2:")
+                        // To support the (+|-)hh:m format because it was supported before Spark
+                        // 3.0.
+                        .replaceFirst("(\\+|\\-)(\\d\\d):(\\d)$", "$1$2:0$3");
 
         return ZoneId.of(formattedZoneId, ZoneId.SHORT_IDS);
     }
 
     public static Long localDateTimeToMicros(LocalDateTime localDateTime) {
-        return instantToMicros(localDateTime.toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())));
+        return instantToMicros(
+                localDateTime.toInstant(
+                        ZoneId.systemDefault().getRules().getOffset(Instant.now())));
     }
 
     public static Long instantToMicros(Instant instant) {
@@ -411,7 +429,6 @@ public class DateTimeUtils {
             return Math.addExact(us, NANOSECONDS.toMicros(instant.getNano()));
         }
     }
-
 
     public static LocalDateTime microsToLocalDateTime(Long micros) {
         return getLocalDateTime(micros, ZoneId.systemDefault().getRules().getOffset(Instant.now()));
@@ -428,9 +445,6 @@ public class DateTimeUtils {
         long mos = micros - secs * 1000000L;
         return Instant.ofEpochSecond(secs, mos * 1000L);
     }
-
-
-
 
     public static void main(String[] args) {
         LocalDateTime localDateTime = stringToLocalDateTime("2021-01-01T12:34:56");

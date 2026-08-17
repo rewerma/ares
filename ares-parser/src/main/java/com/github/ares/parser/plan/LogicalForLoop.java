@@ -1,12 +1,10 @@
 package com.github.ares.parser.plan;
 
 import com.github.ares.parser.enums.OperationType;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -23,6 +21,7 @@ public class LogicalForLoop extends LogicalOperation implements Serializable {
     }
 
     public String conditionString() {
-        return String.format("%s IN %s ... %s", indexName, lowerExpr.getExpr(), upperExpr.getExpr());
+        return String.format(
+                "%s IN %s ... %s", indexName, lowerExpr.getExpr(), upperExpr.getExpr());
     }
 }

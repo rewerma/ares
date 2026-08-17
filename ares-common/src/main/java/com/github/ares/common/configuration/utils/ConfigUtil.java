@@ -21,7 +21,6 @@ import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
 import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ares.common.configuration.Option;
-
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;

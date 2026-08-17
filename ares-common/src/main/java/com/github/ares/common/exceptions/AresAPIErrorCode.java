@@ -17,7 +17,6 @@
 
 package com.github.ares.common.exceptions;
 
-
 public enum AresAPIErrorCode implements AresErrorCode {
     CONFIG_VALIDATION_FAILED("API-01", "Configuration item validate failed"),
     OPTION_VALIDATION_FAILED("API-02", "Option item validate failed"),

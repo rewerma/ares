@@ -4,25 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ConnectorType {
-    /**
-     * JDBC
-     */
+    /** JDBC */
     JDBC("jdbc"),
-    /**
-     * T3
-     */
+    /** T3 */
     T3("t3"),
-    /**
-     * FTP
-     */
+    /** FTP */
     FTP("ftp"),
-    /**
-     * SFTP
-     */
+    /** SFTP */
     SFTP("sftp"),
-    /**
-     * HIVE
-     */
+    /** HIVE */
     HIVE("hive"),
     ;
 

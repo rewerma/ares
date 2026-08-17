@@ -1,7 +1,6 @@
 package com.github.ares.api.table.catalog;
 
 import com.github.ares.api.table.type.AresRowType;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

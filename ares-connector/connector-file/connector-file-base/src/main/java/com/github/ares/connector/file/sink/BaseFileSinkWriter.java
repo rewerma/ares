@@ -14,8 +14,6 @@ import com.github.ares.connector.file.sink.commit.FileSinkAggregatedCommitter;
 import com.github.ares.connector.file.sink.state.FileSinkState;
 import com.github.ares.connector.file.sink.writer.AbstractWriteStrategy;
 import com.github.ares.connector.file.sink.writer.WriteStrategy;
-import org.apache.hadoop.fs.Path;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -23,9 +21,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.hadoop.fs.Path;
 
-public class BaseFileSinkWriter
-        implements SinkWriter<AresRow, FileCommitInfo, FileSinkState> {
+public class BaseFileSinkWriter implements SinkWriter<AresRow, FileCommitInfo, FileSinkState> {
 
     protected final WriteStrategy writeStrategy;
 

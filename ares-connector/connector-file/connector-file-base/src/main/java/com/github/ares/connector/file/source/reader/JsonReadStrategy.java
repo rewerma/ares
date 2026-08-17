@@ -13,14 +13,13 @@ import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.format.json.JsonDeserializationSchema;
 import io.airlift.compress.lzo.LzopCodec;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JsonReadStrategy extends AbstractReadStrategy {
@@ -49,8 +48,7 @@ public class JsonReadStrategy extends AbstractReadStrategy {
             deserializationSchema =
                     new JsonDeserializationSchema(false, false, this.aresRowTypeWithPartition);
         } else {
-            deserializationSchema =
-                    new JsonDeserializationSchema(false, false, this.aresRowType);
+            deserializationSchema = new JsonDeserializationSchema(false, false, this.aresRowType);
         }
     }
 
@@ -75,7 +73,7 @@ public class JsonReadStrategy extends AbstractReadStrategy {
                 break;
         }
         try (BufferedReader reader =
-                     new BufferedReader(new InputStreamReader(inputStream, encoding))) {
+                new BufferedReader(new InputStreamReader(inputStream, encoding))) {
             reader.lines()
                     .forEach(
                             line -> {

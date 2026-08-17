@@ -7,11 +7,21 @@ import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.api.table.type.SqlType;
 import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.common.utils.DateTimeUtils;
 import com.github.ares.common.utils.DateUtils;
 import com.github.ares.common.utils.TimeUtils;
 import com.github.ares.connector.file.config.BaseSourceConfigOptions;
 import com.github.ares.connector.file.exception.FileConnectorException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.IntStream;
 import lombok.SneakyThrows;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -23,23 +33,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.IntStream;
-
-import com.github.ares.common.exceptions.CommonErrorCode;
-
 public class ExcelReadStrategy extends AbstractReadStrategy {
 
     private final DateUtils.Formatter dateFormat = DateUtils.Formatter.YYYY_MM_DD;
 
-    private final DateTimeUtils.Formatter datetimeFormat = DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS;
+    private final DateTimeUtils.Formatter datetimeFormat =
+            DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS;
     private final TimeUtils.Formatter timeFormat = TimeUtils.Formatter.HH_MM_SS;
 
     private int[] indexes;
@@ -60,8 +59,7 @@ public class ExcelReadStrategy extends AbstractReadStrategy {
             workbook = new XSSFWorkbook(file);
         } else {
             throw new FileConnectorException(
-                    CommonErrorCode.UNSUPPORTED_OPERATION,
-                    "Only support read excel file");
+                    CommonErrorCode.UNSUPPORTED_OPERATION, "Only support read excel file");
         }
         Sheet sheet =
                 pluginConfig.hasPath(BaseSourceConfigOptions.SHEET_NAME.key())
@@ -133,8 +131,7 @@ public class ExcelReadStrategy extends AbstractReadStrategy {
                 types[i] = aresRowType.getFieldType(indexes[i]);
             }
             this.aresRowType = new AresRowType(fields, types);
-            this.aresRowTypeWithPartition =
-                    mergePartitionTypes(fileNames.get(0), this.aresRowType);
+            this.aresRowTypeWithPartition = mergePartitionTypes(fileNames.get(0), this.aresRowType);
         } else {
             this.aresRowType = aresRowType;
             this.aresRowTypeWithPartition = userDefinedRowTypeWithPartition;

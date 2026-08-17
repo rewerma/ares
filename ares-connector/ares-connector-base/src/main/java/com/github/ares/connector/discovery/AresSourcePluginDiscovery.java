@@ -17,9 +17,7 @@
 
 package com.github.ares.connector.discovery;
 
-
 import com.github.ares.api.source.AresSource;
-
 import java.nio.file.Path;
 
 @SuppressWarnings("rawtypes")

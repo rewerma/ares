@@ -29,7 +29,6 @@ import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
 import com.github.ares.connector.jdbc.state.JdbcSinkState;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -42,10 +41,7 @@ public class JdbcSink implements AresSink<AresRow, JdbcSinkState, Void, Void> {
 
     private transient JdbcDialect dialect;
 
-    public JdbcSink(
-            JdbcSinkConfig jdbcSinkConfig,
-            JdbcDialect dialect,
-            AresRowType rowType) {
+    public JdbcSink(JdbcSinkConfig jdbcSinkConfig, JdbcDialect dialect, AresRowType rowType) {
         this.jdbcSinkConfig = jdbcSinkConfig;
         this.dialect = dialect;
         this.aresRowType = rowType;
@@ -108,7 +104,8 @@ public class JdbcSink implements AresSink<AresRow, JdbcSinkState, Void, Void> {
             pStmt.execute();
         } catch (Exception e) {
             throw new AresException(
-                    String.format("Truncate table failed: %s, cause: %s", tableName, e.getMessage()));
+                    String.format(
+                            "Truncate table failed: %s, cause: %s", tableName, e.getMessage()));
         }
     }
 }

@@ -60,8 +60,7 @@ public class JdbcSourceSplit implements SourceSplit {
                 splitKeyName == null
                         ? null
                         : new AresRowType(
-                                new String[] {splitKeyName},
-                                new AresDataType[] {splitKeyType}),
+                                new String[] {splitKeyName}, new AresDataType[] {splitKeyType}),
                 splitStart == null ? null : new Object[] {splitStart},
                 splitEnd == null ? null : new Object[] {splitEnd});
     }
@@ -89,9 +88,7 @@ public class JdbcSourceSplit implements SourceSplit {
     }
 
     public AresDataType getSplitKeyType() {
-        return splitKey == null || splitKey.getTotalFields() == 0
-                ? null
-                : splitKey.getFieldType(0);
+        return splitKey == null || splitKey.getTotalFields() == 0 ? null : splitKey.getFieldType(0);
     }
 
     public Object[] getSplitStart() {

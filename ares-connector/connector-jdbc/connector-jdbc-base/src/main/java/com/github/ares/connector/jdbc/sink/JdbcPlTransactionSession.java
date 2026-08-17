@@ -10,29 +10,27 @@ import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider
 import com.github.ares.connector.jdbc.internal.connection.SharedJdbcConnectionProvider;
 import com.github.ares.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Holds one JDBC connection (autoCommit=false) and per-SQL batch writers for a PL transaction.
- */
+/** Holds one JDBC connection (autoCommit=false) and per-SQL batch writers for a PL transaction. */
 public class JdbcPlTransactionSession {
     private static final Logger LOG = LoggerFactory.getLogger(JdbcPlTransactionSession.class);
 
     private JdbcConnectionProvider connectionProvider;
     private SharedJdbcConnectionProvider sharedProvider;
     private String connectionKey;
-    private final Map<String, JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>>> writers =
-            new LinkedHashMap<>();
+    private final Map<String, JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>>>
+            writers = new LinkedHashMap<>();
 
     public void write(JdbcSink jdbcSink, AresRow row) {
         try {
-            JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format = getOrCreateWriter(jdbcSink);
+            JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format =
+                    getOrCreateWriter(jdbcSink);
             format.writeRecord(row);
         } catch (AresException e) {
             throw e;
@@ -69,9 +67,13 @@ public class JdbcPlTransactionSession {
         }
     }
 
+    /**
+     * Close writers and the shared connection. Does not roll back; uncommitted work must already
+     * have been committed or rolled back by the caller.
+     */
     public void close() {
-        rollbackQuietly();
-        for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format : writers.values()) {
+        for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format :
+                writers.values()) {
             try {
                 format.close();
             } catch (Exception e) {
@@ -87,15 +89,16 @@ public class JdbcPlTransactionSession {
         }
     }
 
-    private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> getOrCreateWriter(JdbcSink jdbcSink)
-            throws Exception {
+    private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> getOrCreateWriter(
+            JdbcSink jdbcSink) throws Exception {
         JdbcSinkConfig sinkConfig = jdbcSink.getJdbcSinkConfig();
         JdbcConnectionConfig jdbcConfig = sinkConfig.getJdbcConnectionConfig();
         String key = connectionKey(jdbcConfig);
         ensureConnection(jdbcConfig, key);
 
         String writerKey = sinkConfig.getSimpleSql();
-        JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format = writers.get(writerKey);
+        JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format =
+                writers.get(writerKey);
         if (format == null) {
             format =
                     new JdbcOutputFormatBuilder(
@@ -127,7 +130,8 @@ public class JdbcPlTransactionSession {
     }
 
     private void flushWriters() throws Exception {
-        for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format : writers.values()) {
+        for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format :
+                writers.values()) {
             format.flush();
         }
     }

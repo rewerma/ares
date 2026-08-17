@@ -1,20 +1,19 @@
 package com.github.ares.parser.visitor;
 
+import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
+import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
+
 import com.github.ares.common.exceptions.ParseException;
-import com.github.ares.parser.plan.LogicalOperation;
-import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
+import com.github.ares.parser.plan.LogicalInsertSelectSQL;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLInsert;
-
 import java.util.Locale;
 import java.util.Map;
-
-import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
-import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 public class PlInsertSQLVisitor {
     private Map<String, LogicalCreateSinkTable> sinkTables;
@@ -31,9 +30,11 @@ public class PlInsertSQLVisitor {
         SQLInsert sqlInsert = sqlParser.parseInsert(insertSQL);
 
         LogicalInsertSelectSQL insertSelectSQL = new LogicalInsertSelectSQL();
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlInsert.getTable().toLowerCase(Locale.ROOT));
+        LogicalCreateSinkTable sinkTable =
+                sinkTables.get(sqlInsert.getTable().toLowerCase(Locale.ROOT));
         if (sinkTable == null) {
-            throw new ParseException(String.format("Sink table name not exists: %s", sqlInsert.getTable()));
+            throw new ParseException(
+                    String.format("Sink table name not exists: %s", sqlInsert.getTable()));
         }
         insertSelectSQL.setSinkTable(sinkTable);
         insertSelectSQL.setOriginSQL(originalSql);

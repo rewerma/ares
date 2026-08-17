@@ -2,7 +2,6 @@ package com.github.ares.connector.jdbc.source;
 
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.catalog.TablePath;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -17,8 +16,14 @@ public class JdbcSourceTable implements Serializable {
     private final BigDecimal partitionEnd;
     private final CatalogTable catalogTable;
 
-    public JdbcSourceTable(TablePath tablePath, String query, String partitionColumn, Integer partitionNumber,
-                           BigDecimal partitionStart, BigDecimal partitionEnd, CatalogTable catalogTable) {
+    public JdbcSourceTable(
+            TablePath tablePath,
+            String query,
+            String partitionColumn,
+            Integer partitionNumber,
+            BigDecimal partitionStart,
+            BigDecimal partitionEnd,
+            CatalogTable catalogTable) {
         this.tablePath = tablePath;
         this.query = query;
         this.partitionColumn = partitionColumn;

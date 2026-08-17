@@ -5,11 +5,9 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.engine.Handover;
 import com.github.ares.common.exceptions.AresException;
-import org.apache.spark.sql.catalyst.InternalRow;
-
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
+import org.apache.spark.sql.catalyst.InternalRow;
 
 public class InternalRowCollector implements Collector<AresRow> {
     private final Handover<InternalRow> handover;

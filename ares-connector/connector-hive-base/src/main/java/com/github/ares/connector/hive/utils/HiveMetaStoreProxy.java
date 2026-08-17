@@ -8,6 +8,13 @@ import com.github.ares.connector.file.hadoop.HadoopLoginFactory;
 import com.github.ares.connector.hive.config.HiveConfig;
 import com.github.ares.connector.hive.exception.HiveConnectorErrorCode;
 import com.github.ares.connector.hive.exception.HiveConnectorException;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
@@ -17,14 +24,6 @@ import org.apache.hadoop.hive.metastore.api.AlreadyExistsException;
 import org.apache.hadoop.hive.metastore.api.MetaException;
 import org.apache.hadoop.hive.metastore.api.Table;
 import org.apache.thrift.TException;
-
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class HiveMetaStoreProxy {
@@ -171,7 +170,8 @@ public class HiveMetaStoreProxy {
                     hiveMetaStoreClient
                             .getClass()
                             .getMethod("getTable", String.class, String.class, String.class);
-            return (Table) getTableWithCatalog.invoke(hiveMetaStoreClient, catalogName, dbName, tableName);
+            return (Table)
+                    getTableWithCatalog.invoke(hiveMetaStoreClient, catalogName, dbName, tableName);
         } catch (NoSuchMethodException e) {
             throw new HiveConnectorException(
                     HiveConnectorErrorCode.GET_HIVE_TABLE_INFORMATION_FAILED,
@@ -208,8 +208,7 @@ public class HiveMetaStoreProxy {
             throws MalformedURLException {
         Configuration loginConf = new Configuration(hiveConf);
         if (config.hasPath(BaseSourceConfigOptions.HDFS_SITE_PATH.key())) {
-            String hdfsSitePath =
-                    config.getString(BaseSourceConfigOptions.HDFS_SITE_PATH.key());
+            String hdfsSitePath = config.getString(BaseSourceConfigOptions.HDFS_SITE_PATH.key());
             loginConf.addResource(new File(hdfsSitePath).toURI().toURL());
         }
         return loginConf;

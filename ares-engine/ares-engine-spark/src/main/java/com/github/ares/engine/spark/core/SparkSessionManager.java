@@ -1,8 +1,7 @@
 package com.github.ares.engine.spark.core;
 
-import org.apache.spark.sql.SparkSession;
-
 import java.io.Serializable;
+import org.apache.spark.sql.SparkSession;
 
 public class SparkSessionManager implements Serializable {
     private static final long serialVersionUID = -1L;

@@ -9,53 +9,30 @@ import lombok.Getter;
 public class PlVisitorManager {
     private PlProperties plProperties;
 
-    @Inject
-    private SourceSinkTable sourceSinkTable;
+    @Inject private SourceSinkTable sourceSinkTable;
 
-    @Inject
-    private PlStatementVisitor statementVisitor;
-    @Inject
-    private PlBaseVisitor baseVisitor;
-    @Inject
-    private PlBodyVisitor bodyVisitor;
-    @Inject
-    private PlFunctionBodyVisitor functionBodyVisitor;
-    @Inject
-    private PlCreateProcedureVisitor createProcedureVisitor;
-    @Inject
-    private PlCreateFunctionVisitor createFunctionVisitor;
-    @Inject
-    private PlDeclareParamsVisitor declareParamsVisitor;
-    @Inject
-    private PlCreateTableWithVisitor createTableWithVisitor;
-    @Inject
-    private PlCallStatementVisitor callStatementVisitor;
-    @Inject
-    private PlAssignmentVisitor assignmentVisitor;
-    @Inject
-    private PlExpressionVisitor expressionVisitor;
-    @Inject
-    private PlSelectSQLVisitor selectSQLVisitor;
-    @Inject
-    private PlInsertSQLVisitor insertSQLVisitor;
-    @Inject
-    private PlUpdateSQLVisitor updateSQLVisitor;
-    @Inject
-    private PlDeleteSQLVisitor deleteSQLVisitor;
-    @Inject
-    private PlMergeSQLVisitor mergeSQLVisitor;
-    @Inject
-    private PlCreateAsSQLVisitor createAsSQLVisitor;
-    @Inject
-    private PlTruncateSQLVisitor truncateSQLVisitor;
-    @Inject
-    private PlIfStatementVisitor ifStatementVisitor;
-    @Inject
-    private PlLoopStatementVisitor loopStatementVisitor;
-    @Inject
-    private PlReturnStatementVisitor returnStatementVisitor;
-    @Inject
-    private PlExceptionHandlerVisitor exceptionHandlerVisitor;
+    @Inject private PlStatementVisitor statementVisitor;
+    @Inject private PlBaseVisitor baseVisitor;
+    @Inject private PlBodyVisitor bodyVisitor;
+    @Inject private PlFunctionBodyVisitor functionBodyVisitor;
+    @Inject private PlCreateProcedureVisitor createProcedureVisitor;
+    @Inject private PlCreateFunctionVisitor createFunctionVisitor;
+    @Inject private PlDeclareParamsVisitor declareParamsVisitor;
+    @Inject private PlCreateTableWithVisitor createTableWithVisitor;
+    @Inject private PlCallStatementVisitor callStatementVisitor;
+    @Inject private PlAssignmentVisitor assignmentVisitor;
+    @Inject private PlExpressionVisitor expressionVisitor;
+    @Inject private PlSelectSQLVisitor selectSQLVisitor;
+    @Inject private PlInsertSQLVisitor insertSQLVisitor;
+    @Inject private PlUpdateSQLVisitor updateSQLVisitor;
+    @Inject private PlDeleteSQLVisitor deleteSQLVisitor;
+    @Inject private PlMergeSQLVisitor mergeSQLVisitor;
+    @Inject private PlCreateAsSQLVisitor createAsSQLVisitor;
+    @Inject private PlTruncateSQLVisitor truncateSQLVisitor;
+    @Inject private PlIfStatementVisitor ifStatementVisitor;
+    @Inject private PlLoopStatementVisitor loopStatementVisitor;
+    @Inject private PlReturnStatementVisitor returnStatementVisitor;
+    @Inject private PlExceptionHandlerVisitor exceptionHandlerVisitor;
 
     public void init() {
         statementVisitor.init(this);

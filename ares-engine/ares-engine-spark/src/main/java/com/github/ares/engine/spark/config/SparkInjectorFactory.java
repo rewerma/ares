@@ -14,9 +14,9 @@ public final class SparkInjectorFactory {
     private static volatile Injector injector;
 
     /**
-     * Extra modules override {@link SparkServiceModule} so the Spark 2/3 starter can bind
-     * {@code SparkSinkExecutor} to a concrete DataSource writer. Guice 7 rejects a second
-     * {@code bind(SparkSinkExecutor)} as a sibling of the untargeted interface binding.
+     * Extra modules override {@link SparkServiceModule} so the Spark 2/3 starter can bind {@code
+     * SparkSinkExecutor} to a concrete DataSource writer. Guice 7 rejects a second {@code
+     * bind(SparkSinkExecutor)} as a sibling of the untargeted interface binding.
      */
     public static synchronized void init(AbstractModule... modules) {
         if (injector == null) {
@@ -26,12 +26,13 @@ public final class SparkInjectorFactory {
                     if (modules != null && modules.length > 0) {
                         sparkEngine = Modules.override(sparkEngine).with(modules);
                     }
-                    injector = InjectorFactory.init(
-                            Guice.createInjector(
-                                    Stage.PRODUCTION,
-                                    new ParserServiceModule(),
-                                    new BaseServiceModule(),
-                                    sparkEngine));
+                    injector =
+                            InjectorFactory.init(
+                                    Guice.createInjector(
+                                            Stage.PRODUCTION,
+                                            new ParserServiceModule(),
+                                            new BaseServiceModule(),
+                                            sparkEngine));
                 }
             }
         }

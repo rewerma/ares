@@ -1,12 +1,11 @@
 package com.github.ares.parser.plan;
 
 import com.github.ares.parser.enums.OperationType;
-
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
@@ -15,10 +14,8 @@ public class LogicalIfElse extends LogicalOperation implements Serializable {
 
     private LogicalExpression condition;
     private List<LogicalOperation> ifBody;
-
-    private Boolean isIf;
-    private Boolean isElseIf;
-    private Boolean isElse;
+    private List<LogicalIfElse> elseIfs = new ArrayList<>();
+    private List<LogicalOperation> elseBody;
 
     public LogicalIfElse() {
         super(OperationType.IF_ELSE);

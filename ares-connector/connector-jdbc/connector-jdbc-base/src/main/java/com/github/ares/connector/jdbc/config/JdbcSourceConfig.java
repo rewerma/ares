@@ -3,13 +3,12 @@ package com.github.ares.connector.jdbc.config;
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.connector.jdbc.utils.WhereConditionValidator;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.Data;
 
 @Data
-//@Builder(builderClassName = "Builder")
+// @Builder(builderClassName = "Builder")
 public class JdbcSourceConfig implements Serializable {
     private static final long serialVersionUID = 2L;
 
@@ -33,7 +32,8 @@ public class JdbcSourceConfig implements Serializable {
         jdbcSourceConfig.setDbType(config.get(CommonOptions.CONNECTOR));
         jdbcSourceConfig.setTableConfigList(JdbcSourceTableConfig.of(config));
         jdbcSourceConfig.setFetchSize(config.get(JdbcOptions.FETCH_SIZE));
-        config.getOptional(JdbcOptions.COMPATIBLE_MODE).ifPresent(jdbcSourceConfig::setCompatibleMode);
+        config.getOptional(JdbcOptions.COMPATIBLE_MODE)
+                .ifPresent(jdbcSourceConfig::setCompatibleMode);
 
         boolean isOldVersion =
                 config.getOptional(JdbcOptions.QUERY).isPresent()

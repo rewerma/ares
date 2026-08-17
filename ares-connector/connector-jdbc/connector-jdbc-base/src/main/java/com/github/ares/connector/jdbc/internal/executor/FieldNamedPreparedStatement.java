@@ -17,8 +17,8 @@
 
 package com.github.ares.connector.jdbc.internal.executor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.github.ares.com.google.common.base.Preconditions.checkArgument;
+import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -46,9 +46,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.github.ares.com.google.common.base.Preconditions.checkArgument;
-import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FieldNamedPreparedStatement implements PreparedStatement {
     private static final Logger log = LoggerFactory.getLogger(FieldNamedPreparedStatement.class);
@@ -671,7 +670,7 @@ public class FieldNamedPreparedStatement implements PreparedStatement {
             parsedSQL = sql;
             for (int i = 0; i < fieldNames.length; i++) {
                 // SQL statement parameter index starts from 1
-                indexMapping[i] = new int[]{i + 1};
+                indexMapping[i] = new int[] {i + 1};
             }
         } else {
             HashMap<String, List<Integer>> parameterMap = new HashMap<>();

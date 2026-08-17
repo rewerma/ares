@@ -8,8 +8,21 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.common.exceptions.CommonError;
+import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.NonNull;
 import org.apache.hadoop.fs.Path;
 import org.apache.orc.OrcFile;
@@ -26,20 +39,6 @@ import org.apache.orc.storage.ql.exec.vector.MapColumnVector;
 import org.apache.orc.storage.ql.exec.vector.StructColumnVector;
 import org.apache.orc.storage.ql.exec.vector.TimestampColumnVector;
 import org.apache.orc.storage.ql.exec.vector.VectorizedRowBatch;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoField;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import com.github.ares.common.exceptions.CommonErrorCode;
 
 public class OrcWriteStrategy extends AbstractWriteStrategy {
     private final LinkedHashMap<String, Writer> beingWrittenWriter;
@@ -167,8 +166,7 @@ public class OrcWriteStrategy extends AbstractWriteStrategy {
             default:
                 String errorMsg =
                         String.format("Orc file not support this type [%s]", type.getSqlType());
-                throw new FileConnectorException(
-                        CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
+                throw new FileConnectorException(CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
         }
     }
 
@@ -241,8 +239,7 @@ public class OrcWriteStrategy extends AbstractWriteStrategy {
                             "AresRow type expected for field, "
                                     + "not support this data type: [%s]",
                             value.getClass());
-            throw new FileConnectorException(
-                    CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
+            throw new FileConnectorException(CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
         }
     }
 

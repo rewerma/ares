@@ -1,17 +1,13 @@
 package com.github.ares.api.table.factory;
 
-import com.github.ares.api.table.catalog.Catalog;
-import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.exceptions.AresException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FactoryUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FactoryUtil.class);

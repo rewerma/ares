@@ -22,9 +22,6 @@ import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
 import com.github.ares.connector.jdbc.state.JdbcSourceState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcSourceSplitEnumerator
         implements SourceSplitEnumerator<JdbcSourceSplit, JdbcSourceState> {
@@ -123,8 +122,7 @@ public class JdbcSourceSplitEnumerator
 
     @Override
     public void handleSplitRequest(int subtaskId) {
-        throw new AresException(
-                String.format("Unsupported handleSplitRequest: %d", subtaskId));
+        throw new AresException(String.format("Unsupported handleSplitRequest: %d", subtaskId));
     }
 
     @Override

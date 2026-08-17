@@ -8,19 +8,18 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.format.arvo.avro.exception.AresAvroFormatException;
 import com.github.ares.format.arvo.avro.exception.AvroFormatErrorCode;
-import org.apache.avro.Conversions;
-import org.apache.avro.Schema;
-import org.apache.avro.data.TimeConversions;
-import org.apache.avro.generic.GenericDatumReader;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.io.DatumReader;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.avro.Conversions;
+import org.apache.avro.Schema;
+import org.apache.avro.data.TimeConversions;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumReader;
 
 public class AvroToRowConverter implements Serializable {
 

@@ -2,7 +2,6 @@ package com.github.ares.spark.function.number;
 
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.math.RoundingMode;
 import java.util.List;
 

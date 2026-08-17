@@ -3,7 +3,6 @@ package com.github.ares.connector.source;
 import com.github.ares.api.source.SourceEvent;
 import com.github.ares.api.source.SourceSplit;
 import com.github.ares.api.source.SourceSplitEnumerator;
-
 import java.util.List;
 import java.util.Set;
 

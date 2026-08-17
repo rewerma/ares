@@ -25,9 +25,6 @@ import com.github.ares.api.source.SourceSplitEnumerator;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.serialization.Serializer;
 import com.github.ares.connector.utils.ThreadPoolExecutorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParallelSource<T, SplitT extends SourceSplit, StateT extends Serializable>
         implements BaseSourceFunction<T> {
@@ -57,9 +56,7 @@ public class ParallelSource<T, SplitT extends SourceSplit, StateT extends Serial
     protected final SourceReader<T, SplitT> reader;
     protected transient volatile ScheduledThreadPoolExecutor executorService;
 
-    /**
-     * Flag indicating whether the consumer is still running.
-     */
+    /** Flag indicating whether the consumer is still running. */
     private volatile boolean running = true;
 
     public ParallelSource(
@@ -132,7 +129,7 @@ public class ParallelSource<T, SplitT extends SourceSplit, StateT extends Serial
             if (future.isDone()) {
                 future.get();
             }
-             reader.pollNext(collector);
+            reader.pollNext(collector);
             if (collector.isEmptyThisPollNext()) {
                 Thread.sleep(100);
             } else {

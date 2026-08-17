@@ -2,7 +2,6 @@ package com.github.ares.connector.jdbc.config;
 
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.Options;
-
 import java.util.List;
 
 @SuppressWarnings("checkstyle:MagicNumber")

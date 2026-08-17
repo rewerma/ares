@@ -1,26 +1,24 @@
 package com.github.ares.parser.sqlparser.sparksql;
 
+import static com.github.ares.parser.sqlparser.sparksql.CommonParser.SQL_SELECT_PREFIX;
+import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG_WITH_PARAM;
+import static com.github.ares.parser.utils.PLParserUtil.getFullText;
+
 import com.github.ares.api.common.CriteriaClause;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.ares.parser.sqlparser.sparksql.CommonParser.SQL_SELECT_PREFIX;
-import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG_WITH_PARAM;
-import static com.github.ares.parser.utils.PLParserUtil.getFullText;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class UpdateSqlParser {
-    private UpdateSqlParser() {
-    }
+    private UpdateSqlParser() {}
 
     /**
      * Parse update SQL and return SQLUpdate object.
@@ -32,15 +30,18 @@ public class UpdateSqlParser {
         SQLUpdate sqlUpdate = new SQLUpdate();
         try (InputStream in = new ByteArrayInputStream(sql.getBytes(StandardCharsets.UTF_8))) {
             SqlBaseParser parser = CommonParser.parseSql(in);
-            SqlBaseParser.DmlStatementNoWithContext dmlStatementNoWithContext = parser.dmlStatementNoWith();
+            SqlBaseParser.DmlStatementNoWithContext dmlStatementNoWithContext =
+                    parser.dmlStatementNoWith();
 
             if (!(dmlStatementNoWithContext instanceof SqlBaseParser.UpdateTableContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
 
-            SqlBaseParser.UpdateTableContext updateTableContext = (SqlBaseParser.UpdateTableContext) dmlStatementNoWithContext;
+            SqlBaseParser.UpdateTableContext updateTableContext =
+                    (SqlBaseParser.UpdateTableContext) dmlStatementNoWithContext;
 
-            SqlBaseParser.MultipartIdentifierContext mappingTable = updateTableContext.multipartIdentifier(0);
+            SqlBaseParser.MultipartIdentifierContext mappingTable =
+                    updateTableContext.multipartIdentifier(0);
             sqlUpdate.setTable(mappingTable.getText());
 
             if (updateTableContext.source != null || updateTableContext.sourceQuery != null) {
@@ -49,14 +50,22 @@ public class UpdateSqlParser {
                 sqlUpdate.setAlias(updateTableContext.tableAlias().get(0).getText());
             }
 
-            List<SqlBaseParser.AssignmentContext> assignmentContexts = updateTableContext.setClause().assignmentList().assignment();
+            List<SqlBaseParser.AssignmentContext> assignmentContexts =
+                    updateTableContext.setClause().assignmentList().assignment();
             for (SqlBaseParser.AssignmentContext assignmentContext : assignmentContexts) {
-                List<SqlBaseParser.ErrorCapturingIdentifierContext> identifierContexts = assignmentContext.multipartIdentifier().errorCapturingIdentifier();
-                if (StringUtils.isBlank(sqlUpdate.getAlias()) && identifierContexts.size() == 2
-                        && identifierContexts.get(0).getText().equalsIgnoreCase(sqlUpdate.getAlias())) {
-                    throw new ParseException("column owner must be same as table alias in update statement: " + sql);
+                List<SqlBaseParser.ErrorCapturingIdentifierContext> identifierContexts =
+                        assignmentContext.multipartIdentifier().errorCapturingIdentifier();
+                if (StringUtils.isBlank(sqlUpdate.getAlias())
+                        && identifierContexts.size() == 2
+                        && identifierContexts
+                                .get(0)
+                                .getText()
+                                .equalsIgnoreCase(sqlUpdate.getAlias())) {
+                    throw new ParseException(
+                            "column owner must be same as table alias in update statement: " + sql);
                 }
-                String targetCol = assignmentContext.multipartIdentifier().errorCapturingIdentifier.getText();
+                String targetCol =
+                        assignmentContext.multipartIdentifier().errorCapturingIdentifier.getText();
                 String sourceExpression = getFullText(assignmentContext.expression());
                 sqlUpdate.getUpdateColumns().add(targetCol);
                 sqlUpdate.getUpdateValues().add(sourceExpression);
@@ -65,8 +74,10 @@ public class UpdateSqlParser {
                 throw new ParseException("update SQL must have WHERE clause: " + sql);
             }
             CriteriaClause criteriaClause = new CriteriaClause();
-            SqlBaseParser.BooleanExpressionContext expressionContext = updateTableContext.whereClause().booleanExpression();
-            CriteriaParser.parseWhereClause(expressionContext, criteriaClause, sqlUpdate.getAlias());
+            SqlBaseParser.BooleanExpressionContext expressionContext =
+                    updateTableContext.whereClause().booleanExpression();
+            CriteriaParser.parseWhereClause(
+                    expressionContext, criteriaClause, sqlUpdate.getAlias());
             sqlUpdate.setWhereClause(criteriaClause);
 
             List<String> selectItems = new ArrayList<>();
@@ -77,9 +88,17 @@ public class UpdateSqlParser {
             selectSql.append(String.join(", ", sqlUpdate.getUpdateValues()));
             selectSql.append(", ").append(String.join(", ", selectItems));
             if (StringUtils.isNotBlank(sqlUpdate.getJoinTable())) {
-                selectSql.append(" FROM ").append(sqlUpdate.getJoinTable()).append(" ").append(sqlUpdate.getJoinAlias());
+                selectSql
+                        .append(" FROM ")
+                        .append(sqlUpdate.getJoinTable())
+                        .append(" ")
+                        .append(sqlUpdate.getJoinAlias());
             } else if (StringUtils.isNotBlank(sqlUpdate.getJoinSql())) {
-                selectSql.append(" FROM (").append(sqlUpdate.getJoinSql()).append(") ").append(sqlUpdate.getJoinAlias());
+                selectSql
+                        .append(" FROM (")
+                        .append(sqlUpdate.getJoinSql())
+                        .append(") ")
+                        .append(sqlUpdate.getJoinAlias());
             }
             sqlUpdate.setSourceSql(selectSql.toString());
         } catch (ParseException e) {
@@ -90,9 +109,11 @@ public class UpdateSqlParser {
         return sqlUpdate;
     }
 
-    private static void parseSourceQuery(SqlBaseParser.UpdateTableContext updateTableContext, SQLUpdate sqlUpdate, String sql) {
+    private static void parseSourceQuery(
+            SqlBaseParser.UpdateTableContext updateTableContext, SQLUpdate sqlUpdate, String sql) {
         if (updateTableContext.tableAlias().size() != 2) {
-            throw new ParseException(String.format("Alias not defined for source table or target table: %s", sql));
+            throw new ParseException(
+                    String.format("Alias not defined for source table or target table: %s", sql));
         }
         if (updateTableContext.source != null) {
             sqlUpdate.setJoinTable(updateTableContext.source.getText());
@@ -100,18 +121,23 @@ public class UpdateSqlParser {
             sqlUpdate.setJoinAlias(sourceTableAlias);
             sqlUpdate.setAlias(updateTableContext.tableAlias().get(0).getText());
         } else if (updateTableContext.sourceQuery != null) {
-            if (!(updateTableContext.sourceQuery.queryTerm() instanceof SqlBaseParser.QueryTermDefaultContext)) {
+            if (!(updateTableContext.sourceQuery.queryTerm()
+                    instanceof SqlBaseParser.QueryTermDefaultContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
-            SqlBaseParser.QueryPrimaryContext queryPrimaryContext = ((SqlBaseParser.QueryTermDefaultContext) updateTableContext.sourceQuery.queryTerm()).queryPrimary();
+            SqlBaseParser.QueryPrimaryContext queryPrimaryContext =
+                    ((SqlBaseParser.QueryTermDefaultContext)
+                                    updateTableContext.sourceQuery.queryTerm())
+                            .queryPrimary();
             if (!(queryPrimaryContext instanceof SqlBaseParser.QueryPrimaryDefaultContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
             String sourceTableAlias = updateTableContext.tableAlias().get(1).getText();
             sqlUpdate.setJoinAlias(sourceTableAlias);
             sqlUpdate.setAlias(updateTableContext.tableAlias().get(0).getText());
-            Pair<List<SQLHint>, String> hintsWithSql = HintParser.parseSelectHints(sql,
-                    (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
+            Pair<List<SQLHint>, String> hintsWithSql =
+                    HintParser.parseSelectHints(
+                            sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
             sqlUpdate.setHints(hintsWithSql.getLeft());
             sqlUpdate.setJoinSql(hintsWithSql.getRight());
         }

@@ -7,7 +7,6 @@ import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
-
 import java.io.Serializable;
 import java.util.List;
 

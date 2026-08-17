@@ -6,9 +6,6 @@ import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.utils.JdbcFieldTypeUtils;
 import com.github.ares.connector.jdbc.utils.JdbcUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -22,17 +19,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Base class for all converters that convert between JDBC object and Ares internal object.
- */
+/** Base class for all converters that convert between JDBC object and Ares internal object. */
 public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
     private static final Logger log = LoggerFactory.getLogger(AbstractJdbcRowConverter.class);
 
     public abstract String converterName();
 
-    public AbstractJdbcRowConverter() {
-    }
+    public AbstractJdbcRowConverter() {}
 
     @Override
     public AresRow toInternal(ResultSet rs, AresRowType typeInfo) throws SQLException {
@@ -93,8 +89,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 case ARRAY:
                 case ROW:
                 default:
-                    throw new AresException(
-                            "Unexpected value: " + aresDataType);
+                    throw new AresException("Unexpected value: " + aresDataType);
             }
         }
         return new AresRow(fields);
@@ -107,8 +102,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
     @Override
     public PreparedStatement toExternal(
-            AresRowType rowType, AresRow row, PreparedStatement statement)
-            throws SQLException {
+            AresRowType rowType, AresRow row, PreparedStatement statement) throws SQLException {
         for (int fieldIndex = 0; fieldIndex < rowType.getTotalFields(); fieldIndex++) {
             AresDataType<?> aresDataType = rowType.getFieldType(fieldIndex);
             int statementIndex = fieldIndex + 1;
@@ -125,7 +119,9 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                         statement.setNull(statementIndex, java.sql.Types.VARCHAR);
                     } else if (stringValue.length() > 32767) {
                         statement.setCharacterStream(
-                                statementIndex, new StringReader(stringValue), stringValue.length());
+                                statementIndex,
+                                new StringReader(stringValue),
+                                stringValue.length());
                     } else {
                         statement.setString(statementIndex, stringValue);
                     }
@@ -164,8 +160,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                     break;
                 case TIMESTAMP:
                     LocalDateTime localDateTime = (LocalDateTime) row.getField(fieldIndex);
-                    statement.setTimestamp(
-                            statementIndex, Timestamp.valueOf(localDateTime));
+                    statement.setTimestamp(statementIndex, Timestamp.valueOf(localDateTime));
                     break;
                 case BYTES:
                     byte[] bytes = (byte[]) row.getField(fieldIndex);
@@ -185,8 +180,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 case ARRAY:
                 case ROW:
                 default:
-                    throw new AresException(
-                            "Unexpected value: " + aresDataType);
+                    throw new AresException("Unexpected value: " + aresDataType);
             }
         }
         return statement;

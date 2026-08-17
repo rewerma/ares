@@ -1,6 +1,5 @@
 package com.github.ares.connector.hive.exception;
 
-
 import com.github.ares.common.exceptions.AresErrorCode;
 
 public enum HiveConnectorErrorCode implements AresErrorCode {

@@ -16,15 +16,6 @@ import com.github.ares.connector.file.sink.commit.FileCommitInfo;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
 import com.github.ares.connector.file.sink.state.FileSinkState;
 import com.google.common.collect.Lists;
-import lombok.NonNull;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -38,6 +29,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractWriteStrategy implements WriteStrategy {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -49,9 +47,7 @@ public abstract class AbstractWriteStrategy implements WriteStrategy {
     protected HadoopConf hadoopConf;
     protected HadoopFileSystemProxy hadoopFileSystemProxy;
     protected String transactionId;
-    /**
-     * The uuid prefix to make sure same job different file sink will not conflict.
-     */
+    /** The uuid prefix to make sure same job different file sink will not conflict. */
     protected String uuidPrefix;
 
     protected String transactionDirectory;
@@ -114,8 +110,7 @@ public abstract class AbstractWriteStrategy implements WriteStrategy {
                     newFieldTypes.add(fieldTypes[index]);
                 });
         return new AresRowType(
-                newFieldNames.toArray(new String[0]),
-                newFieldTypes.toArray(new AresDataType[0]));
+                newFieldNames.toArray(new String[0]), newFieldTypes.toArray(new AresDataType[0]));
     }
 
     /**
@@ -241,9 +236,7 @@ public abstract class AbstractWriteStrategy implements WriteStrategy {
         return Optional.of(new FileCommitInfo(commitMap, copyMap, transactionDirectory));
     }
 
-    /**
-     * abort prepare commit operation
-     */
+    /** abort prepare commit operation */
     @Override
     public void abortPrepare() {
         abortPrepare(transactionId);
@@ -333,11 +326,11 @@ public abstract class AbstractWriteStrategy implements WriteStrategy {
         String transactionDirectoryPrefix =
                 getTransactionDirPrefix(fileSinkConfig.getTmpPath(), jobId, uuidPrefix);
         return String.join(
-                File.separator, new String[]{transactionDirectoryPrefix, transactionId});
+                File.separator, new String[] {transactionDirectoryPrefix, transactionId});
     }
 
     public static String getTransactionDirPrefix(String tmpPath, String jobId, String uuidPrefix) {
-        String[] strings = new String[]{tmpPath, BaseSinkConfig.ARES, jobId, uuidPrefix};
+        String[] strings = new String[] {tmpPath, BaseSinkConfig.ARES, jobId, uuidPrefix};
         return String.join(File.separator, strings);
     }
 
@@ -351,8 +344,8 @@ public abstract class AbstractWriteStrategy implements WriteStrategy {
             return beingWrittenFilePath;
         } else {
             String[] pathSegments =
-                    new String[]{
-                            transactionDirectory, beingWrittenFileKey, generateFileName(transactionId)
+                    new String[] {
+                        transactionDirectory, beingWrittenFileKey, generateFileName(transactionId)
                     };
             String newBeingWrittenFilePath = String.join(File.separator, pathSegments);
             beingWrittenFile.put(beingWrittenFileKey, newBeingWrittenFilePath);
@@ -402,8 +395,11 @@ public abstract class AbstractWriteStrategy implements WriteStrategy {
     public void truncateFiles() throws IOException {
         FileStatus[] fileStatuses = hadoopFileSystemProxy.listStatus(fileSinkConfig.getPath());
         for (FileStatus fileStat : fileStatuses) {
-            if (fileStat.isFile() && fileStat.getPath().getName().toLowerCase().endsWith(
-                    fileSinkConfig.getFileFormat().getSuffix().toLowerCase())) {
+            if (fileStat.isFile()
+                    && fileStat.getPath()
+                            .getName()
+                            .toLowerCase()
+                            .endsWith(fileSinkConfig.getFileFormat().getSuffix().toLowerCase())) {
                 hadoopFileSystemProxy.deleteFile(fileStat.getPath().toString());
             }
         }

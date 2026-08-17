@@ -7,14 +7,13 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.connector.serialization.RowConverter;
 import com.github.ares.spark.connector.serialization.InternalRowConverter;
 import com.github.ares.spark.connector.statistic.WriterStatistic;
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.connector.write.DataWriter;
-import org.apache.spark.sql.connector.write.WriterCommitMessage;
-
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
+import javax.annotation.Nullable;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.connector.write.DataWriter;
+import org.apache.spark.sql.connector.write.WriterCommitMessage;
 
 public class AresSparkDataWriter<CommitInfoT, StateT> implements DataWriter<InternalRow> {
 

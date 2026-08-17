@@ -6,6 +6,8 @@ import com.github.ares.api.source.SupportCoordinate;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
 import com.github.ares.common.utils.JsonUtils;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.spark.sql.SparkSession;
@@ -14,9 +16,6 @@ import org.apache.spark.sql.connector.read.PartitionReaderFactory;
 import org.apache.spark.sql.connector.read.streaming.MicroBatchStream;
 import org.apache.spark.sql.connector.read.streaming.Offset;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AresMicroBatch implements MicroBatchStream {
 

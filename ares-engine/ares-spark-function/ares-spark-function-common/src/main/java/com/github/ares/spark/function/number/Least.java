@@ -5,7 +5,6 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -26,7 +25,8 @@ public class Least implements SparkFuncInterface {
         if (args.isEmpty()) {
             throw new AresException(
                     String.format(
-                            "The `least` requires > 0 parameters but the actual number is %d", args.size()));
+                            "The `least` requires > 0 parameters but the actual number is %d",
+                            args.size()));
         }
         boolean isAllInt = isAllInt(args);
         if (isAllInt) {
@@ -40,7 +40,10 @@ public class Least implements SparkFuncInterface {
 
     private static boolean isAllInt(List<Object> args) {
         for (Object arg : args) {
-            if (!(arg instanceof Integer) && !(arg instanceof Short) && !(arg instanceof Long) && !(arg instanceof Byte)) {
+            if (!(arg instanceof Integer)
+                    && !(arg instanceof Short)
+                    && !(arg instanceof Long)
+                    && !(arg instanceof Byte)) {
                 return false;
             }
         }

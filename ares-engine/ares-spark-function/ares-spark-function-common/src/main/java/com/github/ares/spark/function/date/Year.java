@@ -1,17 +1,14 @@
 package com.github.ares.spark.function.date;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toLocalDate;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.sql.catalyst.expressions.DayOfMonth;
-
 import java.time.LocalDate;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toLocalDate;
-
 
 @AutoService(SparkFuncInterface.class)
 public class Year implements SparkFuncInterface {
@@ -37,7 +34,8 @@ public class Year implements SparkFuncInterface {
             return null;
         }
         long epochDay = localDate.toEpochDay();
-        org.apache.spark.sql.catalyst.expressions.Year year = new org.apache.spark.sql.catalyst.expressions.Year(null);
+        org.apache.spark.sql.catalyst.expressions.Year year =
+                new org.apache.spark.sql.catalyst.expressions.Year(null);
         return year.nullSafeEval((int) epochDay);
     }
 }

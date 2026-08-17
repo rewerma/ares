@@ -3,17 +3,14 @@ package com.github.ares.spark.connector.source.partition.batch;
 import com.github.ares.api.source.AresSource;
 import com.github.ares.api.source.SupportCoordinate;
 import com.github.ares.api.table.type.AresRow;
+import java.util.Map;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.connector.read.Batch;
 import org.apache.spark.sql.connector.read.InputPartition;
 import org.apache.spark.sql.connector.read.PartitionReaderFactory;
 import org.apache.spark.util.LongAccumulator;
-import org.apache.spark.sql.SparkSession;
 
-import java.util.Map;
-
-/**
- * A physical plan of Ares source
- */
+/** A physical plan of Ares source */
 public class AresBatch implements Batch {
     private final LongAccumulator readAccumulator;
 
@@ -23,9 +20,7 @@ public class AresBatch implements Batch {
     private final Map<String, String> envOptions;
 
     public AresBatch(
-            AresSource<AresRow, ?, ?> source,
-            int parallelism,
-            Map<String, String> envOptions) {
+            AresSource<AresRow, ?, ?> source, int parallelism, Map<String, String> envOptions) {
         this.source = source;
         this.parallelism = parallelism;
         this.envOptions = envOptions;
@@ -50,6 +45,7 @@ public class AresBatch implements Batch {
 
     @Override
     public PartitionReaderFactory createReaderFactory() {
-        return new AresBatchPartitionReaderFactory(source, parallelism, envOptions, readAccumulator);
+        return new AresBatchPartitionReaderFactory(
+                source, parallelism, envOptions, readAccumulator);
     }
 }

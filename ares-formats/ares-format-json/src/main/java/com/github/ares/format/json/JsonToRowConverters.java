@@ -11,9 +11,8 @@ import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.common.utils.DateTimeUtils;
 import com.github.ares.common.utils.DateUtils;
+import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.format.json.exception.AresJsonFormatException;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -32,7 +31,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import com.github.ares.common.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Tool class used to convert from {@link JsonNode} to {@link
@@ -51,14 +50,10 @@ public class JsonToRowConverters implements Serializable {
 
     public static final String FORMAT = "Common";
 
-    /**
-     * Flag indicating whether to fail if a field is missing.
-     */
+    /** Flag indicating whether to fail if a field is missing. */
     private final boolean failOnMissingField;
 
-    /**
-     * Flag indicating whether to ignore invalid fields/rows (default: throw an exception).
-     */
+    /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
     private final boolean ignoreParseErrors;
 
     public Map<String, DateTimeFormatter> fieldFormatterMap = new HashMap<>();
@@ -68,16 +63,12 @@ public class JsonToRowConverters implements Serializable {
         this.ignoreParseErrors = ignoreParseErrors;
     }
 
-    /**
-     * Creates a runtime converter which is null safe.
-     */
+    /** Creates a runtime converter which is null safe. */
     public JsonToObjectConverter createConverter(AresDataType<?> type) {
         return wrapIntoNullableConverter(createNotNullConverter(type));
     }
 
-    /**
-     * Creates a runtime converter which assuming input object is not null.
-     */
+    /** Creates a runtime converter which assuming input object is not null. */
     private JsonToObjectConverter createNotNullConverter(AresDataType<?> type) {
         SqlType sqlType = type.getSqlType();
         switch (sqlType) {
@@ -187,8 +178,7 @@ public class JsonToRowConverters implements Serializable {
                 return createRowConverter((AresRowType) type);
             default:
                 throw new AresJsonFormatException(
-                        CommonErrorCode.UNSUPPORTED_DATA_TYPE,
-                        "Unsupported type: " + type);
+                        CommonErrorCode.UNSUPPORTED_DATA_TYPE, "Unsupported type: " + type);
         }
     }
 
@@ -434,9 +424,7 @@ public class JsonToRowConverters implements Serializable {
         Object convert(JsonNode jsonNode, String fieldName);
     }
 
-    /**
-     * Exception which refers to parse errors in converters.
-     */
+    /** Exception which refers to parse errors in converters. */
     private static final class JsonParseException extends RuntimeException {
         private static final long serialVersionUID = -1L;
 

@@ -1,9 +1,7 @@
 package com.github.ares.common.configuration.utils;
 
-
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.exceptions.AresException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,15 +96,12 @@ public class OptionRule {
         return new Builder();
     }
 
-    /**
-     * Builder for {@link OptionRule}.
-     */
+    /** Builder for {@link OptionRule}. */
     public static class Builder {
         private final List<Option<?>> optionalOptions = new ArrayList<>();
         private final List<RequiredOption> requiredOptions = new ArrayList<>();
 
-        private Builder() {
-        }
+        private Builder() {}
 
         /**
          * Optional options
@@ -123,9 +118,7 @@ public class OptionRule {
             return this;
         }
 
-        /**
-         * Absolutely required options without any constraints.
-         */
+        /** Absolutely required options without any constraints. */
         public Builder required(Option<?>... options) {
             RequiredOption.AbsolutelyRequiredOptions requiredOption =
                     RequiredOption.AbsolutelyRequiredOptions.of(options);
@@ -134,13 +127,10 @@ public class OptionRule {
             return this;
         }
 
-        /**
-         * Exclusive options, only one of the options needs to be configured.
-         */
+        /** Exclusive options, only one of the options needs to be configured. */
         public Builder exclusive(Option<?>... options) {
             if (options.length <= 1) {
-                throw new AresException(
-                        "The number of exclusive options must be greater than 1.");
+                throw new AresException("The number of exclusive options must be greater than 1.");
             }
             RequiredOption.ExclusiveRequiredOptions exclusiveRequiredOption =
                     RequiredOption.ExclusiveRequiredOptions.of(options);
@@ -150,9 +140,7 @@ public class OptionRule {
         }
 
         public <T> Builder conditional(
-                Option<T> conditionalOption,
-                List<T> expectValues,
-                Option<?>... requiredOptions) {
+                Option<T> conditionalOption, List<T> expectValues, Option<?>... requiredOptions) {
             verifyConditionalExists(conditionalOption);
 
             if (expectValues.size() == 0) {
@@ -183,9 +171,7 @@ public class OptionRule {
         }
 
         public <T> Builder conditional(
-                Option<T> conditionalOption,
-                T expectValue,
-                Option<?>... requiredOptions) {
+                Option<T> conditionalOption, T expectValue, Option<?>... requiredOptions) {
             verifyConditionalExists(conditionalOption);
 
             /** Each parameter can only be controlled by one other parameter */
@@ -199,9 +185,7 @@ public class OptionRule {
             return this;
         }
 
-        /**
-         * Bundled options, must be present or absent together.
-         */
+        /** Bundled options, must be present or absent together. */
         public Builder bundled(Option<?>... requiredOptions) {
             RequiredOption.BundledRequiredOptions bundledRequiredOption =
                     RequiredOption.BundledRequiredOptions.of(requiredOptions);
@@ -223,8 +207,7 @@ public class OptionRule {
             }
         }
 
-        private void verifyDuplicateWithOptionOptions(
-                Option<?> option, String currentOptionType) {
+        private void verifyDuplicateWithOptionOptions(Option<?> option, String currentOptionType) {
             if (optionalOptions.contains(option)) {
                 throw new AresException(
                         String.format(
@@ -243,30 +226,30 @@ public class OptionRule {
                                 requiredOptions.forEach(
                                         ro -> {
                                             if (ro
-                                                    instanceof
-                                                    RequiredOption
-                                                            .ConditionalRequiredOptions
+                                                            instanceof
+                                                            RequiredOption
+                                                                    .ConditionalRequiredOptions
                                                     && requiredOption
-                                                    instanceof
-                                                    RequiredOption
-                                                            .ConditionalRequiredOptions) {
+                                                            instanceof
+                                                            RequiredOption
+                                                                    .ConditionalRequiredOptions) {
                                                 Option<?> requiredOptionCondition =
                                                         ((RequiredOption.ConditionalRequiredOptions)
-                                                                requiredOption)
+                                                                        requiredOption)
                                                                 .getExpression()
                                                                 .getCondition()
                                                                 .getOption();
 
                                                 Option<?> roOptionCondition =
                                                         ((RequiredOption.ConditionalRequiredOptions)
-                                                                ro)
+                                                                        ro)
                                                                 .getExpression()
                                                                 .getCondition()
                                                                 .getOption();
 
                                                 if (ro.getOptions().contains(option)
                                                         && !requiredOptionCondition.equals(
-                                                        roOptionCondition)) {
+                                                                roOptionCondition)) {
                                                     throw new AresException(
                                                             String.format(
                                                                     "%s '%s' duplicate in %s options.",
@@ -292,8 +275,7 @@ public class OptionRule {
                             });
         }
 
-        private void verifyOptionOptionsDuplicate(
-                Option<?> option, String currentOptionType) {
+        private void verifyOptionOptionsDuplicate(Option<?> option, String currentOptionType) {
             verifyDuplicateWithOptionOptions(option, currentOptionType);
 
             requiredOptions.forEach(

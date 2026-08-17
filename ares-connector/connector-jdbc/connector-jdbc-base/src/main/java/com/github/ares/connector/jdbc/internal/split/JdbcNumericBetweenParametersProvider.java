@@ -1,8 +1,6 @@
-
 package com.github.ares.connector.jdbc.internal.split;
 
 import com.github.ares.common.exceptions.AresException;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -48,8 +46,8 @@ public class JdbcNumericBetweenParametersProvider implements JdbcParameterValues
      * NumericBetweenParametersProviderJdbc constructor.
      *
      * @param fetchSize the max distance between the produced from/to pairs
-     * @param minVal    the lower bound of the produced "from" values
-     * @param maxVal    the upper bound of the produced "to" values
+     * @param minVal the lower bound of the produced "from" values
+     * @param maxVal the upper bound of the produced "to" values
      */
     public JdbcNumericBetweenParametersProvider(
             long fetchSize, BigDecimal minVal, BigDecimal maxVal) {
@@ -73,9 +71,9 @@ public class JdbcNumericBetweenParametersProvider implements JdbcParameterValues
         this.batchSize = batchSize;
         this.batchNum =
                 new Double(
-                        Math.ceil(
-                                (maxElemCount.divide(BigDecimal.valueOf(batchSize)))
-                                        .doubleValue()))
+                                Math.ceil(
+                                        (maxElemCount.divide(BigDecimal.valueOf(batchSize)))
+                                                .doubleValue()))
                         .intValue();
         return this;
     }
@@ -101,7 +99,8 @@ public class JdbcNumericBetweenParametersProvider implements JdbcParameterValues
     @Override
     public Serializable[][] getParameterValues() {
         if (batchSize <= 0) {
-            throw new AresException("Batch size and batch number must be positive. Have you called `ofBatchSize` or `ofBatchNum`?");
+            throw new AresException(
+                    "Batch size and batch number must be positive. Have you called `ofBatchSize` or `ofBatchNum`?");
         }
 
         BigDecimal maxElemCount = (maxVal.subtract(minVal)).add(BigDecimal.valueOf(1));
@@ -120,7 +119,7 @@ public class JdbcNumericBetweenParametersProvider implements JdbcParameterValues
                                     BigDecimal.valueOf(i).compareTo(bigBatchNum) >= 0
                                             ? BigDecimal.ONE
                                             : BigDecimal.ZERO);
-            parameters[i] = new BigDecimal[]{start, end};
+            parameters[i] = new BigDecimal[] {start, end};
             start = end.add(BigDecimal.valueOf(1));
         }
         return parameters;

@@ -24,6 +24,8 @@ import com.github.ares.common.utils.Constants;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.writer.SparkDataSourceWriter;
 import com.github.ares.spark.connector.sink.writer.SparkStreamWriter;
+import java.io.IOException;
+import java.util.Optional;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
 import org.apache.spark.sql.sources.v2.DataSourceV2;
@@ -33,9 +35,6 @@ import org.apache.spark.sql.sources.v2.writer.DataSourceWriter;
 import org.apache.spark.sql.sources.v2.writer.streaming.StreamWriter;
 import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.types.StructType;
-
-import java.io.IOException;
-import java.util.Optional;
 
 public class SparkSink<StateT, CommitInfoT, AggregatedCommitInfoT>
         implements WriteSupport, StreamWriteSupport, DataSourceV2 {

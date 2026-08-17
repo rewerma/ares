@@ -2,7 +2,6 @@ package com.github.ares.connector.file.sftp.config;
 
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.connector.file.config.HadoopConf;
-
 import java.util.HashMap;
 
 public class SftpConf extends HadoopConf {

@@ -1,5 +1,10 @@
 package com.github.ares.common.utils;
 
+import static com.github.ares.com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT;
+import static com.github.ares.com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.github.ares.com.fasterxml.jackson.databind.DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL;
+import static com.github.ares.com.fasterxml.jackson.databind.MapperFeature.REQUIRE_SETTERS_FOR_GETTERS;
+
 import com.github.ares.com.fasterxml.jackson.core.JsonGenerator;
 import com.github.ares.com.fasterxml.jackson.core.JsonParser;
 import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,8 +23,6 @@ import com.github.ares.com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.github.ares.com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.ares.com.fasterxml.jackson.databind.node.TextNode;
 import com.github.ares.com.fasterxml.jackson.databind.type.CollectionType;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,11 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
-import static com.github.ares.com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT;
-import static com.github.ares.com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.github.ares.com.fasterxml.jackson.databind.DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL;
-import static com.github.ares.com.fasterxml.jackson.databind.MapperFeature.REQUIRE_SETTERS_FOR_GETTERS;
+import org.apache.commons.lang3.StringUtils;
 
 public class JsonUtils {
 
@@ -63,7 +62,6 @@ public class JsonUtils {
     public static JsonNode toJsonNode(Object obj) {
         return OBJECT_MAPPER.valueToTree(obj);
     }
-
 
     /**
      * json representation of object
@@ -282,5 +280,4 @@ public class JsonUtils {
     public static JsonNode stringToJsonNode(String obj) throws JsonProcessingException {
         return OBJECT_MAPPER.readTree(obj);
     }
-
 }

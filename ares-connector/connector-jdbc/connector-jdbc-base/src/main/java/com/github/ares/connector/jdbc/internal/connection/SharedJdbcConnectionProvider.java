@@ -3,9 +3,7 @@ package com.github.ares.connector.jdbc.internal.connection;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Connection provider that reuses a Driver-held JDBC connection and does not close it.
- */
+/** Connection provider that reuses a Driver-held JDBC connection and does not close it. */
 public class SharedJdbcConnectionProvider implements JdbcConnectionProvider {
 
     private final JdbcConnectionProvider delegate;

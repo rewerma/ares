@@ -2,7 +2,6 @@ package com.typesafe.config.impl;
 
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigParseOptions;
-
 import java.util.ArrayList;
 import java.util.Collection;
 

@@ -4,16 +4,13 @@ import com.github.ares.api.sink.SinkAggregatedCommitter;
 import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.hadoop.HadoopFileSystemProxy;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FileSinkAggregatedCommitter
@@ -26,8 +23,10 @@ public class FileSinkAggregatedCommitter
 
     @Override
     public void commit(String commitInfosSerialized) throws IOException {
-        List<FileCommitInfo> commitInfos = JsonUtils.toList(commitInfosSerialized, FileCommitInfo.class);
-        List<FileAggregatedCommitInfo> aggregatedCommitInfoList = Collections.singletonList(combine(commitInfos));
+        List<FileCommitInfo> commitInfos =
+                JsonUtils.toList(commitInfosSerialized, FileCommitInfo.class);
+        List<FileAggregatedCommitInfo> aggregatedCommitInfoList =
+                Collections.singletonList(combine(commitInfos));
         commit(aggregatedCommitInfoList);
     }
 
@@ -89,8 +88,10 @@ public class FileSinkAggregatedCommitter
 
     @Override
     public void abort(String commitInfosSerialized) throws Exception {
-        List<FileCommitInfo> commitInfos = JsonUtils.toList(commitInfosSerialized, FileCommitInfo.class);
-        List<FileAggregatedCommitInfo> aggregatedCommitInfoList = Collections.singletonList(combine(commitInfos));
+        List<FileCommitInfo> commitInfos =
+                JsonUtils.toList(commitInfosSerialized, FileCommitInfo.class);
+        List<FileAggregatedCommitInfo> aggregatedCommitInfoList =
+                Collections.singletonList(combine(commitInfos));
         abort(aggregatedCommitInfoList);
     }
 

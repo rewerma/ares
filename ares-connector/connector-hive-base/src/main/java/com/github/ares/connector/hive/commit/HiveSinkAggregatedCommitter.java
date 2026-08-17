@@ -1,19 +1,18 @@
 package com.github.ares.connector.hive.commit;
 
+import static com.github.ares.connector.hive.config.HiveConfig.ABORT_DROP_PARTITION_METADATA;
+
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.sink.commit.FileAggregatedCommitInfo;
 import com.github.ares.connector.file.sink.commit.FileSinkAggregatedCommitter;
 import com.github.ares.connector.hive.utils.HiveMetaStoreProxy;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.thrift.TException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.github.ares.connector.hive.config.HiveConfig.ABORT_DROP_PARTITION_METADATA;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 
 @Slf4j
 public class HiveSinkAggregatedCommitter extends FileSinkAggregatedCommitter {

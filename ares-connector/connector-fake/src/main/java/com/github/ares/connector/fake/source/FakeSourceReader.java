@@ -6,7 +6,6 @@ import com.github.ares.api.source.SourceReader;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.connector.fake.config.FakeConfig;
 import com.github.ares.connector.fake.config.MultipleTableFakeSourceConfig;
-import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FakeSourceReader implements SourceReader<AresRow, FakeSourceSplit> {
@@ -74,8 +74,7 @@ public class FakeSourceReader implements SourceReader<AresRow, FakeSourceSplit> 
             if (null != split) {
                 FakeDataGenerator fakeDataGenerator = fakeDataGeneratorMap.get(split.getTableId());
                 // Randomly generated data are sent directly to the downstream operator
-                List<AresRow> aresRows =
-                        fakeDataGenerator.generateFakedRows(split.getRowNum());
+                List<AresRow> aresRows = fakeDataGenerator.generateFakedRows(split.getRowNum());
                 aresRows.forEach(output::collect);
                 log.info(
                         "{} rows of data have been generated in split({}) for table {}. Generation time: {}",
@@ -114,5 +113,4 @@ public class FakeSourceReader implements SourceReader<AresRow, FakeSourceSplit> 
     public void handleNoMoreSplits() {
         noMoreSplit = true;
     }
-
 }

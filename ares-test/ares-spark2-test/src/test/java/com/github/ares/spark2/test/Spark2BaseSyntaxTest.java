@@ -9,12 +9,16 @@ import org.junit.Test;
 public class Spark2BaseSyntaxTest {
     @Test
     public void sysFuncTest() {
-        String[] args = new String[]{
-                "--master", Utils.getSparkMaster(),
-                "--sql", "../scripts/spark/base-syntax-test.sql",
-                "--conf", "spark.jars="
-                + "../../ares-starter/ares-spark3-starter/target/ares-spark2-starter.jar"
-        };
+        String[] args =
+                new String[] {
+                    "--master",
+                    Utils.getSparkMaster(),
+                    "--sql",
+                    "../scripts/spark/base-syntax-test.sql",
+                    "--conf",
+                    "spark.jars="
+                            + "../../ares-starter/ares-spark3-starter/target/ares-spark2-starter.jar"
+                };
         AresSparkStarter.main(args);
     }
 }

@@ -4,4 +4,3 @@ public enum EngineTypeVersion {
     SPARK2,
     SPARK3,
 }
-

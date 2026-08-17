@@ -3,7 +3,6 @@ package com.github.ares.connector.jdbc.internal.executor;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.connector.jdbc.internal.converter.JdbcRowConverter;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,7 +13,8 @@ public class SimpleBatchStatementExecutor implements JdbcBatchStatementExecutor<
     private final JdbcRowConverter converter;
     private transient PreparedStatement statement;
 
-    public SimpleBatchStatementExecutor(StatementFactory statementFactory, AresRowType rowType, JdbcRowConverter converter) {
+    public SimpleBatchStatementExecutor(
+            StatementFactory statementFactory, AresRowType rowType, JdbcRowConverter converter) {
         this.statementFactory = statementFactory;
         this.rowType = rowType;
         this.converter = converter;

@@ -17,23 +17,6 @@
 
 package com.github.ares.connector.jdbc.utils;
 
-import com.github.ares.api.table.catalog.Column;
-import com.github.ares.api.table.catalog.PhysicalColumn;
-import com.github.ares.api.table.catalog.PrimitiveByteArrayType;
-import com.github.ares.api.table.catalog.TablePath;
-import com.github.ares.api.table.type.AresDataType;
-import com.github.ares.api.table.type.BasicType;
-import com.github.ares.api.table.type.DecimalType;
-import com.github.ares.api.table.type.LocalTimeType;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BINARY;
 import static java.sql.Types.BIT;
@@ -62,6 +45,22 @@ import static java.sql.Types.TIME_WITH_TIMEZONE;
 import static java.sql.Types.TINYINT;
 import static java.sql.Types.VARBINARY;
 import static java.sql.Types.VARCHAR;
+
+import com.github.ares.api.table.catalog.Column;
+import com.github.ares.api.table.catalog.PhysicalColumn;
+import com.github.ares.api.table.catalog.PrimitiveByteArrayType;
+import com.github.ares.api.table.catalog.TablePath;
+import com.github.ares.api.table.type.AresDataType;
+import com.github.ares.api.table.type.BasicType;
+import com.github.ares.api.table.type.DecimalType;
+import com.github.ares.api.table.type.LocalTimeType;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class JdbcColumnConverter {
 

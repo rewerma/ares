@@ -29,11 +29,6 @@ import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
 import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,6 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ChunkSplitter implements AutoCloseable, Serializable {
 
@@ -65,7 +64,9 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
         this.fetchSize = config.getFetchSize();
         this.jdbcDialect =
                 JdbcDialectLoader.load(
-                        config.getDbType(), config.getJdbcConnectionConfig().getUrl(), config.getCompatibleMode());
+                        config.getDbType(),
+                        config.getJdbcConnectionConfig().getUrl(),
+                        config.getCompatibleMode());
         this.connectionProvider =
                 jdbcDialect.getJdbcConnectionProvider(config.getJdbcConnectionConfig());
     }
@@ -144,9 +145,7 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
         try {
             return connectionProvider.getOrEstablishConnection();
         } catch (ClassNotFoundException e) {
-            throw new AresException(
-                    "JDBC-Class not found. - " + e.getMessage(),
-                    e);
+            throw new AresException("JDBC-Class not found. - " + e.getMessage(), e);
         }
     }
 
@@ -258,8 +257,8 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
             }
             return Optional.of(
                     new AresRowType(
-                            new String[]{partitionColumn},
-                            new AresDataType[]{column.getDataType()}));
+                            new String[] {partitionColumn},
+                            new AresDataType[] {column.getDataType()}));
         }
 
         PrimaryKey pk = schema.getPrimaryKey();
@@ -301,8 +300,8 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
                         if (isEvenlySplitColumn(column)) {
                             return Optional.of(
                                     new AresRowType(
-                                            new String[]{uniqueKeyColumnName},
-                                            new AresDataType[]{column.getDataType()}));
+                                            new String[] {uniqueKeyColumnName},
+                                            new AresDataType[] {column.getDataType()}));
                         }
                     }
                 }

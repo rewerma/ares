@@ -32,18 +32,17 @@ import com.github.ares.common.serialization.Serializer;
 import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
 import com.github.ares.connector.jdbc.state.JdbcSourceState;
 import com.github.ares.connector.jdbc.utils.JdbcCatalogUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcSource
         implements AresSource<AresRow, JdbcSourceSplit, JdbcSourceState>,
-        SupportParallelism,
-        SupportColumnProjection {
+                SupportParallelism,
+                SupportColumnProjection {
     protected static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
 
     private final JdbcSourceConfig jdbcSourceConfig;
@@ -79,8 +78,8 @@ public class JdbcSource
     }
 
     @Override
-    public SourceReader<AresRow, JdbcSourceSplit> createReader(
-            SourceReader.Context readerContext) throws Exception {
+    public SourceReader<AresRow, JdbcSourceSplit> createReader(SourceReader.Context readerContext)
+            throws Exception {
         Map<TablePath, AresRowType> tables = new HashMap<>();
         for (TablePath tablePath : jdbcSourceTables.keySet()) {
             AresRowType rowType =

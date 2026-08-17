@@ -61,7 +61,9 @@ public class SparkServiceModule extends AbstractModule {
         bind(MergeIntoSqlExecutor.class).to(SparkMergeIntoSqlExecutor.class).in(Singleton.class);
         bind(ForCursorLoopExecutor.class).to(SparkForCursorLoopExecutor.class).in(Singleton.class);
         bind(UdfManager.class).to(SparkUdfManager.class).in(Singleton.class);
-        bind(CreateFunctionExecutor.class).to(SparkCreateFunctionExecutor.class).in(Singleton.class);
+        bind(CreateFunctionExecutor.class)
+                .to(SparkCreateFunctionExecutor.class)
+                .in(Singleton.class);
         bind(ExceptionMessageHandler.class)
                 .to(SparkExceptionMessageHandler.class)
                 .in(Singleton.class);

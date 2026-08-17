@@ -1,9 +1,8 @@
 package com.github.ares.connector.discovery;
 
 import com.github.ares.api.table.factory.Factory;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ServiceLoader;
+import org.apache.commons.lang3.StringUtils;
 
 public class AresFactoryDiscovery extends AbstractPluginDiscovery<Factory> {
 

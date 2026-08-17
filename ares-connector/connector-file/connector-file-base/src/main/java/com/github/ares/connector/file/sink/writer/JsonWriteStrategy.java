@@ -4,22 +4,20 @@ import com.github.ares.api.serialization.SerializationSchema;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.common.exceptions.CommonError;
+import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.common.utils.EncodingUtils;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
 import com.github.ares.format.json.JsonSerializationSchema;
 import io.airlift.compress.lzo.LzopCodec;
-import lombok.NonNull;
-import org.apache.hadoop.fs.FSDataOutputStream; 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.github.ares.common.exceptions.CommonErrorCode;
+import lombok.NonNull;
+import org.apache.hadoop.fs.FSDataOutputStream;
 
 public class JsonWriteStrategy extends AbstractWriteStrategy {
     private final byte[] rowDelimiter;

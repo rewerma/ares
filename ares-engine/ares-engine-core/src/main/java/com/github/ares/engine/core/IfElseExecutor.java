@@ -1,94 +1,66 @@
 package com.github.ares.engine.core;
 
+import com.github.ares.parser.enums.OperationType;
+import com.github.ares.parser.plan.LogicalExpression;
 import com.github.ares.parser.plan.LogicalIfElse;
 import com.github.ares.parser.plan.LogicalOperation;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import static com.github.ares.engine.utils.EngineUtil.replaceParams;
-import static com.github.ares.parser.enums.OperationType.CONTINUE_LOOP;
-import static com.github.ares.parser.enums.OperationType.EXIT_LOOP;
-import static com.github.ares.parser.enums.OperationType.IF_ELSE;
-import static com.github.ares.parser.enums.OperationType.RETURN_VALUE;
-
-public class IfElseExecutor extends AbstractBaseExecutor implements Serializable {
+public class IfElseExecutor extends AbstractBaseExecutor implements OperationHandler {
     private static final long serialVersionUID = -1L;
 
-
-    public static final Integer BREAK_LOOP_FLAG = -1;
-    public static final int RETURN_FUNCTION_FLAG = -2;
-    public static final int CONTINUE_LOOP_FLAG = -3;
-
-    public int ifElse(LogicalIfElse ifElse, PlParams plParams, int i,
-                      List<LogicalOperation> operations, BodyCallback body) {
-        List<LogicalIfElse> ifElseOperations = new ArrayList<>();
-        LogicalOperation baseOperationTmp = null;
-        int j = i;
-        do {
-            if (baseOperationTmp != null) {
-                ifElse = (LogicalIfElse) baseOperationTmp;
-            }
-            ifElseOperations.add(ifElse);
-            j++;
-            if (j < operations.size()) {
-                baseOperationTmp = operations.get(j);
-            } else {
-                break;
-            }
-        } while (baseOperationTmp.getOperationType() == IF_ELSE &&
-                (((LogicalIfElse) baseOperationTmp).getIsElseIf() != null ||
-                        ((LogicalIfElse) baseOperationTmp).getIsElse() != null));
-
-        Object exitFlag = ifElse(ifElseOperations, plParams, body);
-        if (EXIT_LOOP == exitFlag) {
-            return BREAK_LOOP_FLAG; // with loop exit
-        }
-        if (CONTINUE_LOOP == exitFlag) {
-            return CONTINUE_LOOP_FLAG; // with loop continue
-        }
-        if (RETURN_VALUE == exitFlag) {
-            return RETURN_FUNCTION_FLAG; // with return function
-        }
-        return i + ifElseOperations.size() - 1;
+    @Override
+    public OperationType handledType() {
+        return OperationType.IF_ELSE;
     }
 
-    private Object ifElse(List<LogicalIfElse> ifElseOperations, PlParams plParams, BodyCallback body) {
-        Iterator<LogicalIfElse> it = ifElseOperations.iterator();
-        LogicalIfElse ifElse = it.next();
-        String expr = replaceParams(ifElse.getCondition().getExpr(), plParams);
-        if (executorManager.getExpressionExecutor().execute4Bool(expr)) {
-            traceLogger.info("IF body: {} BEGIN", ifElse.getCondition().getExpr());
-            Object result = body.invoke(ifElse.getIfBody(), plParams);
-            traceLogger.info("IF body: {} END", ifElse.getCondition().getExpr());
-            return result;
-        } else {
-            return elseIfOperation(it, ifElse, plParams, body);
-        }
+    @Override
+    public Scope scope() {
+        return Scope.BODY;
     }
 
-    private Object elseIfOperation(Iterator<LogicalIfElse> itIfElse, LogicalIfElse parentIfElse, PlParams plParams, BodyCallback body) {
-        if (!itIfElse.hasNext()) {
-            return null;
-        }
-        LogicalIfElse ifElse = itIfElse.next();
-        if (ifElse.getIsElseIf() != null) {
-            String expr = replaceParams(ifElse.getCondition().getExpr(), plParams);
-            if (executorManager.getExpressionExecutor().execute4Bool(expr)) {
-                traceLogger.info("IF body: {} BEGIN", ifElse.getCondition().getExpr());
-                Object result = body.invoke(ifElse.getIfBody(), plParams);
-                traceLogger.info("IF body: {} END", ifElse.getCondition().getExpr());
-                return result;
-            } else {
-                return elseIfOperation(itIfElse, ifElse, plParams, body);
-            }
-        } else {
-            traceLogger.info("IF-ELSE body:  NOT ( {} ) BEGIN", parentIfElse.getCondition().getExpr());
-            Object result = body.invoke(ifElse.getIfBody(), plParams);
-            traceLogger.info("IF-ELSE body: NOT ( {} ) END", parentIfElse.getCondition().getExpr());
+    @Override
+    public Object handle(
+            LogicalOperation operation, PlParams plParams, Object lastData, BodyCallback body) {
+        Object result = execute((LogicalIfElse) operation, plParams, body);
+        if (LoopControl.isSignal(result)) {
             return result;
         }
+        return lastData;
+    }
+
+    public Object execute(LogicalIfElse ifElse, PlParams plParams, BodyCallback body) {
+        if (matches(ifElse.getCondition(), plParams)) {
+            return runIfBody(ifElse.getCondition().getExpr(), ifElse.getIfBody(), plParams, body);
+        }
+        String lastFailed = ifElse.getCondition().getExpr();
+        if (ifElse.getElseIfs() != null) {
+            for (LogicalIfElse elseIf : ifElse.getElseIfs()) {
+                if (matches(elseIf.getCondition(), plParams)) {
+                    return runIfBody(
+                            elseIf.getCondition().getExpr(), elseIf.getIfBody(), plParams, body);
+                }
+                lastFailed = elseIf.getCondition().getExpr();
+            }
+        }
+        if (ifElse.getElseBody() != null) {
+            traceLogger.info("IF-ELSE body:  NOT ( {} ) BEGIN", lastFailed);
+            Object result = body.invoke(ifElse.getElseBody(), plParams);
+            traceLogger.info("IF-ELSE body: NOT ( {} ) END", lastFailed);
+            return result;
+        }
+        return null;
+    }
+
+    private boolean matches(LogicalExpression condition, PlParams plParams) {
+        return executorManager.getExpressionExecutor().execute4Bool(condition.getExpr(), plParams);
+    }
+
+    private Object runIfBody(
+            String expr, List<LogicalOperation> branchBody, PlParams plParams, BodyCallback body) {
+        traceLogger.info("IF body: {} BEGIN", expr);
+        Object result = body.invoke(branchBody, plParams);
+        traceLogger.info("IF body: {} END", expr);
+        return result;
     }
 }

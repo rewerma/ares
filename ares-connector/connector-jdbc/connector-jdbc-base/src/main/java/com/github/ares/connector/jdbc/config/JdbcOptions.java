@@ -3,9 +3,7 @@ package com.github.ares.connector.jdbc.config;
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.Options;
 import com.github.ares.connector.jdbc.internal.dialect.dialectenum.FieldIdeEnum;
-
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("checkstyle:MagicNumber")

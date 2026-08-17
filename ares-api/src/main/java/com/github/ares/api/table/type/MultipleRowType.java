@@ -1,11 +1,9 @@
-
 package com.github.ares.api.table.type;
-
-import lombok.Getter;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
 
 public class MultipleRowType
         implements AresDataType<AresRow>, Iterable<Map.Entry<String, AresRowType>> {

@@ -1,18 +1,17 @@
 package com.github.ares.connector.file.config;
 
-import lombok.Data;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.CommonConfigurationKeys;
-import org.apache.hadoop.fs.Path;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.apache.parquet.avro.AvroReadSupport.READ_INT96_AS_FIXED;
 import static org.apache.parquet.avro.AvroSchemaConverter.ADD_LIST_ELEMENT_RECORDS;
 import static org.apache.parquet.avro.AvroWriteSupport.WRITE_FIXED_AS_INT96;
 import static org.apache.parquet.avro.AvroWriteSupport.WRITE_OLD_LIST_STRUCTURE;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Data;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
+import org.apache.hadoop.fs.Path;
 
 @Data
 public class HadoopConf implements Serializable {

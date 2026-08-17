@@ -1,9 +1,8 @@
 package com.github.ares.spark.connector.sink.write;
 
 import com.github.ares.spark.connector.statistic.WriterStatistic;
-import org.apache.spark.sql.connector.write.WriterCommitMessage;
-
 import javax.annotation.Nullable;
+import org.apache.spark.sql.connector.write.WriterCommitMessage;
 
 public class AresSparkWriterCommitMessage<T> implements WriterCommitMessage {
 

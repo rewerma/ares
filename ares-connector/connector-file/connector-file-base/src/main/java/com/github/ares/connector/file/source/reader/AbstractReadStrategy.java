@@ -1,5 +1,7 @@
 package com.github.ares.connector.file.source.reader;
 
+import static com.github.ares.connector.file.config.BaseSourceConfigOptions.TARGET_PARTITIONS;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.api.table.type.BasicType;
@@ -8,9 +10,6 @@ import com.github.ares.connector.file.config.BaseSourceConfigOptions;
 import com.github.ares.connector.file.config.FileFormat;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.hadoop.HadoopFileSystemProxy;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hadoop.fs.FileStatus;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,8 +25,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.github.ares.connector.file.config.BaseSourceConfigOptions.TARGET_PARTITIONS;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hadoop.fs.FileStatus;
 
 @Slf4j
 public abstract class AbstractReadStrategy implements ReadStrategy {
@@ -69,8 +68,7 @@ public abstract class AbstractReadStrategy implements ReadStrategy {
         if (fileNames.isEmpty()) {
             this.aresRowTypeWithPartition = mergePartitionTypes("", aresRowType);
         } else {
-            this.aresRowTypeWithPartition =
-                    mergePartitionTypes(fileNames.get(0), aresRowType);
+            this.aresRowTypeWithPartition = mergePartitionTypes(fileNames.get(0), aresRowType);
         }
     }
 
@@ -91,7 +89,12 @@ public abstract class AbstractReadStrategy implements ReadStrategy {
                 // filter '_SUCCESS' file
                 if (!fileStatus.getPath().getName().equals("_SUCCESS")
                         && !fileStatus.getPath().getName().startsWith(".")
-                        && (fileFormat == null || fileStatus.getPath().getName().toLowerCase(Locale.ROOT).endsWith(fileFormat.getSuffix()))) {
+                        && (fileFormat == null
+                                || fileStatus
+                                        .getPath()
+                                        .getName()
+                                        .toLowerCase(Locale.ROOT)
+                                        .endsWith(fileFormat.getSuffix()))) {
                     String filePath = fileStatus.getPath().toString();
                     if (!readPartitions.isEmpty()) {
                         for (String readPartition : readPartitions) {

@@ -10,7 +10,6 @@ import com.github.ares.connector.file.config.FileFormat;
 import com.github.ares.connector.file.config.FileSystemType;
 import com.github.ares.connector.file.hadoop.source.config.HdfsSourceConfigOptions;
 import com.google.auto.service.AutoService;
-
 import java.util.Arrays;
 
 @AutoService(Factory.class)

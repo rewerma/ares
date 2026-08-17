@@ -1,29 +1,25 @@
 package com.github.ares.common.configuration;
 
+import static com.github.ares.common.configuration.utils.ConfigUtil.convertToJsonString;
+import static com.github.ares.common.configuration.utils.ConfigUtil.convertValue;
+
 import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
 import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.com.typesafe.config.ConfigFactory;
 import com.github.ares.com.typesafe.config.ConfigRenderOptions;
-import lombok.Getter;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import static com.github.ares.common.configuration.utils.ConfigUtil.convertToJsonString;
-import static com.github.ares.common.configuration.utils.ConfigUtil.convertValue;
+import lombok.Getter;
 
 public class ReadonlyConfig implements Serializable {
     private static final long serialVersionUID = -1L;
-    /**
-     * Stores the concrete key/value pairs of this configuration object.
-     */
-    @Getter
-    protected final Map<String, Object> confData;
+    /** Stores the concrete key/value pairs of this configuration object. */
+    @Getter protected final Map<String, Object> confData;
 
     private static final ObjectMapper JACKSON_MAPPER = new ObjectMapper();
 

@@ -20,12 +20,11 @@ package com.github.ares.spark.connector.sink.writer;
 import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
+import java.io.IOException;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
 import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 import org.apache.spark.sql.sources.v2.writer.streaming.StreamWriter;
-
-import java.io.IOException;
 
 public class SparkStreamWriter<StateT, CommitInfoT, AggregatedCommitInfoT>
         extends SparkDataSourceWriter<StateT, CommitInfoT, AggregatedCommitInfoT>

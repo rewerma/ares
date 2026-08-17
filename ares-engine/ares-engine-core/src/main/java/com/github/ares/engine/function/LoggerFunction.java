@@ -4,14 +4,10 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.UdfInterface;
 import com.google.auto.service.AutoService;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static com.github.ares.common.utils.StringUtils.println;
 
 @AutoService(UdfInterface.class)
 public class LoggerFunction implements UdfInterface {

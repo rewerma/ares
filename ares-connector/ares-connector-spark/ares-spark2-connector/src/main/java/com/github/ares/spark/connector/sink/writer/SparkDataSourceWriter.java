@@ -25,29 +25,27 @@ import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.spark.connector.sink.SinkAggregatedCommitterLoader;
 import com.github.ares.spark.connector.statistic.JobStatisticInformation;
 import com.github.ares.spark.connector.statistic.WriterStatistic;
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.writer.DataSourceWriter;
-import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
-import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.sources.v2.writer.DataSourceWriter;
+import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
+import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 
 public class SparkDataSourceWriter<StateT, CommitInfoT, AggregatedCommitInfoT>
         implements DataSourceWriter {
 
     protected final AresSink<AresRow, StateT, CommitInfoT, AggregatedCommitInfoT> sink;
 
-//    @Nullable protected final SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT>
-//            sinkAggregatedCommitter;
+    //    @Nullable protected final SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT>
+    //            sinkAggregatedCommitter;
 
     protected final CatalogTable catalogTable;
 
     private final long startTimeMillis;
-
 
     public SparkDataSourceWriter(
             AresSink<AresRow, StateT, CommitInfoT, AggregatedCommitInfoT> sink,
@@ -56,10 +54,10 @@ public class SparkDataSourceWriter<StateT, CommitInfoT, AggregatedCommitInfoT>
         this.sink = sink;
         this.catalogTable = catalogTable;
         this.startTimeMillis = System.currentTimeMillis();
-//        this.sinkAggregatedCommitter = sink.createAggregatedCommitter().orElse(null);
-//        if (sinkAggregatedCommitter != null) {
-//            sinkAggregatedCommitter.init();
-//        }
+        //        this.sinkAggregatedCommitter = sink.createAggregatedCommitter().orElse(null);
+        //        if (sinkAggregatedCommitter != null) {
+        //            sinkAggregatedCommitter.init();
+        //        }
     }
 
     @Override

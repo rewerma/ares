@@ -5,7 +5,6 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.UdfInterface;
 import com.google.auto.service.AutoService;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +32,6 @@ public class AssertEquals implements UdfInterface {
             throw new AresException("ASSERT function expects two argument");
         }
         Object arg1 = args.get(0);
-        System.out.println(arg1);
         Object arg2 = args.get(1);
         if (arg1 == null && arg2 == null) {
             return arg1;

@@ -24,15 +24,14 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
 import com.github.ares.connector.jdbc.internal.JdbcInputFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcSourceReader implements SourceReader<AresRow, JdbcSourceSplit> {
     private static final Logger log = LoggerFactory.getLogger(JdbcSourceReader.class);

@@ -12,12 +12,13 @@ import com.github.ares.spark.starter.service.Spark3SinkExecutor;
 
 public class AresSparkStarter {
     public static void main(String[] args) {
-        SparkInjectorFactory.init(new AbstractModule(){
-            @Override
-            protected void configure() {
-                bind(SparkSinkExecutor.class).to(Spark3SinkExecutor.class);
-            }
-        });
+        SparkInjectorFactory.init(
+                new AbstractModule() {
+                    @Override
+                    protected void configure() {
+                        bind(SparkSinkExecutor.class).to(Spark3SinkExecutor.class);
+                    }
+                });
 
         SparkCommandArgs sparkCommandArgs =
                 CommandLineUtils.parse(
@@ -25,8 +26,7 @@ public class AresSparkStarter {
                         new SparkCommandArgs(),
                         EngineType.SPARK3.getStarterShellName(),
                         true);
-        Command<?> command =  sparkCommandArgs.buildCommand(EngineTypeVersion.SPARK3);
+        Command<?> command = sparkCommandArgs.buildCommand(EngineTypeVersion.SPARK3);
         command.execute();
     }
 }
-

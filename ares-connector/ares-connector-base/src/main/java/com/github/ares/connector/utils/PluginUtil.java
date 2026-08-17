@@ -1,6 +1,4 @@
-
 package com.github.ares.connector.utils;
-
 
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.source.AresSource;
@@ -21,15 +19,12 @@ import com.github.ares.connector.discovery.AresFactoryDiscovery;
 import com.github.ares.connector.discovery.AresSinkPluginDiscovery;
 import com.github.ares.connector.discovery.AresSourcePluginDiscovery;
 import com.github.ares.connector.discovery.PluginIdentifier;
-
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * The util used for Spark/Flink to create to AresSource etc.
- */
+/** The util used for Spark/Flink to create to AresSource etc. */
 public class PluginUtil {
 
     public static SourceTableInfo createSource(
@@ -48,7 +43,11 @@ public class PluginUtil {
         final boolean fallback = isFallback(sourceFactory);
         AresSource source;
         if (fallback) {
-            source = fallbackCreate(new AresSourcePluginDiscovery(), pluginIdentifier, readonlyConfig.toConfig());
+            source =
+                    fallbackCreate(
+                            new AresSourcePluginDiscovery(),
+                            pluginIdentifier,
+                            readonlyConfig.toConfig());
         } else {
             // create source with source factory
             TableSourceFactoryContext context =
@@ -66,9 +65,10 @@ public class PluginUtil {
             // TODO remove it when all connector use `getProducedCatalogTables`
             AresDataType<?> aresDataType = source.getProducedType();
             final String tableId =
-                    readonlyConfig.getOptional(CommonOptions.RESULT_TABLE_NAME).orElse("default-identifier");
-            catalogTables =
-                    CatalogTableUtil.convertDataTypeToCatalogTables(aresDataType, tableId);
+                    readonlyConfig
+                            .getOptional(CommonOptions.RESULT_TABLE_NAME)
+                            .orElse("default-identifier");
+            catalogTables = CatalogTableUtil.convertDataTypeToCatalogTables(aresDataType, tableId);
         }
 
         if (catalogTables.size() != 1) {
@@ -97,7 +97,7 @@ public class PluginUtil {
         } catch (Exception e) {
             if (e instanceof UnsupportedOperationException
                     && "The Factory has not been implemented and the deprecated Plugin will be used."
-                    .equals(e.getMessage())) {
+                            .equals(e.getMessage())) {
                 return true;
             }
         }
@@ -109,8 +109,7 @@ public class PluginUtil {
             AresSinkPluginDiscovery sinkPluginDiscovery,
             String pluginName,
             List<URL> pluginJars) {
-        PluginIdentifier pluginIdentifier =
-                PluginIdentifier.of("sink", pluginName);
+        PluginIdentifier pluginIdentifier = PluginIdentifier.of("sink", pluginName);
         pluginJars.addAll(
                 sinkPluginDiscovery.getPluginJarPaths(Lists.newArrayList(pluginIdentifier)));
         try {
@@ -120,5 +119,4 @@ public class PluginUtil {
             return Optional.empty();
         }
     }
-
 }

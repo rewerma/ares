@@ -1,7 +1,6 @@
 package com.github.ares.connector.sink;
 
 import com.github.ares.api.sink.SinkWriter;
-
 import java.util.Optional;
 
 public abstract class AbstractSinkWriter<T, StateT> implements SinkWriter<T, Void, StateT> {

@@ -1,6 +1,5 @@
 package com.github.ares.engine.spark.core;
 
-import com.github.ares.com.google.inject.Inject;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.SelectSqlExecutor;
 import com.github.ares.parser.sqlparser.sparksql.SelectSqlParser;
@@ -38,5 +37,4 @@ public class SparkSelectSqlExecutor extends SelectSqlExecutor {
         lastDf.show();
         return lastDf;
     }
-
 }

@@ -27,17 +27,13 @@ import java.util.List;
  *
  * <p>See Also {@link SinkCommitter}
  *
- * @param <CommitInfoT>           The type of commit message.
+ * @param <CommitInfoT> The type of commit message.
  * @param <AggregatedCommitInfoT> The type of commit message after combine.
  */
 public interface SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> extends Serializable {
 
-    /**
-     * init sink aggregated committer
-     */
-    default void init() {
-    }
-
+    /** init sink aggregated committer */
+    default void init() {}
 
     void commit(String commitInfosSerialized) throws IOException;
 
@@ -48,7 +44,6 @@ public interface SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> ext
      * @return The commit message after combine.
      */
     AggregatedCommitInfoT combine(List<CommitInfoT> commitInfos);
-
 
     void abort(String commitInfosSerialized) throws Exception;
 

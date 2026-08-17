@@ -22,7 +22,6 @@ import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.Strings;
 import com.beust.jcommander.UnixStyleUsageFormatter;
 import com.beust.jcommander.WrappedParameter;
-
 import java.util.List;
 
 public class UsageFormatter extends UnixStyleUsageFormatter {

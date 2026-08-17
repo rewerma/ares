@@ -28,15 +28,14 @@ import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import com.github.ares.connector.jdbc.state.JdbcSinkState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcSinkWriter implements SinkWriter<AresRow, Void, JdbcSinkState> {
     private static final Logger log = LoggerFactory.getLogger(JdbcSinkWriter.class);
@@ -45,10 +44,7 @@ public class JdbcSinkWriter implements SinkWriter<AresRow, Void, JdbcSinkState> 
     private transient boolean isOpen;
     private final LongAdder writeCounter;
 
-    public JdbcSinkWriter(
-            JdbcDialect dialect,
-            JdbcSinkConfig jdbcSinkConfig,
-            AresRowType rowType) {
+    public JdbcSinkWriter(JdbcDialect dialect, JdbcSinkConfig jdbcSinkConfig, AresRowType rowType) {
         this.connectionProvider =
                 dialect.getJdbcConnectionProvider(jdbcSinkConfig.getJdbcConnectionConfig());
         this.outputFormat =

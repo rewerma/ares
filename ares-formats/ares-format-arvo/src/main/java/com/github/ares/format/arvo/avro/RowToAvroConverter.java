@@ -7,6 +7,10 @@ import com.github.ares.api.table.type.ArrayType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.format.arvo.avro.exception.AresAvroFormatException;
 import com.github.ares.format.arvo.avro.exception.AvroFormatErrorCode;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import org.apache.avro.Conversions;
 import org.apache.avro.Schema;
 import org.apache.avro.data.TimeConversions;
@@ -14,11 +18,6 @@ import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumWriter;
-
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 public class RowToAvroConverter implements Serializable {
 
@@ -101,8 +100,7 @@ public class RowToAvroConverter implements Serializable {
                 return records;
             case ROW:
                 AresRow aresRow = (AresRow) data;
-                AresDataType<?>[] fieldTypes =
-                        ((AresRowType) aresDataType).getFieldTypes();
+                AresDataType<?>[] fieldTypes = ((AresRowType) aresDataType).getFieldTypes();
                 String[] fieldNames = ((AresRowType) aresDataType).getFieldNames();
                 Schema recordSchema =
                         AresRowTypeToAvroSchemaConverter.buildAvroSchemaWithRowType(

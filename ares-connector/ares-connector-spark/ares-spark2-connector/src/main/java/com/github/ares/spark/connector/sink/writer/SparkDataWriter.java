@@ -24,16 +24,15 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.connector.serialization.RowConverter;
 import com.github.ares.spark.connector.serialization.InternalRowConverter;
 import com.github.ares.spark.connector.statistic.WriterStatistic;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.writer.DataWriter;
 import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Optional;
 
 public class SparkDataWriter<CommitInfoT, StateT> implements DataWriter<InternalRow> {
     private Logger log = LoggerFactory.getLogger(SparkDataWriter.class);

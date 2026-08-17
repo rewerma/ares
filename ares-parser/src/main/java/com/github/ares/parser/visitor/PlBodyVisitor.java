@@ -10,7 +10,6 @@ import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalRollback;
 import com.github.ares.parser.plan.LogicalStartTransaction;
 import com.github.ares.parser.utils.PLParserUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -30,11 +29,11 @@ public class PlBodyVisitor {
      * Visits a list of statements in a PL/SQL block.
      *
      * @param statementContextList List of statement contexts.
-     * @param inParams             input parameters
-     * @param outParams            output parameters
-     * @param declaredParams       declared parameters
-     * @param baseBody             base body
-     * @param structs              structs
+     * @param inParams input parameters
+     * @param outParams output parameters
+     * @param declaredParams declared parameters
+     * @param baseBody base body
+     * @param structs structs
      * @return List of logical operations.
      */
     public List<LogicalOperation> visitBodyStatements(
@@ -53,12 +52,20 @@ public class PlBodyVisitor {
         List<LogicalOperation> result = new ArrayList<>();
         for (PlSqlParser.StatementContext statementContext : statementContextList) {
             if (visitLogicalControlContext(statementContext, result)
-                    || visitPlContext(statementContext, result, allParams, baseBody, declaredParams, structs)) {
+                    || visitPlContext(
+                            statementContext,
+                            result,
+                            allParams,
+                            baseBody,
+                            declaredParams,
+                            structs)) {
                 continue;
             }
 
-            throw new UnsupportedOperationException(String.format("Unsupported syntax: '%s' in body",
-                    PLParserUtil.getFullText(statementContext)));
+            throw new UnsupportedOperationException(
+                    String.format(
+                            "Unsupported syntax: '%s' in body",
+                            PLParserUtil.getFullText(statementContext)));
         }
         return result;
     }
@@ -70,10 +77,17 @@ public class PlBodyVisitor {
             Map<String, PlType> declaredParams,
             List<LogicalOperation> baseBody,
             List<String> structs) {
-        return visitBodyStatements(seq_of_statementsContext.statement(), inParams, outParams, declaredParams, baseBody, structs);
+        return visitBodyStatements(
+                seq_of_statementsContext.statement(),
+                inParams,
+                outParams,
+                declaredParams,
+                baseBody,
+                structs);
     }
 
-    private boolean visitLogicalControlContext(PlSqlParser.StatementContext statementContext, List<LogicalOperation> result) {
+    private boolean visitLogicalControlContext(
+            PlSqlParser.StatementContext statementContext, List<LogicalOperation> result) {
         boolean resultFlag = false;
         if (statementContext.exit_statement() != null) {
             result.add(new LogicalExitLoop());
@@ -109,33 +123,57 @@ public class PlBodyVisitor {
             List<String> structs) {
         boolean resultFlag = false;
         if (statementContext.call_statement() != null) {
-            LogicalOperation operation = visitorManager.getCallStatementVisitor()
-                    .visitCallStatement(statementContext.call_statement(), allParams, result, structs);
+            LogicalOperation operation =
+                    visitorManager
+                            .getCallStatementVisitor()
+                            .visitCallStatement(
+                                    statementContext.call_statement(), allParams, result, structs);
             if (operation != null) {
                 result.add(operation);
             }
             resultFlag = true;
         } else if (statementContext.sql_statement() != null) {
-            LogicalOperation operation = sqlStatementVisitor(statementContext.sql_statement(), declaredParams, allParams, structs);
+            LogicalOperation operation =
+                    sqlStatementVisitor(
+                            statementContext.sql_statement(), declaredParams, allParams, structs);
             if (operation != null) {
                 result.add(operation);
             }
             resultFlag = true;
         } else if (statementContext.assignment_statement() != null) {
-            LogicalOperation operation = visitorManager.getAssignmentVisitor()
-                    .visitAssignment(statementContext.assignment_statement(), declaredParams, allParams, structs);
+            LogicalOperation operation =
+                    visitorManager
+                            .getAssignmentVisitor()
+                            .visitAssignment(
+                                    statementContext.assignment_statement(),
+                                    declaredParams,
+                                    allParams,
+                                    structs);
             if (operation != null) {
                 result.add(operation);
             }
             resultFlag = true;
         } else if (statementContext.if_statement() != null) {
-            visitorManager.getIfStatementVisitor().ifElseVisitor(
-                    this, statementContext.if_statement(), baseBody, allParams, result, structs
-            );
+            visitorManager
+                    .getIfStatementVisitor()
+                    .ifElseVisitor(
+                            this,
+                            statementContext.if_statement(),
+                            baseBody,
+                            allParams,
+                            result,
+                            structs);
             resultFlag = true;
         } else if (statementContext.loop_statement() != null) {
-            LogicalOperation operation = visitorManager.getLoopStatementVisitor().loopVisitor(
-                    this, statementContext.loop_statement(), baseBody, allParams, structs);
+            LogicalOperation operation =
+                    visitorManager
+                            .getLoopStatementVisitor()
+                            .loopVisitor(
+                                    this,
+                                    statementContext.loop_statement(),
+                                    baseBody,
+                                    allParams,
+                                    structs);
             if (operation != null) {
                 result.add(operation);
             }
@@ -162,7 +200,8 @@ public class PlBodyVisitor {
         String sqlType = sql.substring(0, SQL_PREFIX_LEN);
         switch (sqlType.toUpperCase()) {
             case "SELECT":
-                return visitorManager.getSelectSQLVisitor()
+                return visitorManager
+                        .getSelectSQLVisitor()
                         .visitSelectSQL(originalSql, sql, declaredParams);
             case "INSERT":
                 return visitorManager.getInsertSQLVisitor().visitInsertSQL(originalSql, sql);
@@ -173,11 +212,20 @@ public class PlBodyVisitor {
             case "MERGE ":
                 return visitorManager.getMergeSQLVisitor().visitMergeSQL(originalSql, sql);
             case "CREATE":
-                if (sqlStatementContext.data_manipulation_language_statements() != null &&
-                        sqlStatementContext.data_manipulation_language_statements().create_table_as2() != null) {
-                    String innerTableName = sqlStatementContext.data_manipulation_language_statements()
-                            .create_table_as2().table_name().getText();
-                    return visitorManager.getCreateAsSQLVisitor().visitCreateInnerTable(originalSql, sql, innerTableName);
+                if (sqlStatementContext.data_manipulation_language_statements() != null
+                        && sqlStatementContext
+                                        .data_manipulation_language_statements()
+                                        .create_table_as2()
+                                != null) {
+                    String innerTableName =
+                            sqlStatementContext
+                                    .data_manipulation_language_statements()
+                                    .create_table_as2()
+                                    .table_name()
+                                    .getText();
+                    return visitorManager
+                            .getCreateAsSQLVisitor()
+                            .visitCreateInnerTable(originalSql, sql, innerTableName);
                 }
                 throw new UnsupportedOperationException("Unsupported SQL syntax: " + sql);
             case "TRUNCA":

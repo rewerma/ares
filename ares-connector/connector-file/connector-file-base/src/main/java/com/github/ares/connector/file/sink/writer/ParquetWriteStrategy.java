@@ -15,32 +15,6 @@ import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
-import lombok.NonNull;
-import org.apache.avro.Conversions;
-import org.apache.avro.Schema;
-import org.apache.avro.data.TimeConversions;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.GenericRecordBuilder;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.avro.AvroParquetWriter;
-import org.apache.parquet.avro.AvroSchemaConverter;
-import org.apache.parquet.avro.AvroWriteSupport;
-import org.apache.parquet.column.ParquetProperties;
-import org.apache.parquet.example.data.simple.NanoTime;
-import org.apache.parquet.hadoop.ParquetFileWriter;
-import org.apache.parquet.hadoop.ParquetWriter;
-import org.apache.parquet.hadoop.util.HadoopOutputFile;
-import org.apache.parquet.schema.ConversionPatterns;
-import org.apache.parquet.schema.LogicalTypeAnnotation;
-import org.apache.parquet.schema.MessageType;
-import org.apache.parquet.schema.OriginalType;
-import org.apache.parquet.schema.PrimitiveType;
-import org.apache.parquet.schema.Type;
-import org.apache.parquet.schema.Types;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
@@ -58,6 +32,30 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.NonNull;
+import org.apache.avro.Conversions;
+import org.apache.avro.Schema;
+import org.apache.avro.data.TimeConversions;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.GenericRecordBuilder;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.parquet.avro.AvroParquetWriter;
+import org.apache.parquet.avro.AvroSchemaConverter;
+import org.apache.parquet.avro.AvroWriteSupport;
+import org.apache.parquet.column.ParquetProperties;
+import org.apache.parquet.example.data.simple.NanoTime;
+import org.apache.parquet.hadoop.ParquetFileWriter;
+import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.util.HadoopOutputFile;
+import org.apache.parquet.schema.ConversionPatterns;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.OriginalType;
+import org.apache.parquet.schema.PrimitiveType;
+import org.apache.parquet.schema.Type;
+import org.apache.parquet.schema.Types;
 
 public class ParquetWriteStrategy extends AbstractWriteStrategy {
     private final LinkedHashMap<String, ParquetWriter<GenericRecord>> beingWrittenWriter;
@@ -108,21 +106,22 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
         ParquetWriter<GenericRecord> writer = getOrCreateWriter(filePath);
         GenericRecordBuilder recordBuilder = new GenericRecordBuilder(schema);
 
-//        Pair<String, Object>[] row = new Pair[fileSinkConfig.getSinkColumnList().size()];
-//        for (int i = 0; i < fileSinkConfig.getSinkColumnsIndexInRow().size(); i++) {
-//            int index = fileSinkConfig.getSinkColumnsIndexInRow().get(i);
-//            String fieldName = fileSinkConfig.getSinkColumnList().get(index);
-//            Object value = resolveObject(fieldName, aresRow.getField(i), aresRowType.getFieldType(i));
-//            row[index] = Pair.of(fieldName, value);
-//        }
-//        for (int i = 0; i < row.length; i++) {
-//            Pair<String, Object> tuple2 = row[i];
-//            if (tuple2 != null) {
-//                recordBuilder.set(tuple2.getLeft(), tuple2.getRight());
-//            } else {
-//                recordBuilder.set(fileSinkConfig.getSinkColumnList().get(i), null);
-//            }
-//        }
+        //        Pair<String, Object>[] row = new Pair[fileSinkConfig.getSinkColumnList().size()];
+        //        for (int i = 0; i < fileSinkConfig.getSinkColumnsIndexInRow().size(); i++) {
+        //            int index = fileSinkConfig.getSinkColumnsIndexInRow().get(i);
+        //            String fieldName = fileSinkConfig.getSinkColumnList().get(index);
+        //            Object value = resolveObject(fieldName, aresRow.getField(i),
+        // aresRowType.getFieldType(i));
+        //            row[index] = Pair.of(fieldName, value);
+        //        }
+        //        for (int i = 0; i < row.length; i++) {
+        //            Pair<String, Object> tuple2 = row[i];
+        //            if (tuple2 != null) {
+        //                recordBuilder.set(tuple2.getLeft(), tuple2.getRight());
+        //            } else {
+        //                recordBuilder.set(fileSinkConfig.getSinkColumnList().get(i), null);
+        //            }
+        //        }
         for (Integer integer : sinkColumnsIndexInRow) {
             String fieldName = aresRowType.getFieldName(integer);
             Object field = aresRow.getField(integer);
@@ -250,12 +249,15 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                                     + TimeUnit.MINUTES.toNanos(calendar.get(Calendar.MINUTE))
                                     + TimeUnit.SECONDS.toNanos(calendar.get(Calendar.SECOND))
                                     + TimeUnit.MILLISECONDS.toNanos(
-                                    calendar.get(Calendar.MILLISECOND));
+                                            calendar.get(Calendar.MILLISECOND));
                     NanoTime nanoTime = new NanoTime(julianDays, timeOfDayNanos);
                     return new GenericData.Fixed(
                             schema.getField(name).schema(), nanoTime.toBinary().getBytes());
                 }
-                return ((LocalDateTime) data).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                return ((LocalDateTime) data)
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli();
             case BYTES:
                 if (writePathsAsInt96.contains(name)) {
                     return new GenericData.Fixed(schema.getField(name).schema(), (byte[]) data);
@@ -263,16 +265,14 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                 return ByteBuffer.wrap((byte[]) data);
             case ROW:
                 AresRow aresRow = (AresRow) data;
-                AresDataType<?>[] fieldTypes =
-                        ((AresRowType) aresDataType).getFieldTypes();
+                AresDataType<?>[] fieldTypes = ((AresRowType) aresDataType).getFieldTypes();
                 String[] fieldNames = ((AresRowType) aresDataType).getFieldNames();
                 List<Integer> sinkColumnsIndex =
                         IntStream.rangeClosed(0, fieldNames.length - 1)
                                 .boxed()
                                 .collect(Collectors.toList());
                 Schema recordSchema =
-                        buildAvroSchemaWithRowType(
-                                (AresRowType) aresDataType, sinkColumnsIndex);
+                        buildAvroSchemaWithRowType((AresRowType) aresDataType, sinkColumnsIndex);
                 GenericRecordBuilder recordBuilder = new GenericRecordBuilder(recordSchema);
                 for (int i = 0; i < fieldNames.length; i++) {
                     recordBuilder.set(
@@ -285,13 +285,11 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                         String.format(
                                 "Ares file connector is not supported for this data type [%s]",
                                 aresDataType.getSqlType());
-                throw new FileConnectorException(
-                        CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
+                throw new FileConnectorException(CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
         }
     }
 
-    public Type aresDataType2ParquetDataType(
-            String fieldName, AresDataType<?> aresDataType) {
+    public Type aresDataType2ParquetDataType(String fieldName, AresDataType<?> aresDataType) {
         switch (aresDataType.getSqlType()) {
             case ARRAY:
                 BasicType<?> elementType = ((ArrayType<?, ?>) aresDataType).getElementType();
@@ -355,7 +353,9 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                 }
                 return Types.primitive(
                                 PrimitiveType.PrimitiveTypeName.INT64, Type.Repetition.OPTIONAL)
-                        .as(LogicalTypeAnnotation.timestampType(false, LogicalTypeAnnotation.TimeUnit.MILLIS))
+                        .as(
+                                LogicalTypeAnnotation.timestampType(
+                                        false, LogicalTypeAnnotation.TimeUnit.MILLIS))
                         .as(OriginalType.TIMESTAMP_MILLIS)
                         .named(fieldName);
             case FLOAT:
@@ -387,8 +387,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                                 PrimitiveType.PrimitiveTypeName.BINARY, Type.Repetition.OPTIONAL)
                         .named(fieldName);
             case ROW:
-                AresDataType<?>[] fieldTypes =
-                        ((AresRowType) aresDataType).getFieldTypes();
+                AresDataType<?>[] fieldTypes = ((AresRowType) aresDataType).getFieldTypes();
                 String[] fieldNames = ((AresRowType) aresDataType).getFieldNames();
                 Type[] types = new Type[fieldTypes.length];
                 for (int i = 0; i < fieldNames.length; i++) {
@@ -403,8 +402,7 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                         String.format(
                                 "Ares file connector is not supported for this data type [%s]",
                                 aresDataType.getSqlType());
-                throw new FileConnectorException(
-                        CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
+                throw new FileConnectorException(CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
         }
     }
 
@@ -444,7 +442,8 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
                 int precision = 10;
                 int scale = 0;
                 if (idx > -1) {
-                    String precisionScaleStr = targetColumnType.substring(idx + 1, targetColumnType.length() - 1);
+                    String precisionScaleStr =
+                            targetColumnType.substring(idx + 1, targetColumnType.length() - 1);
                     String[] precisionScale = precisionScaleStr.split(",");
                     precision = Integer.parseInt(precisionScale[0].trim());
                     scale = Integer.parseInt(precisionScale[0].trim());
@@ -461,9 +460,15 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
             } else if (targetColumnType.toLowerCase().startsWith("array")) {
                 fieldTypes[i] = ArrayType.STRING_ARRAY_TYPE; // TODO: support other array types
             } else if (targetColumnType.toLowerCase().startsWith("map")) {
-                fieldTypes[i] = new MapType<>(BasicType.STRING_TYPE, BasicType.STRING_TYPE); // TODO: support other map types
+                fieldTypes[i] =
+                        new MapType<>(
+                                BasicType.STRING_TYPE,
+                                BasicType.STRING_TYPE); // TODO: support other map types
             } else {
-                throw new AresException(String.format("Unsupported target column '%s' type: '%s'", fieldName, targetColumnType));
+                throw new AresException(
+                        String.format(
+                                "Unsupported target column '%s' type: '%s'",
+                                fieldName, targetColumnType));
             }
         }
         this.targetColumnsType = new AresRowType(fieldNames, fieldTypes);
@@ -477,18 +482,22 @@ public class ParquetWriteStrategy extends AbstractWriteStrategy {
 
         for (int i = 0; i < sinkColumnsIndex.size(); i++) {
             int index = sinkColumnsIndex.get(i);
-            types[index] = aresDataType2ParquetDataType(fileSinkConfig.getSinkColumnList().get(index).toLowerCase(), fieldTypes[i]);
+            types[index] =
+                    aresDataType2ParquetDataType(
+                            fileSinkConfig.getSinkColumnList().get(index).toLowerCase(),
+                            fieldTypes[i]);
         }
         for (int i = 0; i < types.length; i++) {
             if (types[i] == null) {
                 AresRowType targetColumnsType = getTargetColumnsType();
-                types[i] = aresDataType2ParquetDataType(fileSinkConfig.getSinkColumnList().get(i).toLowerCase(),
-                        targetColumnsType.getFieldType(i));
+                types[i] =
+                        aresDataType2ParquetDataType(
+                                fileSinkConfig.getSinkColumnList().get(i).toLowerCase(),
+                                targetColumnsType.getFieldType(i));
             }
         }
 
-        MessageType aresRow =
-                Types.buildMessage().addFields(types).named("AresRecord");
+        MessageType aresRow = Types.buildMessage().addFields(types).named("AresRecord");
         return schemaConverter.convert(aresRow);
     }
 }

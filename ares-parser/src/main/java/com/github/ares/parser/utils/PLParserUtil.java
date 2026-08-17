@@ -8,7 +8,6 @@ import com.github.ares.org.antlr.v4.runtime.tree.TerminalNode;
 import com.github.ares.parser.model.BaseOption;
 import com.github.ares.parser.model.BaseSqlOption;
 import com.github.ares.parser.sqlparser.model.SQLHint;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +17,8 @@ public class PLParserUtil {
 
     public static final List<String> NEED_NON_SPACE = Arrays.asList(".");
 
-    public static final List<String> REPLACE_SPACE_STRINGS = Arrays.asList(">=", "<=", "||", "/*", "*/", "*+");
+    public static final List<String> REPLACE_SPACE_STRINGS =
+            Arrays.asList(">=", "<=", "||", "/*", "*/", "*+");
 
     public static String getFullText(Object o) {
         return getFullSQLWithParams(o, null, null);
@@ -26,11 +26,13 @@ public class PLParserUtil {
 
     private static volatile String preTNode = null;
 
-    public static String getFullSQLWithParams(Object o, Map<String, PlType> params, List<String> structs) {
+    public static String getFullSQLWithParams(
+            Object o, Map<String, PlType> params, List<String> structs) {
         return getFullSQLWithParams(o, params, structs, true);
     }
 
-    public static synchronized String getFullSQLWithParams(Object o, Map<String, PlType> params, List<String> structs, boolean startWithColon) {
+    public static synchronized String getFullSQLWithParams(
+            Object o, Map<String, PlType> params, List<String> structs, boolean startWithColon) {
         preTNode = null;
         return getFullSQLWithParams(o, params, structs, startWithColon, null);
     }
@@ -53,15 +55,21 @@ public class PLParserUtil {
         }
     }
 
-    public static String getFullSQLWithParams(Object o, Map<String, PlType> params, List<String> structs,
-                                              boolean startWithColon, StringBuilder resStr) {
+    public static String getFullSQLWithParams(
+            Object o,
+            Map<String, PlType> params,
+            List<String> structs,
+            boolean startWithColon,
+            StringBuilder resStr) {
         if (o == null) {
             return "";
         }
 
         if (o instanceof TerminalNode) {
             String terminalNode = ((TerminalNode) o).getText();
-            if (terminalNode.startsWith("'") && terminalNode.endsWith("'") && !terminalNode.equals("''")) {
+            if (terminalNode.startsWith("'")
+                    && terminalNode.endsWith("'")
+                    && !terminalNode.equals("''")) {
                 terminalNode = terminalNode.replace("''", "\\'");
             }
             if (params != null) {
@@ -76,7 +84,8 @@ public class PLParserUtil {
             if (resStr != null && resStr.length() > 2) {
                 int resStrLen = resStr.length();
                 for (String replaceSpaceStr : REPLACE_SPACE_STRINGS) {
-                    if (terminalNode.equals(String.valueOf(replaceSpaceStr.charAt(1))) && resStr.charAt(resStrLen - 1) == ' '
+                    if (terminalNode.equals(String.valueOf(replaceSpaceStr.charAt(1)))
+                            && resStr.charAt(resStrLen - 1) == ' '
                             && resStr.charAt(resStrLen - 2) == replaceSpaceStr.charAt(0)) {
                         resStr.delete(resStrLen - 2, resStrLen).append(replaceSpaceStr.charAt(0));
                     }
@@ -92,7 +101,9 @@ public class PLParserUtil {
                 StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < ctx.getChildCount(); i++) {
-                    String text = getFullSQLWithParams(ctx.getChild(i), params, structs, startWithColon, sb);
+                    String text =
+                            getFullSQLWithParams(
+                                    ctx.getChild(i), params, structs, startWithColon, sb);
                     if (NEED_NON_SPACE.contains(text)) {
                         if (sb.length() > 0 && sb.substring(sb.length() - 1).equals(" ")) {
                             trimRight(sb);
@@ -140,7 +151,8 @@ public class PLParserUtil {
         return o.toString();
     }
 
-    public static String getFullExprWithParams(Object o, Map<String, PlType> params, List<String> structs) {
+    public static String getFullExprWithParams(
+            Object o, Map<String, PlType> params, List<String> structs) {
         return getFullSQLWithParams(o, params, structs, false);
     }
 
@@ -174,7 +186,6 @@ public class PLParserUtil {
                 return "";
         }
     }
-
 
     public static PlType getTargetType(String type, Integer precision, Integer scale) {
         PlType targetType;
@@ -237,8 +248,9 @@ public class PLParserUtil {
         return targetType;
     }
 
-
-    /** Strip surrounding single quotes from SET values, consistent with CREATE TABLE WITH options. */
+    /**
+     * Strip surrounding single quotes from SET values, consistent with CREATE TABLE WITH options.
+     */
     public static String stripOptionalSingleQuotes(String value) {
         if (value == null) {
             return null;

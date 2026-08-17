@@ -5,8 +5,7 @@ import com.github.ares.common.exceptions.AresRuntimeException;
 
 public class AresAvroFormatException extends AresRuntimeException {
 
-    public AresAvroFormatException(
-            AresErrorCode aresErrorCode, String errorMessage) {
+    public AresAvroFormatException(AresErrorCode aresErrorCode, String errorMessage) {
         super(aresErrorCode, errorMessage);
     }
 }

@@ -1,18 +1,15 @@
 package com.github.ares.spark.function.date;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toLocalDate;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.sql.catalyst.expressions.WeekDay;
-import org.apache.spark.sql.catalyst.expressions.WeekOfYear;
-
 import java.time.LocalDate;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toLocalDate;
-
+import org.apache.spark.sql.catalyst.expressions.WeekOfYear;
 
 @AutoService(SparkFuncInterface.class)
 public class Weekofyear implements SparkFuncInterface {
