@@ -17,29 +17,53 @@
 
 package com.github.ares.connector.jdbc.source;
 
-
 import com.github.ares.api.source.SourceSplit;
 import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.api.table.type.AresDataType;
+import com.github.ares.api.table.type.AresRowType;
 
 public class JdbcSourceSplit implements SourceSplit {
     private final TablePath tablePath;
     private final String splitId;
     private final String splitQuery;
-    private final String splitKeyName;
-    private final AresDataType splitKeyType;
-    private final Object splitStart;
-    private final Object splitEnd;
+    private final AresRowType splitKey;
+    private final Object[] splitStart;
+    private final Object[] splitEnd;
 
-    public JdbcSourceSplit(TablePath tablePath, String splitId, String splitQuery, String splitKeyName,
-                           AresDataType splitKeyType, Object splitStart, Object splitEnd) {
+    public JdbcSourceSplit(
+            TablePath tablePath,
+            String splitId,
+            String splitQuery,
+            AresRowType splitKey,
+            Object[] splitStart,
+            Object[] splitEnd) {
         this.tablePath = tablePath;
         this.splitId = splitId;
         this.splitQuery = splitQuery;
-        this.splitKeyName = splitKeyName;
-        this.splitKeyType = splitKeyType;
+        this.splitKey = splitKey;
         this.splitStart = splitStart;
         this.splitEnd = splitEnd;
+    }
+
+    public JdbcSourceSplit(
+            TablePath tablePath,
+            String splitId,
+            String splitQuery,
+            String splitKeyName,
+            AresDataType splitKeyType,
+            Object splitStart,
+            Object splitEnd) {
+        this(
+                tablePath,
+                splitId,
+                splitQuery,
+                splitKeyName == null
+                        ? null
+                        : new AresRowType(
+                                new String[] {splitKeyName},
+                                new AresDataType[] {splitKeyType}),
+                splitStart == null ? null : new Object[] {splitStart},
+                splitEnd == null ? null : new Object[] {splitEnd});
     }
 
     public TablePath getTablePath() {
@@ -54,20 +78,36 @@ public class JdbcSourceSplit implements SourceSplit {
         return splitQuery;
     }
 
+    public AresRowType getSplitKey() {
+        return splitKey;
+    }
+
     public String getSplitKeyName() {
-        return splitKeyName;
+        return splitKey == null || splitKey.getTotalFields() == 0
+                ? null
+                : splitKey.getFieldNames()[0];
     }
 
     public AresDataType getSplitKeyType() {
-        return splitKeyType;
+        return splitKey == null || splitKey.getTotalFields() == 0
+                ? null
+                : splitKey.getFieldType(0);
     }
 
-    public Object getSplitStart() {
+    public Object[] getSplitStart() {
         return splitStart;
     }
 
-    public Object getSplitEnd() {
+    public Object[] getSplitEnd() {
         return splitEnd;
+    }
+
+    public Object getSplitStartValue() {
+        return splitStart == null || splitStart.length == 0 ? null : splitStart[0];
+    }
+
+    public Object getSplitEndValue() {
+        return splitEnd == null || splitEnd.length == 0 ? null : splitEnd[0];
     }
 
     @Override
@@ -77,14 +117,21 @@ public class JdbcSourceSplit implements SourceSplit {
 
     @Override
     public String toString() {
-        return "JdbcSourceSplit{" +
-                "tablePath=" + tablePath +
-                ", splitId='" + splitId + '\'' +
-                ", splitQuery='" + splitQuery + '\'' +
-                ", splitKeyName='" + splitKeyName + '\'' +
-                ", splitKeyType=" + splitKeyType +
-                ", splitStart=" + splitStart +
-                ", splitEnd=" + splitEnd +
-                '}';
+        return "JdbcSourceSplit{"
+                + "tablePath="
+                + tablePath
+                + ", splitId='"
+                + splitId
+                + '\''
+                + ", splitQuery='"
+                + splitQuery
+                + '\''
+                + ", splitKey="
+                + splitKey
+                + ", splitStart="
+                + java.util.Arrays.toString(splitStart)
+                + ", splitEnd="
+                + java.util.Arrays.toString(splitEnd)
+                + '}';
     }
 }

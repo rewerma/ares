@@ -73,19 +73,14 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
     @Override
     public Optional<T> createOptionalPluginInstance(
             PluginIdentifier pluginIdentifier, Collection<URL> pluginJars) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        T pluginInstance = loadPluginInstance(pluginIdentifier, classLoader);
-        if (pluginInstance != null) {
-            log.info("Load plugin: {} from classpath", pluginIdentifier);
-            return Optional.of(pluginInstance);
-        }
+        ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
         Optional<URL> pluginJarPathOp = getPluginJarPath(pluginIdentifier);
-        // if the plugin jar not exist in classpath, will load from plugin dir.
+        // Prefer isolated loading from connectors dir even when the same jar is on classpath.
         if (pluginJarPathOp.isPresent()) {
             IsolatedClassLoader pluginClassLoader =
                     PluginClassLoader.createForDiscovery(
-                            pluginJarPathOp.get(), pluginJars, classLoader);
-            pluginInstance = loadPluginInstance(pluginIdentifier, pluginClassLoader);
+                            pluginJarPathOp.get(), pluginJars, parentClassLoader);
+            T pluginInstance = loadPluginInstance(pluginIdentifier, pluginClassLoader);
             if (pluginInstance != null) {
                 log.info(
                         "Load plugin: {} from path: {} use classloader: {}",
@@ -94,6 +89,11 @@ public abstract class AbstractPluginDiscovery<T> implements PluginDiscovery<T> {
                         pluginClassLoader.getClass().getName());
                 return Optional.of(pluginInstance);
             }
+        }
+        T pluginInstance = loadPluginInstance(pluginIdentifier, parentClassLoader);
+        if (pluginInstance != null) {
+            log.info("Load plugin: {} from classpath", pluginIdentifier);
+            return Optional.of(pluginInstance);
         }
         return Optional.empty();
     }

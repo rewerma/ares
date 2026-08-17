@@ -9,6 +9,8 @@ import com.github.ares.connector.jdbc.utils.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -118,7 +120,15 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
             switch (aresDataType.getSqlType()) {
                 case STRING:
-                    statement.setString(statementIndex, (String) row.getField(fieldIndex));
+                    String stringValue = (String) row.getField(fieldIndex);
+                    if (stringValue == null) {
+                        statement.setNull(statementIndex, java.sql.Types.VARCHAR);
+                    } else if (stringValue.length() > 32767) {
+                        statement.setCharacterStream(
+                                statementIndex, new StringReader(stringValue), stringValue.length());
+                    } else {
+                        statement.setString(statementIndex, stringValue);
+                    }
                     break;
                 case BOOLEAN:
                     statement.setBoolean(statementIndex, (Boolean) row.getField(fieldIndex));
@@ -158,7 +168,15 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                             statementIndex, Timestamp.valueOf(localDateTime));
                     break;
                 case BYTES:
-                    statement.setBytes(statementIndex, (byte[]) row.getField(fieldIndex));
+                    byte[] bytes = (byte[]) row.getField(fieldIndex);
+                    if (bytes == null) {
+                        statement.setNull(statementIndex, java.sql.Types.BLOB);
+                    } else if (bytes.length > 32767) {
+                        statement.setBinaryStream(
+                                statementIndex, new ByteArrayInputStream(bytes), bytes.length);
+                    } else {
+                        statement.setBytes(statementIndex, bytes);
+                    }
                     break;
                 case NULL:
                     statement.setNull(statementIndex, java.sql.Types.NULL);

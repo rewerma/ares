@@ -22,6 +22,7 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.config.JdbcSourceConfig;
+import com.github.ares.connector.jdbc.utils.JdbcSplitConditionUtils;
 import com.github.ares.connector.jdbc.utils.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,10 +34,8 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,13 +73,16 @@ public class DynamicChunkSplitter extends ChunkSplitter {
                             table.getTablePath(),
                             createSplitId(table.getTablePath(), i),
                             table.getQuery(),
-                            splitKeyName,
-                            splitKeyType,
-                            chunk.getChunkStart(),
-                            chunk.getChunkEnd());
+                            splitKey,
+                            toSplitBound(chunk.getChunkStart()),
+                            toSplitBound(chunk.getChunkEnd()));
             splits.add(split);
         }
         return splits;
+    }
+
+    private Object[] toSplitBound(Object bound) {
+        return bound == null ? null : new Object[] {bound};
     }
 
     private PreparedStatement createDynamicSplitStatement(JdbcSourceSplit split)
@@ -350,37 +352,10 @@ public class DynamicChunkSplitter extends ChunkSplitter {
     }
 
     private String createDynamicSplitQuerySQL(JdbcSourceSplit split) {
-        AresRowType rowType =
-                new AresRowType(
-                        new String[]{split.getSplitKeyName()},
-                        new AresDataType[]{split.getSplitKeyType()});
-        boolean isFirstSplit = split.getSplitStart() == null;
-        boolean isLastSplit = split.getSplitEnd() == null;
-
-        final String condition;
-        if (isFirstSplit && isLastSplit) {
-            condition = null;
-        } else if (isFirstSplit) {
-            StringBuilder sql = new StringBuilder();
-            addKeyColumnsToCondition(rowType, sql, " <= ?");
-            sql.append(" AND NOT (");
-            addKeyColumnsToCondition(rowType, sql, " = ?");
-            sql.append(")");
-            condition = sql.toString();
-        } else if (isLastSplit) {
-            StringBuilder sql = new StringBuilder();
-            addKeyColumnsToCondition(rowType, sql, " >= ?");
-            condition = sql.toString();
-        } else {
-            StringBuilder sql = new StringBuilder();
-            addKeyColumnsToCondition(rowType, sql, " >= ?");
-            sql.append(" AND NOT (");
-            addKeyColumnsToCondition(rowType, sql, " = ?");
-            sql.append(")");
-            sql.append(" AND ");
-            addKeyColumnsToCondition(rowType, sql, " <= ?");
-            condition = sql.toString();
-        }
+        AresRowType chunkKey = JdbcSplitConditionUtils.chunkSplitKey(split.getSplitKey());
+        String condition =
+                JdbcSplitConditionUtils.buildSplitCondition(
+                        chunkKey, jdbcDialect, split.getSplitStart(), split.getSplitEnd());
 
         String splitQuery = split.getSplitQuery();
         if (StringUtils.isNotBlank(splitQuery)) {
@@ -399,44 +374,10 @@ public class DynamicChunkSplitter extends ChunkSplitter {
         return sql.toString();
     }
 
-    private static void addKeyColumnsToCondition(
-            AresRowType rowType, StringBuilder sql, String predicate) {
-        for (Iterator<String> fieldNamesIt = Arrays.stream(rowType.getFieldNames()).iterator();
-             fieldNamesIt.hasNext(); ) {
-            sql.append(fieldNamesIt.next()).append(predicate);
-            if (fieldNamesIt.hasNext()) {
-                sql.append(" AND ");
-            }
-        }
-    }
-
-    private static void prepareDynamicSplitStatement(
-            PreparedStatement statement, JdbcSourceSplit split) throws SQLException {
-        boolean isFirstSplit = split.getSplitStart() == null;
-        boolean isLastSplit = split.getSplitEnd() == null;
-        if (isFirstSplit && isLastSplit) {
-            return;
-        }
-
-        Object[] splitStart = new Object[]{split.getSplitStart()};
-        Object[] splitEnd = new Object[]{split.getSplitEnd()};
-        int splitKeyNumbers = 1;
-        if (isFirstSplit) {
-            for (int i = 0; i < splitKeyNumbers; i++) {
-                statement.setObject(i + 1, splitEnd[i]);
-                statement.setObject(i + 1 + splitKeyNumbers, splitEnd[i]);
-            }
-        } else if (isLastSplit) {
-            for (int i = 0; i < splitKeyNumbers; i++) {
-                statement.setObject(i + 1, splitStart[i]);
-            }
-        } else {
-            for (int i = 0; i < splitKeyNumbers; i++) {
-                statement.setObject(i + 1, splitStart[i]);
-                statement.setObject(i + 1 + splitKeyNumbers, splitEnd[i]);
-                statement.setObject(i + 1 + 2 * splitKeyNumbers, splitEnd[i]);
-            }
-        }
+    private void prepareDynamicSplitStatement(PreparedStatement statement, JdbcSourceSplit split)
+            throws SQLException {
+        JdbcSplitConditionUtils.bindSplitParameters(
+                statement, split.getSplitStart(), split.getSplitEnd());
     }
 
     private static class ChunkRange implements Serializable {

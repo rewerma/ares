@@ -55,30 +55,6 @@ public class PostgresDialect implements JdbcDialect {
     }
 
     @Override
-    public Optional<String> getUpsertStatement(
-            String database, String tableName, String[] fieldNames, String[] uniqueKeyFields) {
-        String uniqueColumns =
-                Arrays.stream(uniqueKeyFields)
-                        .map(this::quoteIdentifier)
-                        .collect(Collectors.joining(", "));
-        String updateClause =
-                Arrays.stream(fieldNames)
-                        .map(
-                                fieldName ->
-                                        quoteIdentifier(fieldName)
-                                                + "=EXCLUDED."
-                                                + quoteIdentifier(fieldName))
-                        .collect(Collectors.joining(", "));
-        String upsertSQL =
-                String.format(
-                        "%s ON CONFLICT (%s) DO UPDATE SET %s",
-                        getInsertIntoStatement(database, tableName, fieldNames),
-                        uniqueColumns,
-                        updateClause);
-        return Optional.of(upsertSQL);
-    }
-
-    @Override
     public PreparedStatement creatPreparedStatement(
             Connection connection, String queryTemplate, int fetchSize) throws SQLException {
         // use cursor mode, reference:

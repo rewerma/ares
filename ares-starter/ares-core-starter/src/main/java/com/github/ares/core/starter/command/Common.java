@@ -139,6 +139,38 @@ public class Common {
         return Paths.get(getAresHome(), "lib");
     }
 
+    /** Hadoop third-party dir */
+    public static Path thirdPartyHadoopDir() {
+        return Paths.get(getAresHome(), "thirdparty", "hadoop");
+    }
+
+    /** return hadoop jars from thirdparty/hadoop when a job needs Hadoop connectors. */
+    public static List<Path> getThirdPartyHadoopJars() {
+        Path hadoopDir = thirdPartyHadoopDir();
+        if (!Files.exists(hadoopDir) || !Files.isDirectory(hadoopDir)) {
+            return Collections.emptyList();
+        }
+        try (Stream<Path> stream = Files.list(hadoopDir)) {
+            return stream.filter(it -> !it.toFile().isDirectory())
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean requiresHadoopThirdPartyConnector(String connectorName) {
+        if (StringUtils.isBlank(connectorName)) {
+            return false;
+        }
+        String normalized = connectorName.toLowerCase();
+        return "hive".equals(normalized)
+                || "hive3".equals(normalized)
+                || "filehadoop".equals(normalized)
+                || "fileftp".equals(normalized)
+                || "filesftp".equals(normalized);
+    }
+
     /** return lib jars, which located in 'lib/*' or 'lib/{dir}/*'. */
     public static List<Path> getLibJars() {
         Path libRootDir = Common.libDir();
@@ -160,8 +192,23 @@ public class Common {
         return Arrays.stream(paths.split(";"))
                 .filter(s -> !"".equals(s))
                 .filter(it -> it.endsWith(".jar"))
-                .map(path -> Paths.get(URI.create(path)))
+                .filter(it -> !isHiveThirdPartyJar(it))
+                .map(
+                        path -> {
+                            if (path.contains("://")) {
+                                return Paths.get(URI.create(path));
+                            }
+                            return Paths.get(path);
+                        })
                 .collect(Collectors.toSet());
+    }
+
+    private static boolean isHiveThirdPartyJar(String path) {
+        String normalized = path.replace('\\', '/').toLowerCase();
+        return normalized.contains("/thirdparty/hive/")
+                || normalized.contains("/thirdparty/hive3/")
+                || normalized.contains("ares-hive2")
+                || normalized.contains("ares-hive3");
     }
 
     public static Path pluginTarball() {

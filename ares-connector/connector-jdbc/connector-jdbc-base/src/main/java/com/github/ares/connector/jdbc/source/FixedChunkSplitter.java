@@ -89,7 +89,7 @@ public class FixedChunkSplitter extends ChunkSplitter {
         if (SqlType.STRING.equals(split.getSplitKeyType().getSqlType())) {
             return createStringColumnSplitStatement(split);
         }
-        if (split.getSplitStart() == null && split.getSplitEnd() == null) {
+        if (split.getSplitStartValue() == null && split.getSplitEndValue() == null) {
             return createSingleSplitStatement(split);
         }
 
@@ -134,7 +134,7 @@ public class FixedChunkSplitter extends ChunkSplitter {
     private PreparedStatement createStringColumnSplitStatement(JdbcSourceSplit split)
             throws SQLException {
         PreparedStatement statement = createPreparedStatement(split.getSplitQuery());
-        statement.setInt(1, (Integer) split.getSplitStart());
+        statement.setInt(1, (Integer) split.getSplitStartValue());
         return statement;
     }
 
@@ -184,7 +184,8 @@ public class FixedChunkSplitter extends ChunkSplitter {
         }
         PreparedStatement statement = createPreparedStatement(splitQuery);
 
-        Object[] parameterValues = new Object[] {split.getSplitStart(), split.getSplitEnd()};
+        Object[] parameterValues =
+                new Object[] {split.getSplitStartValue(), split.getSplitEndValue()};
         for (int i = 0; i < parameterValues.length; i++) {
             Object param = parameterValues[i];
             if (param instanceof String) {

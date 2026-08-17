@@ -18,7 +18,6 @@
 package com.github.ares.connector.jdbc.sink;
 
 import com.github.ares.api.sink.AresSink;
-import com.github.ares.api.sink.SinkAggregatedCommitter;
 import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
@@ -29,16 +28,12 @@ import com.github.ares.connector.jdbc.config.JdbcSinkConfig;
 import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialectLoader;
-import com.github.ares.connector.jdbc.state.JdbcAggregatedCommitInfo;
 import com.github.ares.connector.jdbc.state.JdbcSinkState;
-import com.github.ares.connector.jdbc.state.XidInfo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Optional;
 
-public class JdbcSink
-        implements AresSink<AresRow, JdbcSinkState, XidInfo, JdbcAggregatedCommitInfo> {
+public class JdbcSink implements AresSink<AresRow, JdbcSinkState, Void, Void> {
     private static final long serialVersionUID = 1L;
 
     private AresRowType aresRowType;
@@ -88,20 +83,8 @@ public class JdbcSink
     }
 
     @Override
-    public SinkWriter<AresRow, XidInfo, JdbcSinkState> createWriter(
-            SinkWriter.Context context) {
-        SinkWriter<AresRow, XidInfo, JdbcSinkState> sinkWriter =
-                new JdbcSinkWriter(getDialect(), jdbcSinkConfig, aresRowType);
-        return sinkWriter;
-    }
-
-    @Override
-    public Optional<SinkAggregatedCommitter<XidInfo, JdbcAggregatedCommitInfo>>
-    createAggregatedCommitter() {
-        if (jdbcSinkConfig.isExactlyOnce()) {
-            return Optional.of(new JdbcSinkAggregatedCommitter(jdbcSinkConfig));
-        }
-        return Optional.empty();
+    public SinkWriter<AresRow, Void, JdbcSinkState> createWriter(SinkWriter.Context context) {
+        return new JdbcSinkWriter(getDialect(), jdbcSinkConfig, aresRowType);
     }
 
     @Override
@@ -109,10 +92,11 @@ public class JdbcSink
         JdbcConnectionProvider connectionProvider =
                 getDialect().getJdbcConnectionProvider(jdbcSinkConfig.getJdbcConnectionConfig());
         try (Connection conn = connectionProvider.getOrEstablishConnection();
-             PreparedStatement pStmt = conn.prepareStatement(jdbcSinkConfig.getSimpleSql())) {
+                PreparedStatement pStmt = conn.prepareStatement(jdbcSinkConfig.getSimpleSql())) {
             pStmt.execute();
         } catch (Exception e) {
-            throw new AresException(String.format("Truncate table failed: %s, cause: %s", tableName, e.getMessage()));
+            throw new AresException(
+                    String.format("Truncate table failed: %s, cause: %s", tableName, e.getMessage()));
         }
     }
 }

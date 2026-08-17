@@ -17,6 +17,7 @@
 
 package com.github.ares.connector.jdbc.utils;
 
+import com.github.ares.common.exceptions.AresException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -44,7 +45,7 @@ public final class JdbcUrlUtil {
                     database,
                     matcher.group("suffix"));
         }
-        throw new IllegalArgumentException("The jdbc url format is incorrect: " + url);
+        throw new AresException("The jdbc url format is incorrect: " + url);
     }
 
     public static class UrlInfo implements Serializable {

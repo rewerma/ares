@@ -12,7 +12,7 @@
     <artifactId>connector-hive</artifactId>
 
     <properties>
-        <hive.exec.version>2.3.9</hive.exec.version>
+        <hive.exec.version>${hive2.version}</hive.exec.version>
         <orc.version>1.5.6</orc.version>
         <parquet-avro.version>1.12.3</parquet-avro.version>
     </properties>
@@ -20,14 +20,14 @@
     <dependencies>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>ares-api</artifactId>
+            <artifactId>connector-hive-base</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-file-hadoop</artifactId>
+            <artifactId>ares-api</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.auto.service</groupId>
@@ -66,6 +66,38 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive.shims</groupId>
+            <artifactId>hive-shims-0.23</artifactId>
+            <version>${hive.exec.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-serde</artifactId>
+            <version>${hive.exec.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>
@@ -174,6 +206,9 @@
                                     <shadedPattern>com.github.ares.shaded.parquet</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

@@ -18,6 +18,7 @@
         <module>ares-hadoop3</module>
         <module>ares-config</module>
         <module>ares-hive2</module>
+        <module>ares-hive3</module>
     </modules>
 
     <properties>

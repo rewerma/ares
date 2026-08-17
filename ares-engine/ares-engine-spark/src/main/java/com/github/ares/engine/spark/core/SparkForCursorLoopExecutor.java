@@ -14,9 +14,10 @@ import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.DecimalType;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.storage.StorageLevel;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Iterator;
 
 import static com.github.ares.engine.core.ExpressionExecutor.rawToHex;
 import static com.github.ares.engine.utils.EngineUtil.appendQuoteIdentifier;
@@ -43,60 +44,65 @@ public class SparkForCursorLoopExecutor extends ForCursorLoopExecutor implements
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
         commonFunction();
         String selectSql = replaceParams(forCursorLoop.getSelectSQL(), plParams);
-        Dataset<Row> resultDf = sparkSession.sql(selectSql);
+        Dataset<Row> resultDf = sparkSession.sql(selectSql).persist(StorageLevel.MEMORY_AND_DISK());
 
         Object res = null;
         PlParams paramsWithStruct = plParams.copy();
-        List<Row> rows = resultDf.toJavaRDD().collect();
-        for (Row row : rows) {
-            StructType schema = row.schema();
-            int columnCount = schema.names().length;
-            for (int i = 0; i < columnCount; i++) {
-                String columnName = schema.names()[i];
-                Serializable value = (Serializable) row.get(i);
-                DataType dataType = schema.fields()[i].dataType();
-                if (value != null && (DataTypes.StringType == dataType || DataTypes.DateType == dataType
-                        || DataTypes.TimestampType == dataType)) {
-                    if (DataTypes.StringType == dataType) {
-                        value = convertQuoteIdentifier((String) value);
+        try {
+            Iterator<Row> rows = resultDf.toLocalIterator();
+            while (rows.hasNext()) {
+                Row row = rows.next();
+                StructType schema = row.schema();
+                int columnCount = schema.names().length;
+                for (int i = 0; i < columnCount; i++) {
+                    String columnName = schema.names()[i];
+                    Serializable value = (Serializable) row.get(i);
+                    DataType dataType = schema.fields()[i].dataType();
+                    if (value != null && (DataTypes.StringType == dataType || DataTypes.DateType == dataType
+                            || DataTypes.TimestampType == dataType)) {
+                        if (DataTypes.StringType == dataType) {
+                            value = convertQuoteIdentifier((String) value);
+                        }
+                        value = appendQuoteIdentifier(value);
+                    } else if (value instanceof byte[]) {
+                        value = rawToHex(value);
+                        value = handleQuoteIdentifier(value);
                     }
-                    value = appendQuoteIdentifier(value);
-                } else if (value instanceof byte[]) {
-                    value = rawToHex(value);
-                    value = handleQuoteIdentifier(value);
-                }
-                InternalFieldType fieldType = InternalFieldType.VARCHAR;
-                if (DataTypes.IntegerType == dataType) {
-                    fieldType = InternalFieldType.INT;
-                } else if (DataTypes.LongType == dataType) {
-                    fieldType = InternalFieldType.LONG;
-                } else if (DataTypes.ShortType == dataType) {
-                    fieldType = InternalFieldType.SMALLINT;
-                } else if (DataTypes.ByteType == dataType) {
-                    fieldType = InternalFieldType.BYTE;
-                } else if (DataTypes.BooleanType == dataType) {
-                    fieldType = InternalFieldType.BOOLEAN;
-                } else if (DataTypes.DoubleType == dataType) {
-                    fieldType = InternalFieldType.DOUBLE;
-                } else if (DataTypes.FloatType == dataType) {
-                    fieldType = InternalFieldType.FLOAT;
-                } else if (dataType instanceof DecimalType) {
-                    fieldType = InternalFieldType.NUMERIC;
-                } else if (DataTypes.DateType == dataType) {
-                    fieldType = InternalFieldType.DATE;
-                } else if (DataTypes.TimestampType == dataType) {
-                    fieldType = InternalFieldType.TIMESTAMP;
-                } else if (DataTypes.BinaryType == dataType) {
-                    fieldType = InternalFieldType.BYTES;
-                }
+                    InternalFieldType fieldType = InternalFieldType.VARCHAR;
+                    if (DataTypes.IntegerType == dataType) {
+                        fieldType = InternalFieldType.INT;
+                    } else if (DataTypes.LongType == dataType) {
+                        fieldType = InternalFieldType.LONG;
+                    } else if (DataTypes.ShortType == dataType) {
+                        fieldType = InternalFieldType.SMALLINT;
+                    } else if (DataTypes.ByteType == dataType) {
+                        fieldType = InternalFieldType.BYTE;
+                    } else if (DataTypes.BooleanType == dataType) {
+                        fieldType = InternalFieldType.BOOLEAN;
+                    } else if (DataTypes.DoubleType == dataType) {
+                        fieldType = InternalFieldType.DOUBLE;
+                    } else if (DataTypes.FloatType == dataType) {
+                        fieldType = InternalFieldType.FLOAT;
+                    } else if (dataType instanceof DecimalType) {
+                        fieldType = InternalFieldType.NUMERIC;
+                    } else if (DataTypes.DateType == dataType) {
+                        fieldType = InternalFieldType.DATE;
+                    } else if (DataTypes.TimestampType == dataType) {
+                        fieldType = InternalFieldType.TIMESTAMP;
+                    } else if (DataTypes.BinaryType == dataType) {
+                        fieldType = InternalFieldType.BYTES;
+                    }
 
-                paramsWithStruct.put(forCursorLoop.getCursorName() + "." + columnName, value, PlType.of(fieldType));
+                    paramsWithStruct.put(forCursorLoop.getCursorName() + "." + columnName, value, PlType.of(fieldType));
+                }
+                res = bodyCallback.invoke(forCursorLoop.getForBody(), paramsWithStruct);
+                paramsWithStruct.entrySet().removeIf(entry -> entry.getKey() != null && entry.getKey().startsWith(forCursorLoop.getCursorName() + "."));
+                if (EXIT_LOOP == res) {
+                    break;
+                }
             }
-            res = bodyCallback.invoke(forCursorLoop.getForBody(), paramsWithStruct);
-            paramsWithStruct.entrySet().removeIf(entry -> entry.getKey() != null && entry.getKey().startsWith(forCursorLoop.getCursorName() + "."));
-            if (EXIT_LOOP == res) {
-                break;
-            }
+        } finally {
+            resultDf.unpersist();
         }
         traceLogger.info("For cursor loop: {} END", forCursorLoop.getSelectSQL());
         return res;

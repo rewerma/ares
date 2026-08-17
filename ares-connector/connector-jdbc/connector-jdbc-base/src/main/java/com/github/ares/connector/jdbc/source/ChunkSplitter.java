@@ -40,6 +40,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -94,8 +95,11 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
             JdbcSourceSplit split = createSingleSplit(table);
             splits = Collections.singletonList(split);
         } else {
-            if (splitKeyOptional.get().getTotalFields() != 1) {
-                throw new UnsupportedOperationException("Currently, only support one split key");
+            if (splitKeyOptional.get().getTotalFields() > 1) {
+                log.info(
+                        "Composite split key detected for table {}, chunk boundaries use the leading key column {}",
+                        table.getTablePath(),
+                        splitKeyOptional.get().getFieldNames()[0]);
             }
             splits = createSplits(table, splitKeyOptional.get());
         }
@@ -113,7 +117,7 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
             JdbcSourceTable table, AresRowType splitKeyType) throws SQLException;
 
     public PreparedStatement generateSplitStatement(JdbcSourceSplit split) throws SQLException {
-        if (split.getSplitKeyName() == null) {
+        if (split.getSplitKey() == null) {
             return createSingleSplitStatement(split);
         }
         return createSplitStatement(split);
@@ -260,14 +264,22 @@ public abstract class ChunkSplitter implements AutoCloseable, Serializable {
 
         PrimaryKey pk = schema.getPrimaryKey();
         if (pk != null) {
+            List<String> pkFieldNames = new ArrayList<>();
+            List<AresDataType> pkFieldTypes = new ArrayList<>();
             for (String pkField : pk.getColumnNames()) {
                 Column column = columnMap.get(pkField);
-                if (isEvenlySplitColumn(column)) {
-                    return Optional.of(
-                            new AresRowType(
-                                    new String[]{pkField},
-                                    new AresDataType[]{column.getDataType()}));
+                if (column == null || !isEvenlySplitColumn(column)) {
+                    pkFieldNames.clear();
+                    break;
                 }
+                pkFieldNames.add(pkField);
+                pkFieldTypes.add(column.getDataType());
+            }
+            if (!pkFieldNames.isEmpty()) {
+                return Optional.of(
+                        new AresRowType(
+                                pkFieldNames.toArray(new String[0]),
+                                pkFieldTypes.toArray(new AresDataType[0])));
             }
         }
 

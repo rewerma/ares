@@ -60,20 +60,6 @@ public interface JdbcOptions {
     Option<String> QUERY =
             Options.key("query").stringType().noDefaultValue().withDescription("query");
 
-    /*Option<SchemaSaveMode> SCHEMA_SAVE_MODE =
-            Options.key("schema_save_mode")
-                    .enumType(SchemaSaveMode.class)
-                    .defaultValue(SchemaSaveMode.CREATE_SCHEMA_WHEN_NOT_EXIST)
-                    .withDescription("schema_save_mode");
-    Option<DataSaveMode> DATA_SAVE_MODE =
-            Options.key("data_save_mode")
-                    .enumType(DataSaveMode.class)
-                    .defaultValue(DataSaveMode.APPEND_DATA)
-                    .withDescription("data_save_mode");*/
-
-    Option<String> CUSTOM_SQL =
-            Options.key("custom_sql").stringType().noDefaultValue().withDescription("custom_sql");
-
     Option<Boolean> AUTO_COMMIT =
             Options.key("auto_commit")
                     .booleanType()
@@ -91,70 +77,14 @@ public interface JdbcOptions {
                             "For queries that return a large number of objects, "
                                     + "you can configure the row fetch size used in the query to improve performance by reducing the number database hits required to satisfy the selection criteria. Zero means use jdbc default value.");
 
-    Option<Boolean> IS_EXACTLY_ONCE =
-            Options.key("is_exactly_once")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("exactly once");
-
-    Option<Boolean> GENERATE_SINK_SQL =
-            Options.key("generate_sink_sql")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("generate sql using the database table");
-
-    Option<String> XA_DATA_SOURCE_CLASS_NAME =
-            Options.key("xa_data_source_class_name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("data source class name");
-
-    Option<Integer> MAX_COMMIT_ATTEMPTS =
-            Options.key("max_commit_attempts")
-                    .intType()
-                    .defaultValue(3)
-                    .withDescription("max commit attempts");
-
-    Option<Integer> TRANSACTION_TIMEOUT_SEC =
-            Options.key("transaction_timeout_sec")
-                    .intType()
-                    .defaultValue(-1)
-                    .withDescription("transaction timeout (second)");
-
     Option<String> DATABASE =
             Options.key("database").stringType().noDefaultValue().withDescription("database");
 
     Option<String> TABLE =
             Options.key("table").stringType().noDefaultValue().withDescription("table");
 
-    Option<List<String>> PRIMARY_KEYS =
-            Options.key("primary_keys").listType().noDefaultValue().withDescription("primary keys");
-
     Option<String> TABLE_NAME =
             Options.key("table_name").stringType().noDefaultValue().withDescription("target table");
-
-    Option<Boolean> SUPPORT_UPSERT_BY_QUERY_PRIMARY_KEY_EXIST =
-            Options.key("support_upsert_by_query_primary_key_exist")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("support upsert by query primary_key exist");
-
-    Option<Boolean> ENABLE_UPSERT =
-            Options.key("enable_upsert")
-                    .booleanType()
-                    .defaultValue(true)
-                    .withDescription("enable upsert by primary_keys exist");
-    Option<Boolean> IS_PRIMARY_KEY_UPDATED =
-            Options.key("is_primary_key_updated")
-                    .booleanType()
-                    .defaultValue(true)
-                    .withDescription(
-                            "is the primary key updated when performing an update operation");
-    Option<Boolean> SUPPORT_UPSERT_BY_INSERT_ONLY =
-            Options.key("support_upsert_by_insert_only")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("support upsert by insert only");
 
     /** source config */
     Option<String> PARTITION_COLUMN =
@@ -184,33 +114,6 @@ public interface JdbcOptions {
                     .enumType(FieldIdeEnum.class)
                     .noDefaultValue()
                     .withDescription("Whether case conversion is required");
-
-    Option<Boolean> USE_KERBEROS =
-            Options.key("use_kerberos")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether to enable Kerberos, default is false.");
-
-    Option<String> KERBEROS_PRINCIPAL =
-            Options.key("kerberos_principal")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "When use kerberos, we should set kerberos principal such as 'test_user@xxx'. ");
-
-    Option<String> KERBEROS_KEYTAB_PATH =
-            Options.key("kerberos_keytab_path")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "When use kerberos, we should set kerberos principal file path such as '/home/test/test_user.keytab'. ");
-
-    Option<String> KRB5_PATH =
-            Options.key("krb5_path")
-                    .stringType()
-                    .defaultValue("/etc/krb5.conf")
-                    .withDescription(
-                            "When use kerberos, we should set krb5 path file path such as '/ares/krb5.conf' or use the default path '/etc/krb5.conf");
 
     Option<Map<String, String>> PROPERTIES =
             Options.key("properties")

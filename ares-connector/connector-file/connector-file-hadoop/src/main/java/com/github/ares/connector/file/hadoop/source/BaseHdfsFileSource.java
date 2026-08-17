@@ -49,6 +49,11 @@ public abstract class BaseHdfsFileSource extends BaseFileSource {
                     pluginConfig.getString(HdfsSourceConfigOptions.REMOTE_USER.key()));
         }
 
+        if (pluginConfig.hasPath(HdfsSourceConfigOptions.KRB5_PATH.key())) {
+            hadoopConf.setKrb5Path(
+                    pluginConfig.getString(HdfsSourceConfigOptions.KRB5_PATH.key()));
+        }
+
         if (pluginConfig.hasPath(HdfsSourceConfigOptions.KERBEROS_PRINCIPAL.key())) {
             hadoopConf.setKerberosPrincipal(
                     pluginConfig.getString(HdfsSourceConfigOptions.KERBEROS_PRINCIPAL.key()));

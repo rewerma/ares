@@ -1,5 +1,6 @@
 package com.github.ares.spark.starter;
 
+import com.github.ares.api.env.EnvCommonOptions;
 import com.github.ares.com.google.inject.Injector;
 import com.github.ares.com.google.inject.Stage;
 import com.github.ares.common.configuration.DeployMode;
@@ -113,10 +114,17 @@ public class SparkStarter implements Starter {
         setSparkConf();
         Common.setDeployMode(commandArgs.getDeployMode());
         Common.setStarter(true);
+        LogicalProject logicalProject = parseLogicalProject();
         this.jars.addAll(Common.getPluginsJarDependencies());
         this.jars.addAll(Common.getLibJars());
-        this.jars.addAll(getConnectorJarDependencies());
-
+        this.jars.addAll(getConnectorJarDependencies(logicalProject));
+        if (usesHadoopConnector(logicalProject)) {
+            this.jars.addAll(Common.getThirdPartyHadoopJars());
+        }
+        this.jars.addAll(
+                new ArrayList<>(
+                        Common.getThirdPartyJars(
+                                sparkConf.getOrDefault(EnvCommonOptions.JARS.key(), ""))));
         return buildFinal();
     }
 
@@ -234,13 +242,10 @@ public class SparkStarter implements Starter {
         return commands;
     }
 
-    private List<Path> getConnectorJarDependencies() {
-        Path pluginRootDir = Common.connectorDir();
-        if (!Files.exists(pluginRootDir) || !Files.isDirectory(pluginRootDir)) {
-            return Collections.emptyList();
-        }
+    private LogicalProject parseLogicalProject() {
         Properties innerProperties = new Properties();
-        SourceConfigPatcherFactory.register(Constants.DEFAULT_DATASOURCE_PATCHER,
+        SourceConfigPatcherFactory.register(
+                Constants.DEFAULT_DATASOURCE_PATCHER,
                 new PropertiesDataSourcePatcher(innerProperties));
 
         LogicalProject logicalProject;
@@ -254,6 +259,14 @@ public class SparkStarter implements Starter {
                 LogicalSetConfig setConfig = (LogicalSetConfig) operation;
                 innerProperties.put(setConfig.getKey(), setConfig.getValue());
             }
+        }
+        return logicalProject;
+    }
+
+    private List<Path> getConnectorJarDependencies(LogicalProject logicalProject) {
+        Path pluginRootDir = Common.connectorDir();
+        if (!Files.exists(pluginRootDir) || !Files.isDirectory(pluginRootDir)) {
+            return Collections.emptyList();
         }
 
         Set<URL> pluginJars = new HashSet<>();
@@ -270,6 +283,13 @@ public class SparkStarter implements Starter {
         return pluginJars.stream()
                 .map(url -> new File(url.getPath()).toPath())
                 .collect(Collectors.toList());
+    }
+
+    private static boolean usesHadoopConnector(LogicalProject logicalProject) {
+        return Stream.concat(
+                        logicalProject.getSourceTables().stream().map(TableWith::getConnector),
+                        logicalProject.getSinkTables().stream().map(TableWith::getConnector))
+                .anyMatch(Common::requiresHadoopThirdPartyConnector);
     }
 
     private static List<PluginIdentifier> getPluginIdentifiers(LogicalProject logicalProject, PluginType... pluginTypes) {

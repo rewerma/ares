@@ -53,25 +53,6 @@ public class MysqlDialect implements JdbcDialect {
     }
 
     @Override
-    public Optional<String> getUpsertStatement(
-            String database, String tableName, String[] fieldNames, String[] uniqueKeyFields) {
-        String updateClause =
-                Arrays.stream(fieldNames)
-                        .map(
-                                fieldName ->
-                                        quoteIdentifier(fieldName)
-                                                + "=VALUES("
-                                                + quoteIdentifier(fieldName)
-                                                + ")")
-                        .collect(Collectors.joining(", "));
-        String upsertSQL =
-                getInsertIntoStatement(database, tableName, fieldNames)
-                        + " ON DUPLICATE KEY UPDATE "
-                        + updateClause;
-        return Optional.of(upsertSQL);
-    }
-
-    @Override
     public PreparedStatement creatPreparedStatement(
             Connection connection, String queryTemplate, int fetchSize) throws SQLException {
         PreparedStatement statement =

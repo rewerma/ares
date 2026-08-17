@@ -28,7 +28,6 @@ import com.github.ares.connector.jdbc.internal.connection.JdbcConnectionProvider
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import com.github.ares.connector.jdbc.state.JdbcSinkState;
-import com.github.ares.connector.jdbc.state.XidInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
-public class JdbcSinkWriter
-        implements SinkWriter<AresRow, XidInfo, JdbcSinkState> {
+public class JdbcSinkWriter implements SinkWriter<AresRow, Void, JdbcSinkState> {
     private static final Logger log = LoggerFactory.getLogger(JdbcSinkWriter.class);
     private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> outputFormat;
     private JdbcConnectionProvider connectionProvider;
@@ -79,7 +77,7 @@ public class JdbcSinkWriter
     }
 
     @Override
-    public Optional<XidInfo> prepareCommit() throws IOException {
+    public Optional<Void> prepareCommit() throws IOException {
         tryOpen();
         outputFormat.checkFlushException();
         outputFormat.flush();
@@ -88,16 +86,13 @@ public class JdbcSinkWriter
                 connectionProvider.getConnection().commit();
             }
         } catch (SQLException e) {
-            throw new AresException(
-                    "commit failed," + e.getMessage(),
-                    e);
+            throw new AresException("commit failed," + e.getMessage(), e);
         }
         return Optional.empty();
     }
 
     @Override
-    public void abortPrepare() {
-    }
+    public void abortPrepare() {}
 
     @Override
     public void close() throws IOException {
@@ -108,9 +103,7 @@ public class JdbcSinkWriter
                 connectionProvider.getConnection().commit();
             }
         } catch (SQLException e) {
-            throw new AresException(
-                    "unable to close JDBC sink write",
-                    e);
+            throw new AresException("unable to close JDBC sink write", e);
         }
         outputFormat.close();
         log.info("Data write count: {}", writeCounter.sum());

@@ -16,7 +16,12 @@
  */
 package com.github.ares.connector.jdbc.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +34,23 @@ public final class JdbcUtils {
     }
 
     public static String getString(ResultSet resultSet, int columnIndex) throws SQLException {
-        return resultSet.getString(columnIndex);
+        String value = resultSet.getString(columnIndex);
+        if (value != null) {
+            return value;
+        }
+        Clob clob = resultSet.getClob(columnIndex);
+        if (clob == null) {
+            return null;
+        }
+        try {
+            long length = clob.length();
+            if (length > Integer.MAX_VALUE) {
+                throw new SQLException("CLOB length exceeds Integer.MAX_VALUE");
+            }
+            return clob.getSubString(1, (int) length);
+        } finally {
+            clob.free();
+        }
     }
 
     public static Boolean getBoolean(ResultSet resultSet, int columnIndex) throws SQLException {
@@ -102,6 +123,46 @@ public final class JdbcUtils {
         if (null == resultSet.getObject(columnIndex)) {
             return null;
         }
-        return resultSet.getBytes(columnIndex);
+        byte[] bytes = resultSet.getBytes(columnIndex);
+        if (bytes != null) {
+            return bytes;
+        }
+        Blob blob = resultSet.getBlob(columnIndex);
+        if (blob == null) {
+            return null;
+        }
+        InputStream inputStream = null;
+        try {
+            inputStream = blob.getBinaryStream();
+            return readAllBytes(inputStream);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new SQLException("Failed to close BLOB stream", e);
+                }
+            }
+            blob.free();
+        }
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws SQLException {
+        try {
+            byte[] buffer = new byte[8192];
+            int read;
+            int offset = 0;
+            byte[] data = new byte[0];
+            while ((read = inputStream.read(buffer)) != -1) {
+                byte[] next = new byte[offset + read];
+                System.arraycopy(data, 0, next, 0, offset);
+                System.arraycopy(buffer, 0, next, offset, read);
+                data = next;
+                offset += read;
+            }
+            return data;
+        } catch (IOException e) {
+            throw new SQLException("Failed to read binary stream", e);
+        }
     }
 }

@@ -83,6 +83,13 @@
             </includes>
             <outputDirectory>/thirdparty/hive</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>../ares-shade/ares-hive3/target/lib</directory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <outputDirectory>/thirdparty/hive3</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

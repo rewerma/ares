@@ -2,7 +2,7 @@ package com.github.ares.connector.jdbc.config;
 
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.common.configuration.ReadonlyConfig;
-import lombok.Builder;
+import com.github.ares.connector.jdbc.utils.WhereConditionValidator;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -44,7 +44,7 @@ public class JdbcSourceConfig implements Serializable {
         jdbcSourceConfig.setSplitSize(config.get(JdbcSourceOptions.SPLIT_SIZE));
         jdbcSourceConfig.setSplitEvenDistributionFactorUpperBound(
                 config.get(JdbcSourceOptions.SPLIT_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND));
-        jdbcSourceConfig.setSplitEvenDistributionFactorUpperBound(
+        jdbcSourceConfig.setSplitEvenDistributionFactorLowerBound(
                 config.get(JdbcSourceOptions.SPLIT_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND));
         jdbcSourceConfig.setSplitSampleShardingThreshold(
                 config.get(JdbcSourceOptions.SPLIT_SAMPLE_SHARDING_THRESHOLD));
@@ -53,14 +53,10 @@ public class JdbcSourceConfig implements Serializable {
 
         config.getOptional(JdbcSourceOptions.WHERE_CONDITION)
                 .ifPresent(
-                        whereConditionClause -> {
-                            if (!whereConditionClause.toLowerCase().startsWith("where")) {
-                                throw new IllegalArgumentException(
-                                        "The where condition clause must start with 'where'. value: "
-                                                + whereConditionClause);
-                            }
-                            jdbcSourceConfig.setWhereConditionClause(whereConditionClause);
-                        });
+                        whereConditionClause ->
+                                jdbcSourceConfig.setWhereConditionClause(
+                                        WhereConditionValidator.validateAndNormalize(
+                                                whereConditionClause)));
 
         return jdbcSourceConfig;
     }

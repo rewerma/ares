@@ -20,13 +20,18 @@ public final class PluginClassLoader {
 
     public static URL[] getPluginJarUrls(Class<?> pluginClass) {
         Set<URL> jarUrls = new LinkedHashSet<>();
-        if (pluginClass.getProtectionDomain().getCodeSource() != null) {
-            URL codeSource = pluginClass.getProtectionDomain().getCodeSource().getLocation();
-            if (codeSource != null) {
-                jarUrls.add(codeSource);
+        URL codeSource = getCodeSourceLocation(pluginClass);
+        if (codeSource != null) {
+            jarUrls.add(codeSource);
+        }
+        if (pluginClass.getClassLoader() instanceof IsolatedClassLoader) {
+            String pluginJarName = extractPluginJarName(codeSource);
+            for (URL url : ((IsolatedClassLoader) pluginClass.getClassLoader()).getURLs()) {
+                if (isSamePluginJar(url, pluginJarName)) {
+                    jarUrls.add(url);
+                }
             }
         }
-        collectConnectorJarUrls(pluginClass.getClassLoader(), jarUrls);
         return jarUrls.toArray(new URL[0]);
     }
 
@@ -98,29 +103,45 @@ public final class PluginClassLoader {
         }
     }
 
-    private static void collectConnectorJarUrls(ClassLoader classLoader, Set<URL> jarUrls) {
-        ClassLoader current = classLoader;
-        while (current != null) {
-            if (current instanceof IsolatedClassLoader) {
-                for (URL url : ((IsolatedClassLoader) current).getURLs()) {
-                    if (isConnectorJar(url)) {
-                        jarUrls.add(url);
-                    }
-                }
-            } else if (current instanceof java.net.URLClassLoader) {
-                for (URL url : ((java.net.URLClassLoader) current).getURLs()) {
-                    if (isConnectorJar(url)) {
-                        jarUrls.add(url);
-                    }
-                }
-            }
-            current = current.getParent();
-        }
+    public static void runWithContextClassLoader(ClassLoader classLoader, Runnable action) {
+        callWithContextClassLoader(
+                classLoader,
+                () -> {
+                    action.run();
+                    return null;
+                });
     }
 
-    private static boolean isConnectorJar(URL url) {
+    private static URL getCodeSourceLocation(Class<?> pluginClass) {
+        if (pluginClass.getProtectionDomain() == null
+                || pluginClass.getProtectionDomain().getCodeSource() == null) {
+            return null;
+        }
+        URL codeSource = pluginClass.getProtectionDomain().getCodeSource().getLocation();
+        if (codeSource == null || !isJarUrl(codeSource)) {
+            return null;
+        }
+        return codeSource;
+    }
+
+    private static String extractPluginJarName(URL codeSource) {
+        if (codeSource == null) {
+            return null;
+        }
+        String path = codeSource.getFile();
+        if (path == null) {
+            return null;
+        }
+        int separator = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+        return separator >= 0 ? path.substring(separator + 1) : path;
+    }
+
+    private static boolean isSamePluginJar(URL url, String pluginJarName) {
+        if (url == null || !isJarUrl(url) || StringUtils.isEmpty(pluginJarName)) {
+            return false;
+        }
         String path = url.getFile();
-        return path != null && path.endsWith(".jar") && path.contains("connector-");
+        return path != null && path.endsWith(pluginJarName);
     }
 
     private static boolean isJarUrl(URL url) {

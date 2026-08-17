@@ -38,22 +38,13 @@ import static com.github.ares.connector.jdbc.config.JdbcOptions.BATCH_SIZE;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.COMPATIBLE_MODE;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.CONNECTION_CHECK_TIMEOUT_SEC;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.CONNECTION_POOL_ENABLED;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.DATABASE;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.DRIVER;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.GENERATE_SINK_SQL;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.IS_EXACTLY_ONCE;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.MAX_COMMIT_ATTEMPTS;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.MAX_RETRIES;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.PASSWORD;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.POOL_SIZE;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.PRIMARY_KEYS;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.QUERY;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.QUERY_TIMEOUT_SEC;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.SUPPORT_UPSERT_BY_QUERY_PRIMARY_KEY_EXIST;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.TRANSACTION_TIMEOUT_SEC;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.URL;
 import static com.github.ares.connector.jdbc.config.JdbcOptions.USER;
-import static com.github.ares.connector.jdbc.config.JdbcOptions.XA_DATA_SOURCE_CLASS_NAME;
 
 public class JdbcSinkFactory implements TableSinkFactory {
     @Override
@@ -73,7 +64,6 @@ public class JdbcSinkFactory implements TableSinkFactory {
             columns = new ArrayList<>();
         }
 
-        // always execute
         JdbcSinkConfig sinkConfig = JdbcSinkConfig.of(config, columns);
         FieldIdeEnum fieldIdeEnum = config.get(JdbcOptions.FIELD_IDE);
         JdbcDialect dialect =
@@ -106,22 +96,9 @@ public class JdbcSinkFactory implements TableSinkFactory {
                         POOL_SIZE,
                         QUERY_TIMEOUT_SEC,
                         BATCH_SIZE,
-                        IS_EXACTLY_ONCE,
-                        GENERATE_SINK_SQL,
                         AUTO_COMMIT,
-                        SUPPORT_UPSERT_BY_QUERY_PRIMARY_KEY_EXIST,
-                        PRIMARY_KEYS,
+                        MAX_RETRIES,
                         COMPATIBLE_MODE)
-                .conditional(
-                        IS_EXACTLY_ONCE,
-                        true,
-                        XA_DATA_SOURCE_CLASS_NAME,
-                        MAX_COMMIT_ATTEMPTS,
-                        TRANSACTION_TIMEOUT_SEC)
-                .conditional(IS_EXACTLY_ONCE, false, MAX_RETRIES)
-                .conditional(GENERATE_SINK_SQL, true, DATABASE)
-                .conditional(GENERATE_SINK_SQL, false, QUERY)
-                // .conditional(DATA_SAVE_MODE, DataSaveMode.CUSTOM_PROCESSING, CUSTOM_SQL)
                 .build();
     }
 }
