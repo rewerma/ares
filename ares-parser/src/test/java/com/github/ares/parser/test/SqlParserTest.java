@@ -11,6 +11,7 @@ import com.github.ares.parser.sqlparser.model.SQLInsert;
 import com.github.ares.parser.sqlparser.model.SQLMerge;
 import com.github.ares.parser.sqlparser.model.SQLSelect;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
+import com.github.ares.parser.sqlparser.sparksql.SelectSqlParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -163,6 +164,26 @@ public class SqlParserTest {
         Assert.assertEquals("show", sqlSelect.getHints().get(0).getHintName());
         Assert.assertFalse(sqlSelect.getSourceSql().contains(" into "));
         System.out.println(sqlSelect.getSourceSql());
+
+        sql = "select * from table1 limit 10";
+        sqlSelect = sqlParser.parseSelect(sql);
+        Assert.assertTrue(normalizeSql(sqlSelect.getSourceSql()).contains("limit 10"));
+        Assert.assertTrue(SelectSqlParser.hasOuterLimit(sqlSelect.getSourceSql()));
+
+        sql = "select * from table1 order by id desc limit 10";
+        sqlSelect = sqlParser.parseSelect(sql);
+        String normalized = normalizeSql(sqlSelect.getSourceSql());
+        Assert.assertTrue(normalized.contains("order by id desc"));
+        Assert.assertTrue(normalized.contains("limit 10"));
+        Assert.assertTrue(SelectSqlParser.hasOuterLimit(sqlSelect.getSourceSql()));
+
+        Assert.assertFalse(SelectSqlParser.hasOuterLimit("select * from table1"));
+        Assert.assertFalse(SelectSqlParser.hasOuterLimit("select * from (select * from table1 limit 5) a"));
+        Assert.assertTrue(SelectSqlParser.hasOuterLimit("select * from table1 LIMIT ALL"));
+    }
+
+    private static String normalizeSql(String sql) {
+        return sql.replaceAll("\\s+", " ").trim().toLowerCase();
     }
 
     @Test

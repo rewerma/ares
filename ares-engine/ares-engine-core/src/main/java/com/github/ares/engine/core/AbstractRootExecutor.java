@@ -27,6 +27,10 @@ public abstract class AbstractRootExecutor extends AbstractBaseExecutor implemen
         } catch (Exception e) {
             logger.error("[ERROR] Execution failed, caused by: {}", e.getMessage(), e);
             println("[ARES-FAILED] Execution failed, caused by: " + e.getMessage());
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new RuntimeException("Ares execution failed", e);
         }
     }
 

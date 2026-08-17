@@ -3,12 +3,15 @@ package com.github.ares.engine.spark.core;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.SelectSqlExecutor;
+import com.github.ares.parser.sqlparser.sparksql.SelectSqlParser;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 public class SparkSelectSqlExecutor extends SelectSqlExecutor {
     private static final long serialVersionUID = -1L;
+
+    private static final int DEFAULT_RESULT_LIMIT = 100;
 
     private SparkExecutorManager sparkExecutorManager;
 
@@ -27,7 +30,10 @@ public class SparkSelectSqlExecutor extends SelectSqlExecutor {
         if (lastDf != null) {
             lastDf.unpersist();
         }
-        lastDf = resultDf.limit(100);
+        if (!SelectSqlParser.hasOuterLimit(sql)) {
+            resultDf = resultDf.limit(DEFAULT_RESULT_LIMIT);
+        }
+        lastDf = resultDf;
         lastDf.cache();
         lastDf.show();
         return lastDf;

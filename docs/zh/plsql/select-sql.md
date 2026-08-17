@@ -50,7 +50,7 @@ SELECT b.group_name, count(b.group_name) as cnt FROM t_user_v a
     WHERE a.age > 35 GROUP BY b.group_name;
 ```
 
-查询结果将会在控制台打印输出前`100`行数据。
+查询结果默认在控制台打印输出前`100`行；若 SELECT 本身带有 `LIMIT`，则按该 `LIMIT` 输出。
 
 ## SELECT变量赋值语法
 
