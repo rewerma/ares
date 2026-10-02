@@ -79,7 +79,9 @@ public class ExcelReadStrategy extends AbstractReadStrategy {
                     CommonErrorCode.UNSUPPORTED_OPERATION,
                     "Skip the number of rows exceeds the maximum or minimum limit of Sheet");
         }
-        IntStream.range((int) skipHeaderNumber, rowCount)
+        int firstRow = sheet.getFirstRowNum();
+        int lastRowExclusive = sheet.getLastRowNum() + 1;
+        IntStream.range(firstRow + (int) skipHeaderNumber, lastRowExclusive)
                 .mapToObj(sheet::getRow)
                 .filter(Objects::nonNull)
                 .forEach(
