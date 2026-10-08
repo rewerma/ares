@@ -23,7 +23,7 @@ public final class PaimonDml {
             sql.append(" ON (").append(requireWhere(update.getWhereSql())).append(")");
             sql.append(" WHEN MATCHED THEN UPDATE SET ");
             sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues()));
-            return sql.toString();
+            return withLeadingCte(update.getLeadingCte(), sql.toString());
         }
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE ").append(TARGET);
@@ -31,7 +31,7 @@ public final class PaimonDml {
         sql.append(" SET ");
         sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues()));
         sql.append(" WHERE ").append(requireWhere(update.getWhereSql()));
-        return sql.toString();
+        return withLeadingCte(update.getLeadingCte(), sql.toString());
     }
 
     public static String delete(SQLDelete delete) {
@@ -42,13 +42,13 @@ public final class PaimonDml {
             appendUsing(sql, delete.getJoinTable(), delete.getJoinSql(), delete.getJoinAlias());
             sql.append(" ON (").append(requireWhere(delete.getWhereSql())).append(")");
             sql.append(" WHEN MATCHED THEN DELETE");
-            return sql.toString();
+            return withLeadingCte(delete.getLeadingCte(), sql.toString());
         }
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM ").append(TARGET);
         appendAlias(sql, delete.getAlias());
         sql.append(" WHERE ").append(requireWhere(delete.getWhereSql()));
-        return sql.toString();
+        return withLeadingCte(delete.getLeadingCte(), sql.toString());
     }
 
     public static String merge(SQLMerge merge) {
@@ -83,7 +83,14 @@ public final class PaimonDml {
             sql.append(String.join(", ", insert.getValuesArray().get(0)));
             sql.append(")");
         }
-        return sql.toString();
+        return withLeadingCte(merge.getLeadingCte(), sql.toString());
+    }
+
+    private static String withLeadingCte(String leadingCte, String sql) {
+        if (StringUtils.isBlank(leadingCte)) {
+            return sql;
+        }
+        return leadingCte.trim() + " " + sql;
     }
 
     private static boolean hasJoin(String table, String query) {

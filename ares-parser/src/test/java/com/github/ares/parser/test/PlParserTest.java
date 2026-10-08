@@ -229,6 +229,39 @@ public class PlParserTest {
     }
 
     @Test
+    public void parseWithSelect() {
+        String pl =
+                "WITH adult AS (SELECT id, name FROM t_user WHERE age >= 18),\n"
+                        + "names AS (SELECT name FROM adult)\n"
+                        + "SELECT name FROM names;\n"
+                        + "CREATE TABLE adults AS WITH adult AS (SELECT 1 AS id) SELECT id FROM adult;\n";
+        LogicalProject logicalProject = plTransformation.parseToBaseBody(pl);
+        LogicalAnonymousBody body =
+                (LogicalAnonymousBody) logicalProject.getLogicalOperations().get(0);
+        LogicalSelectSQL select = (LogicalSelectSQL) body.getAnonymousBody().get(0);
+        String selectSql = select.getSql().replaceAll("\\s+", " ").toLowerCase();
+        Assert.assertTrue(selectSql.contains("with adult as"));
+        Assert.assertTrue(selectSql.contains("age >= 18"));
+        Assert.assertTrue(selectSql.contains("names as"));
+        Assert.assertTrue(selectSql.contains("from names"));
+        LogicalCreateTableAsSQL created = (LogicalCreateTableAsSQL) body.getAnonymousBody().get(1);
+        String createdSql = created.getSelectSQL().replaceAll("\\s+", " ").toLowerCase();
+        Assert.assertTrue(createdSql.contains("with adult as"));
+        Assert.assertTrue(createdSql.contains("from adult"));
+    }
+
+    @Test
+    public void parseWithInsertRoutesToInsert() {
+        String pl = "WITH cte AS (SELECT 1 AS id) INSERT INTO missing SELECT id FROM cte;";
+        try {
+            plTransformation.parseToBaseBody(pl);
+            Assert.fail("missing sink should be rejected");
+        } catch (ParseException e) {
+            Assert.assertTrue(e.getMessage().contains("Sink table name not exists"));
+        }
+    }
+
+    @Test
     public void parseTransactionSegment() {
         String pl =
                 "START TRANSACTION;\n"

@@ -45,6 +45,10 @@ SET spark.cores.max=1;
 
 参考：[SELECT-SQL](select-sql.md)语法
 
+## CTE语法
+
+`WITH` 公共表表达式可以写在 SELECT、INSERT、UPDATE、DELETE、MERGE 前面，也可以写在这些语句里的查询前面。写法见 [SELECT-SQL](select-sql.md)。
+
 ## CREATE AS SQL语法
 
 参考：[CREATE AS-SQL](create-as-sql.md)语法

@@ -21,6 +21,9 @@ public class SQLDelete implements Serializable {
 
     private String sourceSql;
 
+    /** Statement-level {@code WITH} clause, kept for engines that rebuild the DML text. */
+    private String leadingCte;
+
     private List<SQLHint> hints;
 
     public String getTable() {
@@ -85,6 +88,14 @@ public class SQLDelete implements Serializable {
 
     public void setSourceSql(String sourceSql) {
         this.sourceSql = sourceSql;
+    }
+
+    public String getLeadingCte() {
+        return leadingCte;
+    }
+
+    public void setLeadingCte(String leadingCte) {
+        this.leadingCte = leadingCte;
     }
 
     public List<SQLHint> getHints() {

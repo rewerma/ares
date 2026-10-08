@@ -54,6 +54,38 @@ SELECT b.group_name, count(b.group_name) as cnt FROM t_user_v a
 
 查询结果默认在控制台打印输出前`100`行；若 SELECT 本身带有 `LIMIT`，则按该 `LIMIT` 输出。
 
+## CTE语法
+
+用 `WITH` 给一段查询起名字，后面的语句可以反复引用这个名字。多个表达式用逗号隔开，后面的表达式可以引用前面的。查询需要写在括号里。
+
+```sql
+WITH adult AS (
+    SELECT id, name, age FROM t_user_v WHERE age >= 18
+),
+names AS (
+    SELECT name, count(1) AS cnt FROM adult GROUP BY name
+)
+SELECT name, cnt FROM names WHERE cnt > 1 ORDER BY cnt DESC;
+```
+
+`WITH` 也可以写在 INSERT、UPDATE、DELETE、MERGE 前面，或写在这些语句内部的查询前面：
+
+```sql
+WITH adult AS (
+    SELECT id, name, age FROM t_user_v WHERE age >= 18
+)
+INSERT INTO t_user2_v (id, name, age)
+SELECT id, name, age FROM adult;
+
+INSERT INTO t_user2_v (id, name, age)
+WITH adult AS (
+    SELECT id, name, age FROM t_user_v WHERE age >= 18
+)
+SELECT id, name, age FROM adult;
+```
+
+`CREATE TABLE ... AS` 和游标循环里的查询同样可以使用 `WITH`。
+
 ## SELECT变量赋值语法
 
 在脚本中先用`def`定义变量，再通过SELECT语句把查询结果赋给变量：

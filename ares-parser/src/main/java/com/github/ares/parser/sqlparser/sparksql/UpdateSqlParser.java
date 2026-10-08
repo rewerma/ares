@@ -30,8 +30,9 @@ public class UpdateSqlParser {
         SQLUpdate sqlUpdate = new SQLUpdate();
         try (InputStream in = new ByteArrayInputStream(sql.getBytes(StandardCharsets.UTF_8))) {
             SqlBaseParser parser = CommonParser.parseSql(in);
+            SqlBaseParser.DmlStatementContext dmlStatement = QueryRewrite.requireDml(parser, sql);
             SqlBaseParser.DmlStatementNoWithContext dmlStatementNoWithContext =
-                    parser.dmlStatementNoWith();
+                    dmlStatement.dmlStatementNoWith();
 
             if (!(dmlStatementNoWithContext instanceof SqlBaseParser.UpdateTableContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
@@ -101,7 +102,9 @@ public class UpdateSqlParser {
                         .append(") ")
                         .append(sqlUpdate.getJoinAlias());
             }
-            sqlUpdate.setSourceSql(selectSql.toString());
+            sqlUpdate.setLeadingCte(QueryRewrite.cteText(dmlStatement.ctes()));
+            sqlUpdate.setSourceSql(
+                    QueryRewrite.prependCtes(dmlStatement.ctes(), selectSql.toString()));
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
@@ -140,7 +143,9 @@ public class UpdateSqlParser {
                     HintParser.parseSelectHints(
                             sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
             sqlUpdate.setHints(hintsWithSql.getLeft());
-            sqlUpdate.setJoinSql(hintsWithSql.getRight());
+            sqlUpdate.setJoinSql(
+                    QueryRewrite.prependCtes(
+                            updateTableContext.sourceQuery.ctes(), hintsWithSql.getRight()));
         }
     }
 }

@@ -35,8 +35,9 @@ public class InsertSqlParser {
         try (InputStream in = new ByteArrayInputStream(sql.getBytes(StandardCharsets.UTF_8))) {
 
             SqlBaseParser parser = CommonParser.parseSql(in);
+            SqlBaseParser.DmlStatementContext dmlStatement = QueryRewrite.requireDml(parser, sql);
             SqlBaseParser.DmlStatementNoWithContext dmlStatementNoWithContext =
-                    parser.dmlStatementNoWith();
+                    dmlStatement.dmlStatementNoWith();
 
             if (!(dmlStatementNoWithContext instanceof SqlBaseParser.SingleInsertQueryContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
@@ -76,6 +77,9 @@ public class InsertSqlParser {
                     ((SqlBaseParser.QueryTermDefaultContext) queryContext.queryTerm())
                             .queryPrimary();
             if (queryPrimaryContext instanceof SqlBaseParser.InlineTableDefault1Context) {
+                if (dmlStatement.ctes() != null || queryContext.ctes() != null) {
+                    throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
+                }
                 selectSql = parseInlineTableContext(queryContext, sql, sqlInsert);
             } else if (queryPrimaryContext instanceof SqlBaseParser.QueryPrimaryDefaultContext) {
                 Pair<List<SQLHint>, String> hintsWithSql =
@@ -84,6 +88,9 @@ public class InsertSqlParser {
                                 (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
                 sqlInsert.setHints(hintsWithSql.getLeft());
                 selectSql = hintsWithSql.getRight();
+                selectSql = QueryRewrite.appendOrganization(selectSql, queryContext);
+                selectSql = QueryRewrite.prependCtes(queryContext.ctes(), selectSql);
+                selectSql = QueryRewrite.prependCtes(dmlStatement.ctes(), selectSql);
             } else {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }

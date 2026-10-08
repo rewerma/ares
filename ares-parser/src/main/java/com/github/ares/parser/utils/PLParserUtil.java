@@ -37,6 +37,23 @@ public class PLParserUtil {
         return getFullSQLWithParams(o, params, structs, startWithColon, null);
     }
 
+    /**
+     * {@code >=} and {@code <=} are two tokens in the script lexer. Join them again when the
+     * pieces are written back, including across {@code raw_token} wrappers.
+     */
+    private static String joinSplitOperator(StringBuilder sb, String text) {
+        if (text == null || text.length() != 1 || sb.length() < 2) {
+            return text;
+        }
+        char previous = sb.charAt(sb.length() - 2);
+        if (sb.charAt(sb.length() - 1) == ' ' && text.charAt(0) == '=') {
+            if (previous == '>' || previous == '<') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+        }
+        return text;
+    }
+
     public static void trimRight(StringBuilder sb) {
         int start = 0;
         int end = sb.length() - 1;
@@ -114,6 +131,7 @@ public class PLParserUtil {
                         sb.append(structColumn);
                         preTNode = null;
                     } else {
+                        text = joinSplitOperator(sb, text);
                         sb.append(text);
                     }
 

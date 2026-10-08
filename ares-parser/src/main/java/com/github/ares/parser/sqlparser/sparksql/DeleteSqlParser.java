@@ -30,8 +30,9 @@ public class DeleteSqlParser {
         SQLDelete sqlDelete = new SQLDelete();
         try (InputStream in = new ByteArrayInputStream(sql.getBytes(StandardCharsets.UTF_8))) {
             SqlBaseParser parser = CommonParser.parseSql(in);
+            SqlBaseParser.DmlStatementContext dmlStatement = QueryRewrite.requireDml(parser, sql);
             SqlBaseParser.DmlStatementNoWithContext dmlStatementNoWithContext =
-                    parser.dmlStatementNoWith();
+                    dmlStatement.dmlStatementNoWith();
 
             if (!(dmlStatementNoWithContext instanceof SqlBaseParser.DeleteFromTableContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
@@ -81,7 +82,9 @@ public class DeleteSqlParser {
                         .append(") ")
                         .append(sqlDelete.getJoinAlias());
             }
-            sqlDelete.setSourceSql(selectSql.toString());
+            sqlDelete.setLeadingCte(QueryRewrite.cteText(dmlStatement.ctes()));
+            sqlDelete.setSourceSql(
+                    QueryRewrite.prependCtes(dmlStatement.ctes(), selectSql.toString()));
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
@@ -122,7 +125,9 @@ public class DeleteSqlParser {
                     HintParser.parseSelectHints(
                             sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
             sqlDelete.setHints(hintsWithSql.getLeft());
-            sqlDelete.setJoinSql(hintsWithSql.getRight());
+            sqlDelete.setJoinSql(
+                    QueryRewrite.prependCtes(
+                            deleteFromTableContext.sourceQuery.ctes(), hintsWithSql.getRight()));
         }
     }
 }

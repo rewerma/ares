@@ -31,6 +31,9 @@ public class SQLMerge implements Serializable {
 
     private String notMatchedConditionSql;
 
+    /** Statement-level {@code WITH} clause, kept for engines that rebuild the DML text. */
+    private String leadingCte;
+
     private List<SQLHint> hints;
 
     public String getTable() {
@@ -135,6 +138,14 @@ public class SQLMerge implements Serializable {
 
     public void setNotMatchedConditionSql(String notMatchedConditionSql) {
         this.notMatchedConditionSql = notMatchedConditionSql;
+    }
+
+    public String getLeadingCte() {
+        return leadingCte;
+    }
+
+    public void setLeadingCte(String leadingCte) {
+        this.leadingCte = leadingCte;
     }
 
     public List<SQLHint> getHints() {

@@ -33,8 +33,9 @@ public class MergeSqlParser {
         SQLMerge sqlMerge = new SQLMerge();
         try (InputStream in = new ByteArrayInputStream(sql.getBytes(StandardCharsets.UTF_8))) {
             SqlBaseParser parser = CommonParser.parseSql(in);
+            SqlBaseParser.DmlStatementContext dmlStatement = QueryRewrite.requireDml(parser, sql);
             SqlBaseParser.DmlStatementNoWithContext dmlStatementNoWithContext =
-                    parser.dmlStatementNoWith();
+                    dmlStatement.dmlStatementNoWith();
 
             if (!(dmlStatementNoWithContext instanceof SqlBaseParser.MergeIntoTableContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
@@ -45,6 +46,7 @@ public class MergeSqlParser {
                     (SqlBaseParser.MergeIntoTableContext) dmlStatementNoWithContext;
             SqlBaseParser.MultipartIdentifierContext mappingTable =
                     mergeIntoTableContext.multipartIdentifier(0);
+            sqlMerge.setLeadingCte(QueryRewrite.cteText(dmlStatement.ctes()));
             sqlMerge.setTable(mappingTable.getText());
 
             if (mergeIntoTableContext.source != null || mergeIntoTableContext.sourceQuery != null) {
@@ -83,7 +85,11 @@ public class MergeSqlParser {
                     sqlMerge.setNotMatchedConditionSql(getFullText(notMatched.notMatchedCond));
                 }
                 parseNotMatchedClause(
-                        mergeIntoTableContext, sqlMerge, usingSQL, conditionSql.toString());
+                        mergeIntoTableContext,
+                        sqlMerge,
+                        usingSQL,
+                        conditionSql.toString(),
+                        dmlStatement.ctes());
             }
 
             if (!mergeIntoTableContext.matchedClause().isEmpty()) {
@@ -97,7 +103,8 @@ public class MergeSqlParser {
                         sqlMerge,
                         usingSQL,
                         onClause,
-                        conditionSql.toString());
+                        conditionSql.toString(),
+                        dmlStatement.ctes());
             }
         } catch (ParseException e) {
             throw e;
@@ -139,7 +146,9 @@ public class MergeSqlParser {
                     HintParser.parseSelectHints(
                             sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
             sqlMerge.setHints(hintsWithSql.getLeft());
-            sqlMerge.setUsingSql(hintsWithSql.getRight());
+            sqlMerge.setUsingSql(
+                    QueryRewrite.prependCtes(
+                            mergeIntoTableContext.sourceQuery.ctes(), hintsWithSql.getRight()));
         }
     }
 
@@ -147,7 +156,8 @@ public class MergeSqlParser {
             SqlBaseParser.MergeIntoTableContext mergeIntoTableContext,
             SQLMerge sqlMerge,
             String usingSQL,
-            String conditionSql) {
+            String conditionSql,
+            SqlBaseParser.CtesContext statementCtes) {
         SQLInsert sqlInsert = new SQLInsert();
         sqlInsert.setTable(sqlMerge.getTable());
 
@@ -182,7 +192,7 @@ public class MergeSqlParser {
         sourceSql.append("WHERE NOT EXISTS (SELECT 1 FROM ");
         sourceSql.append(sqlMerge.getTable());
         sourceSql.append(" WHERE ").append(conditionSql).append(" )");
-        sqlInsert.setSourceSql(sourceSql.toString());
+        sqlInsert.setSourceSql(QueryRewrite.prependCtes(statementCtes, sourceSql.toString()));
     }
 
     private static void parseMatchedClause(
@@ -190,7 +200,8 @@ public class MergeSqlParser {
             SQLMerge sqlMerge,
             String usingSQL,
             CriteriaClause onClause,
-            String conditionSql) {
+            String conditionSql,
+            SqlBaseParser.CtesContext statementCtes) {
 
         SQLUpdate sqlUpdate = new SQLUpdate();
         sqlUpdate.setTable(sqlMerge.getTable());
@@ -255,6 +266,6 @@ public class MergeSqlParser {
         sourceSql.append(sqlMerge.getTable());
         sourceSql.append(" WHERE ").append(conditionSql).append(" )");
 
-        sqlUpdate.setSourceSql(sourceSql.toString());
+        sqlUpdate.setSourceSql(QueryRewrite.prependCtes(statementCtes, sourceSql.toString()));
     }
 }

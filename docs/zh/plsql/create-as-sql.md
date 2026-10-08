@@ -38,6 +38,14 @@ SELECT id, name, age FROM (
 SELECT * FROM t_user_v1;
 ```
 
-通过`CREATE AS SELECT`语句，我们可以将查询结果映射到一个新的视图表上（但并不会真正创建物理表或视图），这样，我们就可以在Ares作业脚本中使用该视图表，就像使用其他表或视图一样。
+`AS` 后面的查询也可以用 `WITH` 公共表表达式：
 
-通过`CREATE AS SELECT`语句，可以更加灵活地代替`CTE`语法。
+```sql
+CREATE TABLE t_adult AS
+WITH adult AS (
+    SELECT id, name, age FROM t_user_v WHERE age >= 18
+)
+SELECT id, name FROM adult;
+```
+
+通过`CREATE AS SELECT`语句，我们可以将查询结果映射到一个新的视图表上（但并不会真正创建物理表或视图），这样，我们就可以在Ares作业脚本中使用该视图表，就像使用其他表或视图一样。这个名字在后面的语句里都能引用。`WITH` 只在当前这一条语句里有效。

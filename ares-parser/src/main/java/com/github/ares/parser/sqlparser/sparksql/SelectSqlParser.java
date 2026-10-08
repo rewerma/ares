@@ -2,7 +2,6 @@ package com.github.ares.parser.sqlparser.sparksql;
 
 import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG_WITH_PARAM;
 import static com.github.ares.parser.utils.PLParserUtil.clearParam;
-import static com.github.ares.parser.utils.PLParserUtil.getFullText;
 
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
@@ -61,7 +60,9 @@ public class SelectSqlParser {
             Pair<List<SQLHint>, String> hintsWithSql =
                     HintParser.parseSelectHints(sql, queryPrimaryDefaultContext);
             sqlSelect.setHints(hintsWithSql.getLeft());
-            sqlSelect.setSourceSql(appendQueryOrganization(hintsWithSql.getRight(), queryContext));
+            String sourceSql =
+                    QueryRewrite.appendOrganization(hintsWithSql.getRight(), queryContext);
+            sqlSelect.setSourceSql(QueryRewrite.prependCtes(queryContext.ctes(), sourceSql));
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
@@ -83,22 +84,5 @@ public class SelectSqlParser {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    private static String appendQueryOrganization(
-            String sourceSql, SqlBaseParser.QueryContext queryContext) {
-        if (sourceSql == null) {
-            sourceSql = "";
-        }
-        if (queryContext == null
-                || queryContext.queryOrganization() == null
-                || queryContext.queryOrganization().getChildCount() == 0) {
-            return sourceSql;
-        }
-        String organizationSql = getFullText(queryContext.queryOrganization());
-        if (organizationSql == null || organizationSql.trim().isEmpty()) {
-            return sourceSql;
-        }
-        return sourceSql.trim() + " " + organizationSql.trim();
     }
 }

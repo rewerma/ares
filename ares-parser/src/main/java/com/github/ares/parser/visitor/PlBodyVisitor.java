@@ -21,9 +21,11 @@ import com.github.ares.parser.plan.LogicalRollback;
 import com.github.ares.parser.plan.LogicalSetConfig;
 import com.github.ares.parser.plan.LogicalStartTransaction;
 import com.github.ares.parser.utils.PLParserUtil;
+import com.github.ares.org.antlr.v4.runtime.tree.ParseTree;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class PlBodyVisitor {
@@ -208,7 +210,10 @@ public class PlBodyVisitor {
         sql = PLParserUtil.cleanSQL(sql);
         originalSql = PLParserUtil.cleanSQL(originalSql);
         PlSqlParser.Sql_prefixContext prefix = sqlStatement.sql_prefix();
-        if (prefix.SELECT() != null || prefix.WITH() != null) {
+        if (prefix.WITH() != null) {
+            return visitCteSql(sqlStatement, originalSql, sql, scriptDeclared);
+        }
+        if (prefix.SELECT() != null) {
             return Collections.singletonList(
                     visitorManager
                             .getSelectSQLVisitor()
@@ -243,6 +248,65 @@ public class PlBodyVisitor {
             return created;
         }
         throw new ParseException("Unsupported SQL syntax: " + originalSql);
+    }
+
+    private List<LogicalOperation> visitCteSql(
+            PlSqlParser.Sql_statementContext sqlStatement,
+            String originalSql,
+            String sql,
+            Map<String, PlType> scriptDeclared) {
+        String clause = mainClauseAfterCte(sqlStatement);
+        if ("INSERT".equals(clause)) {
+            return Collections.singletonList(
+                    visitorManager.getInsertSQLVisitor().visitInsertSQL(originalSql, sql));
+        }
+        if ("UPDATE".equals(clause)) {
+            return Collections.singletonList(
+                    visitorManager.getUpdateSQLVisitor().visitUpdateSQL(originalSql, sql));
+        }
+        if ("DELETE".equals(clause)) {
+            return Collections.singletonList(
+                    visitorManager.getDeleteSQLVisitor().visitDeleteSQL(originalSql, sql));
+        }
+        if ("MERGE".equals(clause)) {
+            return Collections.singletonList(
+                    visitorManager.getMergeSQLVisitor().visitMergeSQL(originalSql, sql));
+        }
+        return Collections.singletonList(
+                visitorManager
+                        .getSelectSQLVisitor()
+                        .visitSelectSQL(originalSql, sql, scriptDeclared));
+    }
+
+    /**
+     * The statement keyword that follows the leading {@code WITH} clause, outside parentheses.
+     * Column lists and CTE bodies stay nested, so {@code SELECT} inside {@code AS (...)} is
+     * ignored.
+     */
+    static String mainClauseAfterCte(PlSqlParser.Sql_statementContext sqlStatement) {
+        int depth = 0;
+        for (int i = 0; i < sqlStatement.getChildCount(); i++) {
+            ParseTree child = sqlStatement.getChild(i);
+            if (child instanceof PlSqlParser.Sql_prefixContext) {
+                continue;
+            }
+            String text = child.getText();
+            if ("(".equals(text)) {
+                depth++;
+            } else if (")".equals(text)) {
+                depth = Math.max(0, depth - 1);
+            } else if (depth == 0 && text != null) {
+                String upper = text.toUpperCase(Locale.ROOT);
+                if ("SELECT".equals(upper)
+                        || "INSERT".equals(upper)
+                        || "UPDATE".equals(upper)
+                        || "DELETE".equals(upper)
+                        || "MERGE".equals(upper)) {
+                    return upper;
+                }
+            }
+        }
+        return "SELECT";
     }
 
     public static boolean containsCatalogTable(List<LogicalOperation> operations) {
