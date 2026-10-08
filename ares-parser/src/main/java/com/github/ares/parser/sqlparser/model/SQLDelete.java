@@ -17,6 +17,8 @@ public class SQLDelete implements Serializable {
 
     private CriteriaClause whereClause;
 
+    private String whereSql;
+
     private String sourceSql;
 
     private List<SQLHint> hints;
@@ -67,6 +69,14 @@ public class SQLDelete implements Serializable {
 
     public void setWhereClause(CriteriaClause whereClause) {
         this.whereClause = whereClause;
+    }
+
+    public String getWhereSql() {
+        return whereSql;
+    }
+
+    public void setWhereSql(String whereSql) {
+        this.whereSql = whereSql;
     }
 
     public String getSourceSql() {

@@ -237,6 +237,7 @@ public class JdbcConnectionConfig implements Serializable {
 
         public JdbcConnectionConfig build() {
             JdbcConnectionConfig jdbcConnectionConfig = new JdbcConnectionConfig();
+            jdbcConnectionConfig.dbType = this.dbType;
             jdbcConnectionConfig.batchSize = this.batchSize;
             jdbcConnectionConfig.driverName = this.driverName;
             jdbcConnectionConfig.compatibleMode = this.compatibleMode;

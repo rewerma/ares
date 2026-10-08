@@ -6,6 +6,7 @@ import com.github.ares.api.table.factory.Factory;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.MergeIntoSqlExecutor;
 import com.github.ares.engine.core.PlParams;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import com.github.ares.parser.plan.LogicalMergeIntoSQL;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
@@ -32,6 +33,15 @@ public class SparkMergeIntoSqlExecutor extends MergeIntoSqlExecutor implements S
             LogicalMergeIntoSQL mergeIntoSql,
             PlParams plParams) {
         traceLogger.info("SQL: {}; Params: {}", mergeIntoSql.getOriginSQL(), plParams);
+        if (PaimonTables.isPaimonConnector(mergeIntoSql.getSinkTable().getConnector())) {
+            PaimonSparkSql.executeDml(
+                    sparkExecutorManager.getSparkSessionManager().getSparkSession(),
+                    sinkConfig,
+                    mergeIntoSql.getPaimonSql(),
+                    plParams,
+                    mergeIntoSql.getSinkTable().getTableName());
+            return;
+        }
         if (StringUtils.isNotBlank(mergeIntoSql.getUpdateSourceSql())) {
 
             String updateSourceSql = replaceParams(mergeIntoSql.getUpdateSourceSql(), plParams);

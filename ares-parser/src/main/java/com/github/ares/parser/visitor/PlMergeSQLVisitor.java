@@ -4,6 +4,9 @@ import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
 import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonDml;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalMergeIntoSQL;
@@ -40,8 +43,10 @@ public class PlMergeSQLVisitor {
             throw new ParseException(
                     String.format("sink table name not exists: %s", sqlMerge.getTable()));
         }
+        HiveTables.rejectRowChange(sinkTable.getConnector(), "MERGE");
+        boolean paimon = PaimonTables.isPaimonConnector(sinkTable.getConnector());
         LogicalCreateSourceTable sourceTable = sourceTables.get(sqlMerge.getTable().toLowerCase());
-        if (sourceTable == null) {
+        if (!paimon && sourceTable == null) {
             throw new ParseException(
                     String.format(
                             "the target table '%s' must be a source table in merge sql",
@@ -51,6 +56,9 @@ public class PlMergeSQLVisitor {
         LogicalMergeIntoSQL mergeIntoSQL = new LogicalMergeIntoSQL();
         mergeIntoSQL.setOriginSQL(originalSql);
         mergeIntoSQL.setSinkTable(sinkTable);
+        if (paimon) {
+            mergeIntoSQL.setPaimonSql(PaimonDml.merge(sqlMerge));
+        }
 
         mergeIntoSQL.setAllWaitCriteria(sqlMerge.getAllWhereClause());
         SQLInsert sqlInsert = sqlMerge.getSqlInsert();

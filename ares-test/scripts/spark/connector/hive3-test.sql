@@ -1,15 +1,14 @@
+-- hive3 与 hive 相同，都是创建视图直接查询 Spark 集群中的 Hive 表。
 CREATE TABLE test1
-WITH (
-    'connector' = 'hive3',
-    'metastore_uri' = 'thrift://localhost:9083',
+USING hive3
+OPTIONS (
     'table_name'='default.t_user',
     'type' = 'source'
 );
 
 CREATE TABLE test2
-WITH (
-    'connector' = 'hive3',
-    'metastore_uri' = 'thrift://localhost:9083',
+USING hive3
+OPTIONS (
     'table_name'='default.t_user4',
     'type' = 'sink,source'
 );

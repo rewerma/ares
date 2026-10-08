@@ -19,7 +19,7 @@ assert_equals(rtrim('SSparkSQLS', 'SL'), 'SSparkSQ');
 
 assert_equals(base64('Ares-PLSQL'), 'QXJlcy1QTFNRTA==');
 assert_equals(unbase64(base64('Ares-PLSQL')), '417265732D504C53514C');
-assert_equals(cast(unbase64(base64('Ares-PLSQL')) as varchar), 'Ares-PLSQL')
+assert_equals(cast(unbase64(base64('Ares-PLSQL')) as varchar), 'Ares-PLSQL');
 
 assert_equals(hex('Ares-PLSQL'), '417265732D504C53514C');
 assert_equals(unhex(hex('Ares-PLSQL')), cast('Ares-PLSQL' as binary));

@@ -22,6 +22,8 @@ public class SQLUpdate implements Serializable {
 
     private CriteriaClause whereClause;
 
+    private String whereSql;
+
     // for merge into SQL
     private List<String> selectWhereItems;
 
@@ -91,6 +93,14 @@ public class SQLUpdate implements Serializable {
 
     public void setWhereClause(CriteriaClause whereClause) {
         this.whereClause = whereClause;
+    }
+
+    public String getWhereSql() {
+        return whereSql;
+    }
+
+    public void setWhereSql(String whereSql) {
+        this.whereSql = whereSql;
     }
 
     public List<String> getSelectWhereItems() {

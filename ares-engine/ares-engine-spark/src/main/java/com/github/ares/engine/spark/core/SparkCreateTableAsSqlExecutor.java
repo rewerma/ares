@@ -21,6 +21,9 @@ public class SparkCreateTableAsSqlExecutor extends CreateTableAsSqlExecutor {
     @Override
     public void execute(LogicalCreateTableAsSQL createTableAsSql, PlParams plParams) {
         traceLogger.info("SQL: {}", createTableAsSql.getOriginSQL());
+        PaimonSparkSql.prepare(
+                sparkExecutorManager.getSparkSessionManager().getSparkSession(),
+                createTableAsSql.getProperties());
         String sql = createTableAsSql.getSelectSQL();
         sql = replaceParams(sql, plParams);
         Dataset<Row> resultDf =

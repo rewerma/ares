@@ -36,6 +36,11 @@ public class LogicalMergeIntoSQL extends BaseSqlOption implements Serializable {
 
     private Boolean withEx;
 
+    /**
+     * Spark SQL for a Paimon table, with {@code __ARES_PAIMON_TARGET__} as the table placeholder.
+     */
+    private String paimonSql;
+
     public LogicalMergeIntoSQL() {
         super(OperationType.MERGE_INTO_SQL);
     }

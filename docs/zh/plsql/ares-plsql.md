@@ -2,19 +2,21 @@
 
 ## 介绍
 
-Ares-PL/SQL支持丰富的过程语言语法，包括条件语句、循环语句、异常处理、函数、存储过程、游标、变量、数据类型、数据源定义等。
+Ares 脚本是一串语句，不需要 `DECLARE`，也不需要 `BEGIN/END` 包起来。支持的过程语法包括变量、条件、循环、异常捕获、游标、事务、数据源定义，以及 SELECT、INSERT、UPDATE、DELETE、MERGE。
+
+普通语句以分号结束。`if`、`while`、`for`、`try` 以 `end` 结束，`end` 后面的分号可写可不写。`SET` 和 `CREATE TABLE ... USING` 只能写在脚本顶层。
 
 ## 执行参数定义
 
-在Ares-PL/SQL脚本中，可以通过`SET ...=...`的方式定义内部执行参数：
+在脚本中用 `SET ...=...;` 定义执行参数。值里如果包含 `:`、`?`、`&` 等符号，需要用单引号包起来：
 
 ```sql
-SET spark.logLevel=info
-SET spark.master=spark://127.0.0.1:7077
-SET spark.driver.memory=1G
-SET spark.executor.memory=2G
-SET spark.executor.cores=1
-SET spark.cores.max=1
+SET spark.logLevel=info;
+SET spark.master='spark://127.0.0.1:7077';
+SET spark.driver.memory=1G;
+SET spark.executor.memory=2G;
+SET spark.executor.cores=1;
+SET spark.cores.max=1;
 ```
 
 # SQL语法
@@ -49,30 +51,26 @@ SET spark.cores.max=1
 
 # PL语法
 
-## 匿名过程块PL语法
+## 脚本与变量
 
-参考：[匿名过程块](anonymous-block.md)语法
+参考：[脚本与变量](anonymous-block.md)语法
 
-## 存储过程块PL语法
+## 内置函数
 
-参考：[存储过程块](procedure-block.md)语法
+参考：[内置函数](pl-function.md)语法
 
-## 函数块PL语法
+## IF语法
 
-参考：[函数块](function-block.md)语法
+参考：[IF语法](if-block.md)语法
 
-## 内置PL函数
+## 循环语法
 
-参考：[内置PL函数](pl-function.md)语法
+参考：[循环语法](loop-block.md)语法
 
-## IF PL语法
+## 异常处理语法
 
-参考：[IF PL语法](if-block.md)语法
+参考：[异常处理语法](exception-block.md)语法
 
-## 循环 PL语法
+## 事务语法
 
-参考：[循环 PL语法](loop-block.md)语法
-
-## 异常处理 PL语法
-
-参考：[异常处理 PL语法](exception-block.md)语法
+参考：[事务语法](transaction-block.md)语法

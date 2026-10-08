@@ -45,6 +45,9 @@ public class TruncateSqlExecutor extends AbstractBaseExecutor implements Operati
 
     public void execute(LogicalTruncateSQL truncateSQL) {
         traceLogger.info("SQL: {}", truncateSQL.getOriginSQL());
+        if (executorManager.tryTruncate(truncateSQL)) {
+            return;
+        }
         LogicalCreateSinkTable sinkTable = truncateSQL.getSinkTable();
         Optional<? extends Factory> sinkFactory =
                 SinkExecutorSupport.requireSinkFactory(executorManager, sinkTable);

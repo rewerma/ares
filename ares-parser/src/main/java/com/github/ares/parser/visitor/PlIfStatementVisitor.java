@@ -6,7 +6,6 @@ import com.github.ares.parser.plan.LogicalExpression;
 import com.github.ares.parser.plan.LogicalIfElse;
 import com.github.ares.parser.plan.LogicalOperation;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,58 +19,43 @@ public class PlIfStatementVisitor {
     public void ifElseVisitor(
             PlBodyVisitor plBodyVisitor,
             PlSqlParser.If_statementContext ifStatement,
-            List<LogicalOperation> baseBody,
-            Map<String, PlType> allParams,
+            Map<String, PlType> scriptDeclared,
+            Map<String, PlType> visible,
             List<LogicalOperation> result,
             List<String> structs) {
         LogicalIfElse ifElse =
                 newBranch(
-                        visitorManager
-                                .getExpressionVisitor()
-                                .visitExpressionContext(
-                                        ifStatement.condition().expression(), allParams, structs),
-                        plBodyVisitor.visitBodyStatements(
-                                ifStatement.seq_of_statements(),
-                                new LinkedHashMap<>(),
-                                new LinkedHashMap<>(),
-                                allParams,
-                                baseBody,
-                                structs));
+                        expression(ifStatement.expression(), visible, structs),
+                        plBodyVisitor.visitBlock(
+                                ifStatement.body(), scriptDeclared, visible, structs));
 
         List<LogicalIfElse> elseIfs = new ArrayList<>();
-        List<PlSqlParser.Elsif_partContext> elseif = ifStatement.elsif_part();
-        if (elseif != null) {
-            for (PlSqlParser.Elsif_partContext elsifPart : elseif) {
+        if (ifStatement.elsif_clause() != null) {
+            for (PlSqlParser.Elsif_clauseContext elsif : ifStatement.elsif_clause()) {
                 elseIfs.add(
                         newBranch(
-                                visitorManager
-                                        .getExpressionVisitor()
-                                        .visitExpressionContext(
-                                                elsifPart.condition().expression(),
-                                                allParams,
-                                                structs),
-                                plBodyVisitor.visitBodyStatements(
-                                        elsifPart.seq_of_statements(),
-                                        new LinkedHashMap<>(),
-                                        new LinkedHashMap<>(),
-                                        allParams,
-                                        baseBody,
-                                        structs)));
+                                expression(elsif.expression(), visible, structs),
+                                plBodyVisitor.visitBlock(
+                                        elsif.body(), scriptDeclared, visible, structs)));
             }
         }
         ifElse.setElseIfs(elseIfs);
 
-        if (ifStatement.else_part() != null) {
+        if (ifStatement.else_clause() != null) {
             ifElse.setElseBody(
-                    plBodyVisitor.visitBodyStatements(
-                            ifStatement.else_part().seq_of_statements(),
-                            new LinkedHashMap<>(),
-                            new LinkedHashMap<>(),
-                            allParams,
-                            baseBody,
-                            structs));
+                    plBodyVisitor.visitBlock(
+                            ifStatement.else_clause().body(), scriptDeclared, visible, structs));
         }
         result.add(ifElse);
+    }
+
+    private LogicalExpression expression(
+            PlSqlParser.ExpressionContext expression,
+            Map<String, PlType> visible,
+            List<String> structs) {
+        return visitorManager
+                .getExpressionVisitor()
+                .visitExpressionContext(expression, visible, structs);
     }
 
     private LogicalIfElse newBranch(LogicalExpression condition, List<LogicalOperation> body) {

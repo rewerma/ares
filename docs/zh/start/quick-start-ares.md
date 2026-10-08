@@ -17,8 +17,8 @@
 
 ```sql
 CREATE TABLE t_user_v
-WITH (
-    'connector'='mysql',
+USING mysql
+OPTIONS (
     'url'='jdbc:mysql://127.0.0.1:3306/mytest',
     'driver'='com.mysql.cj.jdbc.Driver',
     'user'='root',
@@ -28,8 +28,8 @@ WITH (
 );
 
 CREATE TABLE t_user2_v
-WITH (
-    'connector'='mysql',
+USING postgres
+OPTIONS (
     'url'='jdbc:postgresql://127.0.0.1:5432/postgres',
     'driver'='org.postgresql.Driver',
     'user'='root',
@@ -38,14 +38,11 @@ WITH (
     'type' = 'source,sink'
 );
 
-DECLARE
-    v_cnt INT := 0;
-BEGIN
-    SELECT COUNT(*) INTO :v_cnt FROM t_user2_v;
-    IF v_cnt = 0 THEN
-        INSERT INTO t_user2_v (id, name, age, c_time) SELECT id+1, UPPER(name), age, c_time FROM t_user_v;
-    END IF;
-END;
+def v_cnt = 0;
+SELECT COUNT(*) INTO :v_cnt FROM t_user2_v;
+if v_cnt = 0
+    INSERT INTO t_user2_v (id, name, age, c_time) SELECT id+1, UPPER(name), age, c_time FROM t_user_v;
+end
 ```
 
 **您可以参考[Ares-PL/SQL语法](../plsql/ares-plsql.md)来开发脚本作业。**
@@ -84,11 +81,11 @@ Ares控制台将会打印一些如下日志信息:
 ```shell
 INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load Factory Plugin from /Users/rewerma/Develop/git_aliyun/ares/connectors
 INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='source', pluginName='mysql'} from classpath
-INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='sink', pluginName='mysql'} from classpath
+INFO  com.github.ares.connector.discovery.AbstractPluginDiscovery - Load plugin: PluginIdentifier{engineType='ares_spark', pluginType='sink', pluginName='postgres'} from classpath
 INFO  [SQLExecution] - Execute SQL: INSERT INTO t_user2 (id, name, age, c_time) SELECT id + 1, UPPER(name), age, c_time FROM t_user; Params: {v_cnt=0}
 INFO  [SQLExecution] - Executed SQL: INSERT INTO t_user2 (id, name, age, c_time) SELECT id + 1, UPPER(name), age, c_time FROM t_user; elapsed time: 1.06s
 ```
 
 ## 此外
 
-你可以通过在[连接器]()中找到Ares所支持的所有source和sink插件。
+支持的数据源见[数据源](../plsql/datasource.md)。

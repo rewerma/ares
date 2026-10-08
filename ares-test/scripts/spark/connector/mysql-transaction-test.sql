@@ -1,18 +1,20 @@
 SET datasource.mytest.connector=mysql;
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false;
+SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false';
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=121212;
 
 CREATE TABLE test1
-WITH (
+USING mysql
+OPTIONS (
     'datasource' = 'mytest',
     'table_name'='t_user',
     'type' = 'source,sink'
 );
 
 CREATE TABLE test2
-WITH (
+USING mysql
+OPTIONS (
     'datasource' = 'mytest',
     'table_name'='t_user1',
     'type' = 'source,sink'
@@ -21,24 +23,24 @@ WITH (
 TRUNCATE TABLE test2;
 INSERT INTO test2 (id, name, c_time) SELECT id, name, c_time FROM test1 WHERE id > 0 LIMIT 100;
 
-DECLARE
-    cnt INT := 0;
-BEGIN
-    FOR cur IN (SELECT * FROM test2 WHERE id > 0 LIMIT 10) LOOP
-        START TRANSACTION;
+def cnt = 0;
+try
+    START TRANSACTION;
+    for cur in (SELECT * FROM test2 WHERE id > 0 LIMIT 10)
         UPDATE test2 SET name = :cur.name||'_', c_time = :cur.c_time WHERE id = :cur.id;
-        cnt := cnt + 1;
-        IF cnt >= 3 THEN
+        cnt = cnt + 1;
+        if cnt >= 3
             COMMIT;
-            cnt := 0;
-        END IF;
-    END LOOP;
-    IF cnt > 0 THEN
+            cnt = 0;
+        end
+    end
+    if cnt > 0
         COMMIT;
-    END IF;
-EXCEPTION
-    WHEN ex THEN
-        ROLLBACK;
-        PUT_LINE(ex.message);
-        RAISE;
-END;
+    end
+    END TRANSACTION;
+catch
+    ROLLBACK;
+    END TRANSACTION;
+    PUT_LINE(ex.message);
+    raise;
+end

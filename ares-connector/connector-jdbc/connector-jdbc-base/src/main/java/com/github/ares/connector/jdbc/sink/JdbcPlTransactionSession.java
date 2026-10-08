@@ -12,20 +12,22 @@ import com.github.ares.connector.jdbc.internal.connection.SimpleJdbcConnectionPr
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Holds one JDBC connection (autoCommit=false) and per-SQL batch writers for a PL transaction. */
+/**
+ * Holds one JDBC connection ({@code autoCommit=false}) per datasource and per-SQL batch writers for
+ * a PL transaction. {@code COMMIT} and {@code ROLLBACK} are applied to every datasource in the
+ * segment. Each datasource has its own local transaction.
+ */
 public class JdbcPlTransactionSession {
     private static final Logger LOG = LoggerFactory.getLogger(JdbcPlTransactionSession.class);
 
-    private JdbcConnectionProvider connectionProvider;
-    private SharedJdbcConnectionProvider sharedProvider;
-    private String connectionKey;
-    private final Map<String, JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>>>
-            writers = new LinkedHashMap<>();
+    private final Map<String, SourceSession> sources = new LinkedHashMap<>();
 
     public void write(JdbcSink jdbcSink, AresRow row) {
         try {
@@ -42,12 +44,25 @@ public class JdbcPlTransactionSession {
     public void commit() {
         try {
             flushWriters();
-            Connection connection = currentConnection();
-            if (connection != null && !connection.getAutoCommit()) {
-                connection.commit();
-            }
         } catch (Exception e) {
             throw new AresException("COMMIT failed: " + e.getMessage(), e);
+        }
+        List<String> committed = new ArrayList<>();
+        for (Map.Entry<String, SourceSession> entry : sources.entrySet()) {
+            try {
+                entry.getValue().commit();
+                committed.add(entry.getKey());
+            } catch (Exception e) {
+                rollbackExcept(committed);
+                throw new AresException(
+                        "COMMIT failed for JDBC datasource "
+                                + entry.getKey()
+                                + ". Datasources already committed: "
+                                + committed
+                                + ". "
+                                + e.getMessage(),
+                        e);
+            }
         }
     }
 
@@ -57,36 +72,23 @@ public class JdbcPlTransactionSession {
         } catch (Exception e) {
             LOG.warn("Flush before rollback failed", e);
         }
-        try {
-            Connection connection = currentConnection();
-            if (connection != null && !connection.getAutoCommit()) {
-                connection.rollback();
-            }
-        } catch (Exception e) {
-            LOG.warn("ROLLBACK failed", e);
+        for (SourceSession source : sources.values()) {
+            source.rollbackQuietly();
         }
     }
 
     /**
-     * Close writers and the shared connection. Does not roll back; uncommitted work must already
-     * have been committed or rolled back by the caller.
+     * Close writers and every datasource connection. Does not roll back; uncommitted work must
+     * already have been committed or rolled back by the caller.
      */
     public void close() {
-        for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format :
-                writers.values()) {
-            try {
-                format.close();
-            } catch (Exception e) {
-                LOG.warn("Close transactional JDBC writer failed", e);
-            }
+        for (SourceSession source : sources.values()) {
+            source.closeWriters();
         }
-        writers.clear();
-        if (connectionProvider != null) {
-            connectionProvider.closeConnection();
-            connectionProvider = null;
-            sharedProvider = null;
-            connectionKey = null;
+        for (SourceSession source : sources.values()) {
+            source.closeConnection();
         }
+        sources.clear();
     }
 
     private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> getOrCreateWriter(
@@ -94,53 +96,106 @@ public class JdbcPlTransactionSession {
         JdbcSinkConfig sinkConfig = jdbcSink.getJdbcSinkConfig();
         JdbcConnectionConfig jdbcConfig = sinkConfig.getJdbcConnectionConfig();
         String key = connectionKey(jdbcConfig);
-        ensureConnection(jdbcConfig, key);
-
-        String writerKey = sinkConfig.getSimpleSql();
-        JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format =
-                writers.get(writerKey);
-        if (format == null) {
-            format =
-                    new JdbcOutputFormatBuilder(
-                                    jdbcSink.dialect(),
-                                    sharedProvider,
-                                    sinkConfig,
-                                    jdbcSink.getAresRowType())
-                            .build();
-            format.open();
-            writers.put(writerKey, format);
+        SourceSession source = sources.get(key);
+        if (source == null) {
+            source = new SourceSession(jdbcConfig);
+            sources.put(key, source);
         }
-        return format;
-    }
-
-    private void ensureConnection(JdbcConnectionConfig jdbcConfig, String key)
-            throws SQLException, ClassNotFoundException {
-        if (connectionProvider == null) {
-            connectionProvider = new SimpleJdbcConnectionProvider(jdbcConfig);
-            sharedProvider = new SharedJdbcConnectionProvider(connectionProvider);
-            Connection connection = connectionProvider.getOrEstablishConnection();
-            connection.setAutoCommit(false);
-            connectionKey = key;
-            return;
-        }
-        if (!key.equals(connectionKey)) {
-            throw new AresException(
-                    "START TRANSACTION only supports one JDBC datasource, got a different url/user");
-        }
+        return source.writer(jdbcSink);
     }
 
     private void flushWriters() throws Exception {
-        for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format :
-                writers.values()) {
-            format.flush();
+        for (SourceSession source : sources.values()) {
+            source.flush();
         }
     }
 
-    private Connection currentConnection() {
-        return connectionProvider == null ? null : connectionProvider.getConnection();
+    private void rollbackExcept(List<String> committed) {
+        for (Map.Entry<String, SourceSession> entry : sources.entrySet()) {
+            if (committed.contains(entry.getKey())) {
+                continue;
+            }
+            entry.getValue().rollbackQuietly();
+        }
     }
 
     private static String connectionKey(JdbcConnectionConfig config) {
         return config.getUrl() + "|" + config.getUsername().orElse("");
+    }
+
+    private static final class SourceSession {
+        private final JdbcConnectionProvider connectionProvider;
+        private final SharedJdbcConnectionProvider sharedProvider;
+        private final Map<String, JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>>>
+                writers = new LinkedHashMap<>();
+
+        private SourceSession(JdbcConnectionConfig jdbcConfig)
+                throws SQLException, ClassNotFoundException {
+            connectionProvider = new SimpleJdbcConnectionProvider(jdbcConfig);
+            sharedProvider = new SharedJdbcConnectionProvider(connectionProvider);
+            Connection connection = connectionProvider.getOrEstablishConnection();
+            connection.setAutoCommit(false);
+        }
+
+        private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> writer(
+                JdbcSink jdbcSink) throws Exception {
+            JdbcSinkConfig sinkConfig = jdbcSink.getJdbcSinkConfig();
+            String writerKey = sinkConfig.getSimpleSql();
+            JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format =
+                    writers.get(writerKey);
+            if (format == null) {
+                format =
+                        new JdbcOutputFormatBuilder(
+                                        jdbcSink.dialect(),
+                                        sharedProvider,
+                                        sinkConfig,
+                                        jdbcSink.getAresRowType())
+                                .build();
+                format.open();
+                writers.put(writerKey, format);
+            }
+            return format;
+        }
+
+        private void flush() throws Exception {
+            for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format :
+                    writers.values()) {
+                format.flush();
+            }
+        }
+
+        private void commit() throws SQLException {
+            Connection connection = connectionProvider.getConnection();
+            if (connection != null && !connection.getAutoCommit()) {
+                connection.commit();
+            }
+        }
+
+        private void rollbackQuietly() {
+            try {
+                Connection connection = connectionProvider.getConnection();
+                if (connection != null && !connection.getAutoCommit()) {
+                    connection.rollback();
+                }
+            } catch (Exception e) {
+                LOG.warn("ROLLBACK failed", e);
+            }
+        }
+
+        private void closeWriters() {
+            for (JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> format :
+                    writers.values()) {
+                try {
+                    format.close();
+                } catch (Exception e) {
+                    LOG.warn("Close transactional JDBC writer failed", e);
+                }
+            }
+            writers.clear();
+        }
+
+        private void closeConnection() {
+            connectionProvider.closeConnection();
+        }
     }
 }

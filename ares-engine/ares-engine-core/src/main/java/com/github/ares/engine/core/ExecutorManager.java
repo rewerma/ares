@@ -5,6 +5,7 @@ import com.github.ares.api.table.factory.Factory;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.parser.config.PlProperties;
+import com.github.ares.parser.plan.LogicalTruncateSQL;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
@@ -54,6 +55,8 @@ public class ExecutorManager implements Serializable {
     @Inject protected CreateSinkTableExecutor createSinkTableExecutor;
     @Inject protected CreateSourceTableExecutor createSourceTableExecutor;
     @Inject protected CreateTableAsSqlExecutor createTableAsSqlExecutor;
+    @Inject protected CreateHiveTableExecutor createHiveTableExecutor;
+    @Inject protected CreatePaimonTableExecutor createPaimonTableExecutor;
     @Inject protected DeclareParamsExecutor declareParamsExecutor;
 
     @Inject protected InsertSelectSqlExecutor insertSelectSqlExecutor;
@@ -68,8 +71,15 @@ public class ExecutorManager implements Serializable {
     protected final PlTransactionManager transactionManager = new PlTransactionManager();
 
     @Inject protected StartTransactionExecutor startTransactionExecutor;
+    @Inject protected EndTransactionExecutor endTransactionExecutor;
     @Inject protected CommitExecutor commitExecutor;
     @Inject protected RollbackExecutor rollbackExecutor;
+    @Inject protected TryCatchExecutor tryCatchExecutor;
+
+    /** Engine-specific truncate. Spark handles Hive tables with Spark SQL. */
+    public boolean tryTruncate(LogicalTruncateSQL truncateSQL) {
+        return false;
+    }
 
     public void init(PlProperties plProperties) {
         this.plProperties = plProperties;

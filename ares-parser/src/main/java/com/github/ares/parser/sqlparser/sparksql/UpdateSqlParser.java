@@ -79,6 +79,7 @@ public class UpdateSqlParser {
             CriteriaParser.parseWhereClause(
                     expressionContext, criteriaClause, sqlUpdate.getAlias());
             sqlUpdate.setWhereClause(criteriaClause);
+            sqlUpdate.setWhereSql(getFullText(expressionContext));
 
             List<String> selectItems = new ArrayList<>();
             CommonParser.visitCriteriaClause(criteriaClause, selectItems);

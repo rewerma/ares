@@ -23,6 +23,14 @@ public class SQLMerge implements Serializable {
 
     private CriteriaClause allWhereClause;
 
+    private String onSql;
+
+    private boolean matchedDelete;
+
+    private String matchedConditionSql;
+
+    private String notMatchedConditionSql;
+
     private List<SQLHint> hints;
 
     public String getTable() {
@@ -95,6 +103,38 @@ public class SQLMerge implements Serializable {
 
     public void setAllWhereClause(CriteriaClause allWhereClause) {
         this.allWhereClause = allWhereClause;
+    }
+
+    public String getOnSql() {
+        return onSql;
+    }
+
+    public void setOnSql(String onSql) {
+        this.onSql = onSql;
+    }
+
+    public boolean isMatchedDelete() {
+        return matchedDelete;
+    }
+
+    public void setMatchedDelete(boolean matchedDelete) {
+        this.matchedDelete = matchedDelete;
+    }
+
+    public String getMatchedConditionSql() {
+        return matchedConditionSql;
+    }
+
+    public void setMatchedConditionSql(String matchedConditionSql) {
+        this.matchedConditionSql = matchedConditionSql;
+    }
+
+    public String getNotMatchedConditionSql() {
+        return notMatchedConditionSql;
+    }
+
+    public void setNotMatchedConditionSql(String notMatchedConditionSql) {
+        this.notMatchedConditionSql = notMatchedConditionSql;
     }
 
     public List<SQLHint> getHints() {

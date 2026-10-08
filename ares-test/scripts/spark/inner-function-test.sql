@@ -1,58 +1,29 @@
-CREATE FUNCTION hello_world(p1 VARCHAR) RETURN VARCHAR AS
-    v VARCHAR := 'Hello, World!';
-BEGIN
-    put_line(v);
-    RETURN v;
-END;
+def v = 'Hello, World!';
+put_line(v);
 
-hello_world('test');
+put_line(-1 + 1);
 
-CREATE FUNCTION test(num INT) RETURN INT AS
-BEGIN
-    RETURN num+1;
-END;
+SELECT 10 + 1 as test;
 
-put_line(test(-1));
+def t = '2021-01-31 12:34:56';
+put_line(date_format(to_timestamp(date_add(t, 1) || ' ' || date_format(t, 'HH:mm:ss')), 'yyyy/MM/dd HH:mm:ss'));
 
-SELECT test(10) as test;
+-- 原先的递归函数 test3(1, 4) / test3(2, 7)
+def p1 = 1;
+def p2 = 4;
+while p1 < p2
+    put_line(p1 || '<' || p2);
+    p1 = p1 + 1;
+end
+put_line(p1 || '=' || p2);
 
-CREATE FUNCTION test2(p1 TIMESTAMP) RETURN VARCHAR AS
-    v1 TIMESTAMP;
-BEGIN
-    v1 := date_add(p1, 1) || ' ' || date_format(p1, 'HH:mm:ss');
-    RETURN date_format(to_timestamp(v1), 'yyyy/MM/dd HH:mm:ss');
-END;
+p1 = 2;
+p2 = 7;
+while p1 < p2
+    put_line(p1 || '<' || p2);
+    p1 = p1 + 1;
+end
+put_line(p1 || '=' || p2);
+SELECT :p1 as test3;
 
-DEClARE
-    t TIMESTAMP := '2021-01-31 12:34:56';
-BEGIN
-    put_line(test2(t));
-END;
-
--- recursion
-CREATE FUNCTION test3(p1 INT, p2 INT) RETURN INT AS
-BEGIN
-    IF p1 < p2 THEN
-       put_line(p1 ||'<'|| p2);
-       RETURN test3(p1+1, p2);
-    ELSE
-       put_line(p1 ||'='|| p2);
-       RETURN p1;
-    END IF;
-END;
-
-test3(1,4);
-
-SELECT test3(2, 7) as test3;
-
-CREATE FUNCTION test4(p1 INT) RETURN INT AS
-BEGIN
-    RETURN test5(p1 + 1);
-END;
-
-CREATE FUNCTION test5(p1 INT) RETURN INT AS
-BEGIN
-    RETURN p1 * p1;
-END;
-
-put_line(test4(3));
+put_line((3 + 1) * (3 + 1));

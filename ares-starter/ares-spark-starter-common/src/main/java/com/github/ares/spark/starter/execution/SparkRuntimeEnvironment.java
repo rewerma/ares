@@ -7,6 +7,8 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 
 public class SparkRuntimeEnvironment implements RuntimeEnvironment {
+    public static final String ENABLE_HIVE_KEY = "ares.enable.hive";
+
     private SparkConf sparkConf;
 
     private SparkSession sparkSession;
@@ -78,19 +80,7 @@ public class SparkRuntimeEnvironment implements RuntimeEnvironment {
     }
 
     protected boolean checkIsContainHive(Properties properties) {
-        /*List<? extends Config> sourceConfigList = config.getConfigList(PluginType.SOURCE.getType());
-        for (Config c : sourceConfigList) {
-            if (c.getString(PLUGIN_NAME_KEY).toLowerCase().contains("hive")) {
-                return true;
-            }
-        }
-        List<? extends Config> sinkConfigList = config.getConfigList(PluginType.SINK.getType());
-        for (Config c : sinkConfigList) {
-            if (c.getString(PLUGIN_NAME_KEY).toLowerCase().contains("hive")) {
-                return true;
-            }
-        }*/
-        return false;
+        return Boolean.parseBoolean(properties.getProperty(ENABLE_HIVE_KEY, "false"));
     }
 
     public static SparkRuntimeEnvironment getInstance(Properties properties) {

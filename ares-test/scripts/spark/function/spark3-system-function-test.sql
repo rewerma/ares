@@ -31,11 +31,11 @@ assert_equals(nullif(2, 2), null);
 assert_equals(nvl(NULL, 2), 2);
 assert_equals(nvl2(NULL, 2, 1), 1);
 
-begin
+try
     raise_error('Test raise error');
-    exception when ex then
-        assert_equals(ex.message, 'Test raise error');
-end;
+catch
+    assert_equals(ex.message, 'Test raise error');
+end
 
 put_line(rand());
 put_line(rand(null));

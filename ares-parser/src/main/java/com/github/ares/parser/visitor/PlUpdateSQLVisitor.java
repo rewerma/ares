@@ -4,6 +4,9 @@ import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
 import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonDml;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
@@ -36,6 +39,7 @@ public class PlUpdateSQLVisitor {
             throw new ParseException(
                     String.format("Sink table name not exists: %s", sqlUpdate.getTable()));
         }
+        HiveTables.rejectRowChange(sinkTable.getConnector(), "UPDATE");
         String selectSQL = sqlUpdate.getSourceSql();
         LogicalUpdateSelectSQL updateSelectSQL = new LogicalUpdateSelectSQL();
         updateSelectSQL.setSinkTable(sinkTable);
@@ -43,6 +47,9 @@ public class PlUpdateSQLVisitor {
         updateSelectSQL.setSelectSQL(selectSQL);
         updateSelectSQL.setUpdateItems(sqlUpdate.getUpdateColumns());
         updateSelectSQL.setWhereClause(sqlUpdate.getWhereClause());
+        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+            updateSelectSQL.setPaimonSql(PaimonDml.update(sqlUpdate));
+        }
 
         if (sqlUpdate.getHints() != null) {
             for (SQLHint hint : sqlUpdate.getHints()) {

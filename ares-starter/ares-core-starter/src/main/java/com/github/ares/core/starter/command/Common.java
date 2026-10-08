@@ -163,9 +163,7 @@ public class Common {
             return false;
         }
         String normalized = connectorName.toLowerCase();
-        return "hive".equals(normalized)
-                || "hive3".equals(normalized)
-                || "filehadoop".equals(normalized)
+        return "filehadoop".equals(normalized)
                 || "fileftp".equals(normalized)
                 || "filesftp".equals(normalized);
     }
@@ -191,7 +189,6 @@ public class Common {
         return Arrays.stream(paths.split(";"))
                 .filter(s -> !"".equals(s))
                 .filter(it -> it.endsWith(".jar"))
-                .filter(it -> !isHiveThirdPartyJar(it))
                 .map(
                         path -> {
                             if (path.contains("://")) {
@@ -200,14 +197,6 @@ public class Common {
                             return Paths.get(path);
                         })
                 .collect(Collectors.toSet());
-    }
-
-    private static boolean isHiveThirdPartyJar(String path) {
-        String normalized = path.replace('\\', '/').toLowerCase();
-        return normalized.contains("/thirdparty/hive/")
-                || normalized.contains("/thirdparty/hive3/")
-                || normalized.contains("ares-hive2")
-                || normalized.contains("ares-hive3");
     }
 
     public static Path pluginTarball() {

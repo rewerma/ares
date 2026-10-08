@@ -13,6 +13,7 @@ import com.github.ares.engine.core.CreateProcedureExecutor;
 import com.github.ares.engine.core.CreateSinkTableExecutor;
 import com.github.ares.engine.core.DeclareParamsExecutor;
 import com.github.ares.engine.core.DirectExecutionExecutor;
+import com.github.ares.engine.core.EndTransactionExecutor;
 import com.github.ares.engine.core.ExpressionExecutor;
 import com.github.ares.engine.core.ForLoopExecutor;
 import com.github.ares.engine.core.IfElseExecutor;
@@ -24,6 +25,7 @@ import com.github.ares.engine.core.SinkPluginManager;
 import com.github.ares.engine.core.StartTransactionExecutor;
 import com.github.ares.engine.core.TraceLogger;
 import com.github.ares.engine.core.TruncateSqlExecutor;
+import com.github.ares.engine.core.TryCatchExecutor;
 import com.github.ares.engine.core.WhileLoopExecutor;
 
 public class BaseServiceModule extends AbstractModule {
@@ -50,7 +52,9 @@ public class BaseServiceModule extends AbstractModule {
         bind(ReloadFunctionExecutor.class).in(Singleton.class);
         bind(AresSinkFactory.class).in(Singleton.class);
         bind(StartTransactionExecutor.class).in(Singleton.class);
+        bind(EndTransactionExecutor.class).in(Singleton.class);
         bind(CommitExecutor.class).in(Singleton.class);
         bind(RollbackExecutor.class).in(Singleton.class);
+        bind(TryCatchExecutor.class).in(Singleton.class);
     }
 }

@@ -14,10 +14,6 @@ public class PlVisitorManager {
     @Inject private PlStatementVisitor statementVisitor;
     @Inject private PlBaseVisitor baseVisitor;
     @Inject private PlBodyVisitor bodyVisitor;
-    @Inject private PlFunctionBodyVisitor functionBodyVisitor;
-    @Inject private PlCreateProcedureVisitor createProcedureVisitor;
-    @Inject private PlCreateFunctionVisitor createFunctionVisitor;
-    @Inject private PlDeclareParamsVisitor declareParamsVisitor;
     @Inject private PlCreateTableWithVisitor createTableWithVisitor;
     @Inject private PlCallStatementVisitor callStatementVisitor;
     @Inject private PlAssignmentVisitor assignmentVisitor;
@@ -31,17 +27,12 @@ public class PlVisitorManager {
     @Inject private PlTruncateSQLVisitor truncateSQLVisitor;
     @Inject private PlIfStatementVisitor ifStatementVisitor;
     @Inject private PlLoopStatementVisitor loopStatementVisitor;
-    @Inject private PlReturnStatementVisitor returnStatementVisitor;
     @Inject private PlExceptionHandlerVisitor exceptionHandlerVisitor;
 
     public void init() {
         statementVisitor.init(this);
         baseVisitor.init(this);
         bodyVisitor.init(this);
-        functionBodyVisitor.init(this);
-        createProcedureVisitor.init(this);
-        createFunctionVisitor.init(this);
-
         createTableWithVisitor.init(this);
         callStatementVisitor.init(this);
         assignmentVisitor.init(this);
@@ -56,7 +47,6 @@ public class PlVisitorManager {
         truncateSQLVisitor.init(this);
 
         exceptionHandlerVisitor.init(this);
-        returnStatementVisitor.init(this);
         loopStatementVisitor.init(this);
         ifStatementVisitor.init(this);
     }

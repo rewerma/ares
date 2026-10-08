@@ -1,7 +1,5 @@
 package com.github.ares.parser.visitor;
 
-import static com.github.ares.parser.enums.OperationType.CREATE_FUNCTION;
-import static com.github.ares.parser.enums.OperationType.CREATE_PROCEDURE;
 import static com.github.ares.parser.enums.OperationType.CREATE_SINK_TABLE;
 import static com.github.ares.parser.enums.OperationType.CREATE_SOURCE_TABLE;
 
@@ -31,13 +29,8 @@ public class PlStatementVisitor {
         List<LogicalOperation> declareOperations = new ArrayList<>();
         List<LogicalOperation> executionOperations = new ArrayList<>();
         for (LogicalOperation baseOperation : baseOperations) {
-            if (baseOperation.getOperationType() == CREATE_SOURCE_TABLE) {
-                declareOperations.add(baseOperation);
-            } else if (baseOperation.getOperationType() == CREATE_SINK_TABLE) {
-                declareOperations.add(baseOperation);
-            } else if (baseOperation.getOperationType() == CREATE_PROCEDURE) {
-                declareOperations.add(baseOperation);
-            } else if (baseOperation.getOperationType() == CREATE_FUNCTION) {
+            if (baseOperation.getOperationType() == CREATE_SOURCE_TABLE
+                    || baseOperation.getOperationType() == CREATE_SINK_TABLE) {
                 declareOperations.add(baseOperation);
             } else {
                 executionOperations.add(baseOperation);

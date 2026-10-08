@@ -12,8 +12,6 @@ public enum ConnectorType {
     FTP("ftp"),
     /** SFTP */
     SFTP("sftp"),
-    /** HIVE */
-    HIVE("hive"),
     ;
 
     private static final Map<String, ConnectorType> TYPES = new HashMap<>();
@@ -23,7 +21,6 @@ public enum ConnectorType {
         TYPES.put(T3.type, T3);
         TYPES.put(FTP.type, FTP);
         TYPES.put(SFTP.type, SFTP);
-        TYPES.put(HIVE.type, HIVE);
     }
 
     private final String type;

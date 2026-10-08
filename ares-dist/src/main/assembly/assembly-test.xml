@@ -25,6 +25,10 @@
                 <include>org.postgresql:postgresql:jar</include>
                 <include>com.oracle.database.jdbc:ojdbc8:jar</include>
                 <include>com.microsoft.sqlserver:mssql-jdbc:jar</include>
+                <include>com.dameng:DmJdbcDriver18:jar</include>
+                <include>cn.com.kingbase:kingbase8:jar</include>
+                <include>com.oceanbase:oceanbase-client:jar</include>
+                <include>org.opengauss:opengauss-jdbc:jar</include>
             </includes>
             <outputDirectory>/lib</outputDirectory>
         </dependencySet>

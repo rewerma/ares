@@ -12,6 +12,8 @@ import lombok.Setter;
 public class LogicalExceptionHandler extends LogicalOperation implements Serializable {
     private static final long serialVersionUID = -1L;
 
+    private List<LogicalOperation> tryBody = new ArrayList<>();
+
     private List<LogicalOperation> exHandlerBody = new ArrayList<>();
 
     private Boolean withRaise;

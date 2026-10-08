@@ -17,23 +17,26 @@ public class PlAssignmentVisitor {
 
     public LogicalOperation visitAssignment(
             PlSqlParser.Assignment_statementContext assignmentStatement,
-            Map<String, PlType> declaredParams,
-            Map<String, PlType> allParams,
+            Map<String, PlType> visible,
             List<String> structs) {
-        String element = assignmentStatement.general_element().getText();
-        PlType type = declaredParams.get(element);
+        StringBuilder name = new StringBuilder();
+        for (PlSqlParser.IdentifierContext identifier : assignmentStatement.identifier()) {
+            if (name.length() > 0) {
+                name.append('.');
+            }
+            name.append(PlBodyVisitor.identText(identifier));
+        }
+        String element = name.toString();
+        PlType type = visible.get(element);
         if (type == null) {
             throw new IllegalArgumentException("Argument: " + element + " undefined.");
         }
         LogicalAssignment assignment = new LogicalAssignment();
-        Argument argument = new Argument(element, type);
-        argument.setName(element);
-        assignment.setParam(argument);
+        assignment.setParam(new Argument(element, type));
         assignment.setExpr(
                 visitorManager
                         .getExpressionVisitor()
-                        .visitExpressionContext(
-                                assignmentStatement.expression(), allParams, structs)
+                        .visitExpressionContext(assignmentStatement.expression(), visible, structs)
                         .getExpr());
         return assignment;
     }

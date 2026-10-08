@@ -5,6 +5,10 @@ import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.parser.config.PlProperties;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.plan.LogicalCreateSinkTable;
+import com.github.ares.parser.plan.LogicalTruncateSQL;
 import java.io.Serializable;
 import lombok.Getter;
 import org.apache.spark.sql.Dataset;
@@ -23,6 +27,25 @@ public class SparkExecutorManager extends ExecutorManager implements Serializabl
         sparkSessionManager.init(sparkSession);
         super.init(plProperties);
         getTransactionManager().init(new SparkJdbcTransactionalSinkHandler(this));
+    }
+
+    @Override
+    public boolean tryTruncate(LogicalTruncateSQL truncateSQL) {
+        LogicalCreateSinkTable sinkTable = truncateSQL.getSinkTable();
+        if (sinkTable == null) {
+            return false;
+        }
+        if (HiveTables.isHiveConnector(sinkTable.getConnector())) {
+            HiveSparkSql.truncate(
+                    sparkSessionManager.getSparkSession(),
+                    HiveTables.tableName(sinkTable.getOptions()));
+            return true;
+        }
+        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+            PaimonSparkSql.truncate(sparkSessionManager.getSparkSession(), sinkTable.getOptions());
+            return true;
+        }
+        return false;
     }
 
     public boolean tryTransactionalSink(

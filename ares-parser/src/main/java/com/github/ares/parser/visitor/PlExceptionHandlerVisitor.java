@@ -3,76 +3,50 @@ package com.github.ares.parser.visitor;
 import com.github.ares.common.engine.PlType;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.plan.LogicalExceptionHandler;
-import com.github.ares.parser.plan.LogicalOperation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class PlExceptionHandlerVisitor {
     private static final String INNER_EX_PARAM = "ex";
-    private PlVisitorManager visitorManager;
 
-    public void init(PlVisitorManager visitorManager) {
-        this.visitorManager = visitorManager;
-    }
+    public void init(PlVisitorManager visitorManager) {}
 
-    public LogicalExceptionHandler visitExceptionHandler(
-            PlSqlParser.Exception_handlerContext exceptionHandlerContext,
-            Map<String, PlType> inParams,
-            Map<String, PlType> outParams,
-            Map<String, PlType> declaredParams,
-            boolean inFunction) {
-        String exName = exceptionHandlerContext.exception_name(0).getText();
-        if (!INNER_EX_PARAM.equalsIgnoreCase(exName)) {
-            return null;
+    public LogicalExceptionHandler visitTry(
+            PlBodyVisitor plBodyVisitor,
+            PlSqlParser.Try_statementContext tryStatement,
+            Map<String, PlType> scriptDeclared,
+            Map<String, PlType> visible,
+            List<String> structs) {
+        LogicalExceptionHandler handler = new LogicalExceptionHandler();
+        handler.setTryBody(
+                plBodyVisitor.visitBlock(tryStatement.body(0), scriptDeclared, visible, structs));
+
+        List<String> catchStructs = structs == null ? new ArrayList<>() : new ArrayList<>(structs);
+        if (!catchStructs.contains(INNER_EX_PARAM)) {
+            catchStructs.add(INNER_EX_PARAM);
         }
-        LogicalExceptionHandler exHandler = new LogicalExceptionHandler();
-        Integer raiseIdx = null;
+        PlSqlParser.BodyContext catchBlock = tryStatement.body(1);
         List<PlSqlParser.StatementContext> statements =
-                exceptionHandlerContext.seq_of_statements().statement();
-        for (int i = statements.size() - 1; i >= 0; i--) {
-            PlSqlParser.Raise_statementContext raiseStatementContext =
-                    statements.get(i).raise_statement();
-            if (raiseStatementContext != null) {
-                exHandler.setWithRaise(true);
-                raiseIdx = i;
+                catchBlock.statement() == null
+                        ? new ArrayList<>()
+                        : new ArrayList<>(catchBlock.statement());
+        for (int i = 0; i < statements.size(); i++) {
+            PlSqlParser.Terminated_statementContext terminated =
+                    statements.get(i).terminated_statement();
+            if (terminated != null && terminated.raise_statement() != null) {
+                handler.setWithRaise(true);
+                statements = statements.subList(0, i);
                 break;
             }
         }
-        if (raiseIdx != null) {
-            List<PlSqlParser.StatementContext> newStatements = new ArrayList<>();
-            for (int i = 0; i <= raiseIdx; i++) {
-                newStatements.add(statements.get(i));
-            }
-            statements = newStatements;
+        List<com.github.ares.parser.plan.LogicalOperation> catchBody = new ArrayList<>();
+        for (PlSqlParser.StatementContext statement : statements) {
+            catchBody.addAll(
+                    plBodyVisitor.visitStatement(
+                            statement, scriptDeclared, visible, catchStructs, false));
         }
-        List<LogicalOperation> exHandlerBody;
-        if (inFunction) {
-            exHandlerBody =
-                    visitorManager
-                            .getFunctionBodyVisitor()
-                            .visitBodyStatements(
-                                    statements,
-                                    inParams,
-                                    outParams,
-                                    declaredParams,
-                                    new ArrayList<>(),
-                                    Collections.singletonList(INNER_EX_PARAM));
-        } else {
-            exHandlerBody =
-                    visitorManager
-                            .getBodyVisitor()
-                            .visitBodyStatements(
-                                    statements,
-                                    inParams,
-                                    outParams,
-                                    declaredParams,
-                                    new ArrayList<>(),
-                                    Collections.singletonList(INNER_EX_PARAM));
-        }
-        exHandler.setExHandlerBody(exHandlerBody);
-
-        return exHandler;
+        handler.setExHandlerBody(catchBody);
+        return handler;
     }
 }

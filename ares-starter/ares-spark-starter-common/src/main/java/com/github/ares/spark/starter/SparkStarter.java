@@ -104,6 +104,7 @@ public class SparkStarter implements Starter {
         if (usesHadoopConnector(logicalProject)) {
             this.jars.addAll(Common.getThirdPartyHadoopJars());
         }
+        PaimonStarterSupport.addFilesystemDependencies(this.jars, logicalProject);
         this.jars.addAll(
                 new ArrayList<>(
                         Common.getThirdPartyJars(

@@ -44,7 +44,7 @@ public class OperationDispatcher implements Serializable {
                         EXIT_LOOP,
                         OperationHandler.Scope.BODY,
                         (op, params, lastData, body) -> {
-                            traceLogger.info("Loop: EXIT");
+                            traceLogger.info("Loop: BREAK");
                             return EXIT_LOOP;
                         }));
         bodyHandlers.put(

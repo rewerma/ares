@@ -23,6 +23,8 @@ import com.github.ares.parser.PlParser;
 import com.github.ares.parser.config.PlProperties;
 import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -176,6 +178,14 @@ public class MainExecutor {
         Map<String, Optional<? extends Factory>> sinks = new LinkedHashMap<>();
         for (LogicalCreateSinkTable sinkTable : sinkTables) {
             if (sinks.containsKey(sinkTable.getTableName())) {
+                continue;
+            }
+            if (HiveTables.isHiveConnector(sinkTable.getConnector())
+                    || PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+                sinks.put(sinkTable.getTableName(), Optional.empty());
+                sparkExecutorManager
+                        .getSinkPluginManager()
+                        .registerPlugin(sinkTable.getTableName(), Optional.empty());
                 continue;
             }
             Optional<? extends Factory> factory =

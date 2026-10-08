@@ -121,6 +121,7 @@ public class SparkStarter implements Starter {
         Common.setDeployMode(commandArgs.getDeployMode());
         Common.setStarter(true);
         LogicalProject logicalProject = parseLogicalProject();
+        PaimonStarterSupport.rejectFilesystemOnSpark2(logicalProject);
         this.jars.addAll(Common.getPluginsJarDependencies());
         this.jars.addAll(Common.getLibJars());
         this.jars.addAll(getConnectorJarDependencies(logicalProject));

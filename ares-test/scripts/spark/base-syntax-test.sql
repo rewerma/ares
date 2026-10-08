@@ -1,6 +1,6 @@
 CREATE TABLE test1
-WITH (
-    'connector' = 'fake',
+USING fake
+OPTIONS (
     'schema' = '{"fields":{"id":"bigint","name":"string","c_time":"timestamp"}}',
     'rows' = '[{"fields":[1, "Eric", "2021-01-01 12:23:34"]},
                {"fields":[2, "Andy", "2022-03-11 11:23:34"]},
@@ -8,26 +8,23 @@ WITH (
     'type' = 'source'
 );
 
-DECLARE
-    i INT := 0;
-    e INT := 5;
-BEGIN
-    WHILE i < 5 LOOP
-        IF i > 2 THEN
-            EXIT;
-        END IF;
-        PUT_LINE('INDEX: ' || i);
-        i := i + 1;
-    END LOOP;
+def i = 0;
+def e = 5;
+while i < 5
+    if i > 2
+        break;
+    end
+    PUT_LINE('INDEX: ' || i);
+    i = i + 1;
+end
 
-    FOR j IN 1..e LOOP
-        IF j = 3 THEN
-            EXIT;
-        END IF;
-        PUT_LINE('INDEX: ' || j);
-    END LOOP;
+for j in 1 .. e
+    if j = 3
+        break;
+    end
+    PUT_LINE('INDEX: ' || j);
+end
 
-    FOR cur IN (select * from test1) LOOP
-        println(cur.id||' '||cur.name||' '||cur.c_time);
-    END LOOP;
-END;
+for cur in (select * from test1)
+    println(cur.id||' '||cur.name||' '||cur.c_time);
+end

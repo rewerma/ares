@@ -2,6 +2,7 @@ package com.github.ares.parser.sqlparser.sparksql;
 
 import static com.github.ares.parser.sqlparser.sparksql.CommonParser.SQL_SELECT_PREFIX;
 import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG_WITH_PARAM;
+import static com.github.ares.parser.utils.PLParserUtil.getFullText;
 
 import com.github.ares.api.common.CriteriaClause;
 import com.github.ares.common.exceptions.ParseException;
@@ -59,6 +60,7 @@ public class DeleteSqlParser {
             CriteriaParser.parseWhereClause(
                     expressionContext, criteriaClause, sqlDelete.getAlias());
             sqlDelete.setWhereClause(criteriaClause);
+            sqlDelete.setWhereSql(getFullText(expressionContext));
 
             List<String> selectItems = new ArrayList<>();
             CommonParser.visitCriteriaClause(criteriaClause, selectItems);

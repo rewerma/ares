@@ -22,6 +22,9 @@ public class PlTransactionManagerTest {
         assertTrue(manager.isActive());
         manager.commit();
         assertEquals(1, handler.commits);
+        assertTrue(manager.isActive());
+        manager.end();
+        assertEquals(1, handler.commits);
         assertFalse(manager.isActive());
     }
 
@@ -51,10 +54,13 @@ public class PlTransactionManagerTest {
         manager.init(handler);
         manager.start();
         manager.rollback();
-        assertFalse(manager.isActive());
+        assertTrue(manager.isActive());
         assertEquals(1, handler.rollbacks);
         manager.rollback();
         assertEquals(1, handler.rollbacks);
+        manager.end();
+        assertEquals(0, handler.commits);
+        assertFalse(manager.isActive());
     }
 
     @Test
@@ -95,6 +101,58 @@ public class PlTransactionManagerTest {
     }
 
     @Test
+    public void commitKeepsSegmentOpenForLaterDml() {
+        PlTransactionManager manager = new PlTransactionManager();
+        RecordingHandler handler = new RecordingHandler();
+        manager.init(handler);
+        manager.start();
+        manager.commit();
+        manager.write(null, null, null, "t");
+        manager.end();
+        assertEquals(2, handler.commits);
+        assertEquals(1, handler.writes);
+        assertFalse(manager.isActive());
+    }
+
+    @Test
+    public void endCommitsOpenBatch() {
+        PlTransactionManager manager = new PlTransactionManager();
+        RecordingHandler handler = new RecordingHandler();
+        manager.init(handler);
+        manager.start();
+        manager.write(null, null, null, "t");
+        manager.end();
+        assertEquals(1, handler.commits);
+        assertEquals(0, handler.rollbacks);
+        assertFalse(manager.isActive());
+    }
+
+    @Test
+    public void endWithoutSegmentIsNoOp() {
+        PlTransactionManager manager = new PlTransactionManager();
+        RecordingHandler handler = new RecordingHandler();
+        manager.init(handler);
+        manager.end();
+        assertEquals(0, handler.commits);
+        assertFalse(manager.isActive());
+    }
+
+    @Test
+    public void ensureNotActiveRejectsUntilEnd() {
+        PlTransactionManager manager = new PlTransactionManager();
+        manager.start();
+        manager.commit();
+        try {
+            manager.ensureNotActive("TRUNCATE");
+            fail("expected AresException");
+        } catch (AresException e) {
+            assertTrue(e.getMessage().contains("TRUNCATE"));
+        }
+        manager.end();
+        manager.ensureNotActive("TRUNCATE");
+    }
+
+    @Test
     public void ensureNotActiveRejectsOpenTransaction() {
         PlTransactionManager manager = new PlTransactionManager();
         manager.start();
@@ -110,13 +168,16 @@ public class PlTransactionManagerTest {
         int commits;
         int rollbacks;
         int closes;
+        int writes;
 
         @Override
         public void write(
                 AresSink<?, ?, ?, ?> sink,
                 Object dataset,
                 CatalogTable catalogTable,
-                String sinkTableName) {}
+                String sinkTableName) {
+            writes++;
+        }
 
         @Override
         public void commit() {

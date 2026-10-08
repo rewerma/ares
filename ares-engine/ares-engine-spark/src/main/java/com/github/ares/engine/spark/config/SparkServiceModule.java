@@ -4,6 +4,8 @@ import com.github.ares.com.google.inject.AbstractModule;
 import com.github.ares.com.google.inject.Singleton;
 import com.github.ares.engine.core.AbstractRootExecutor;
 import com.github.ares.engine.core.CreateFunctionExecutor;
+import com.github.ares.engine.core.CreateHiveTableExecutor;
+import com.github.ares.engine.core.CreatePaimonTableExecutor;
 import com.github.ares.engine.core.CreateSourceTableExecutor;
 import com.github.ares.engine.core.CreateTableAsSqlExecutor;
 import com.github.ares.engine.core.DeleteSelectSqlExecutor;
@@ -19,6 +21,8 @@ import com.github.ares.engine.core.UpdateSelectSqlExecutor;
 import com.github.ares.engine.spark.core.MainExecutor;
 import com.github.ares.engine.spark.core.SparkCommonExecutor;
 import com.github.ares.engine.spark.core.SparkCreateFunctionExecutor;
+import com.github.ares.engine.spark.core.SparkCreateHiveTableExecutor;
+import com.github.ares.engine.spark.core.SparkCreatePaimonTableExecutor;
 import com.github.ares.engine.spark.core.SparkCreateSourceTableExecutor;
 import com.github.ares.engine.spark.core.SparkCreateTableAsSqlExecutor;
 import com.github.ares.engine.spark.core.SparkDeleteSelectSqlExecutor;
@@ -47,6 +51,12 @@ public class SparkServiceModule extends AbstractModule {
         bind(SelectSqlExecutor.class).to(SparkSelectSqlExecutor.class).in(Singleton.class);
         bind(CreateTableAsSqlExecutor.class)
                 .to(SparkCreateTableAsSqlExecutor.class)
+                .in(Singleton.class);
+        bind(CreateHiveTableExecutor.class)
+                .to(SparkCreateHiveTableExecutor.class)
+                .in(Singleton.class);
+        bind(CreatePaimonTableExecutor.class)
+                .to(SparkCreatePaimonTableExecutor.class)
                 .in(Singleton.class);
         bind(SelectIntoSqlExecutor.class).to(SparkSelectIntoSqlExecutor.class).in(Singleton.class);
         bind(InsertSelectSqlExecutor.class)

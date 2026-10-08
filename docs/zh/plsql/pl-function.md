@@ -6,13 +6,13 @@
 
 ```sql
 PUT_LINE('abc');
-        
+
 PUT_LINE('abc' || 123);
 ```
 
 ## 2. 日志输出函数
 
-在Ares的作业脚本中，可以使用`LOG_MSG`函数来输出日志信息，输出的日志会以`[PL-LOGGER]`前缀开头。
+在Ares的作业脚本中，可以使用`LOGGER`函数来输出日志信息，输出的日志会以`[PL-LOGGER]`前缀开头。
 
 ```sql
 LOGGER('INFO', 'This is a info log message.');
@@ -34,6 +34,6 @@ SLEEP(10);
 在Ares的作业脚本中，可以使用`ASSERT_EQUALS`函数来进行断言，如果断言失败，则会抛出`ASSERT_EQUALS failed`异常。
 ```sql
 ASSERT_EQUALS(1, 1);
-             
+
 ASSERT_EQUALS(IF(1 < 2, 'a', 'b'), 'a');
 ```

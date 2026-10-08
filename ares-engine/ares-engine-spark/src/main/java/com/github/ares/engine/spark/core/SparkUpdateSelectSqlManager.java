@@ -20,6 +20,7 @@ import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.PlParams;
 import com.github.ares.engine.core.UpdateSelectSqlExecutor;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,6 +56,16 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
             traceLogger.info("SQL: {}; Params: {}", usSql.getOriginSQL(), plParams);
         }
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
+        if (PaimonTables.isPaimonConnector(
+                String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key())))) {
+            PaimonSparkSql.executeDml(
+                    sparkSession,
+                    sinkConfig,
+                    usSql.getPaimonSql(),
+                    plParams,
+                    usSql.getSinkTable().getTableName());
+            return;
+        }
         sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.UPDATE.name());
         ArrayList<String> updateColumns = new ArrayList<>(usSql.getUpdateItems());
         sinkConfig.put(CommonOptions.UPDATE_COLUMNS.key(), updateColumns);

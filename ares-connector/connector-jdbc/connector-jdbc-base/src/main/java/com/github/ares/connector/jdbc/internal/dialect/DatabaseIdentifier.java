@@ -22,5 +22,9 @@ public class DatabaseIdentifier {
     public static final String TERADATA = "Teradata";
     public static final String VERTICA = "Vertica";
     public static final String OCENABASE = "OceanBase";
+    public static final String OCEANBASE = OCENABASE;
+    public static final String OPENGAUSS = "OpenGauss";
+    public static final String STARROCKS = "StarRocks";
+    public static final String DORIS = "Doris";
     public static final String TIDB = "TiDB";
 }

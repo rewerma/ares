@@ -4,6 +4,9 @@ import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
 import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonDml;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -35,6 +38,7 @@ public class PlDeleteSQLVisitor {
             throw new ParseException(
                     String.format("Sink table name not exists: %s", sqlDelete.getTable()));
         }
+        HiveTables.rejectRowChange(sinkTable.getConnector(), "DELETE");
 
         String selectSQL = sqlDelete.getSourceSql();
         LogicalDeleteSelectSQL deleteSelectSQL = new LogicalDeleteSelectSQL();
@@ -42,6 +46,9 @@ public class PlDeleteSQLVisitor {
         deleteSelectSQL.setOriginSQL(originalSql);
         deleteSelectSQL.setSelectSQL(selectSQL);
         deleteSelectSQL.setWhereClause(sqlDelete.getWhereClause());
+        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+            deleteSelectSQL.setPaimonSql(PaimonDml.delete(sqlDelete));
+        }
 
         if (sqlDelete.getHints() != null) {
             for (SQLHint hint : sqlDelete.getHints()) {

@@ -21,6 +21,8 @@ import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.InsertSelectSqlExecutor;
 import com.github.ares.engine.core.PlParams;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -75,6 +77,19 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
         if (isSql.getWithShow() != null) {
             traceLogger.info("SQL show result: {}", isSql.getSelectSQL());
             resultDf.show(isSql.getWithShow());
+        }
+        String connector = String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key()));
+        if (HiveTables.isHiveConnector(connector)) {
+            HiveSparkSql.insert(
+                    sparkSession,
+                    HiveTables.tableName(sinkConfig),
+                    resultDf,
+                    isSql.getTargetColumns());
+            return;
+        }
+        if (PaimonTables.isPaimonConnector(connector)) {
+            PaimonSparkSql.insert(sparkSession, sinkConfig, resultDf, isSql.getTargetColumns());
+            return;
         }
 
         StructType structType = resultDf.schema();

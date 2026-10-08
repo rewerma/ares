@@ -1,11 +1,7 @@
 package com.github.ares.parser.visitor;
 
-import static com.github.ares.common.utils.StringUtils.substring;
-import static com.github.ares.parser.utils.PLParserUtil.getFullText;
-
 import com.github.ares.common.engine.InternalFieldType;
 import com.github.ares.common.engine.PlType;
-import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.plan.LogicalExpression;
 import com.github.ares.parser.plan.LogicalForCursorLoop;
@@ -26,119 +22,65 @@ public class PlLoopStatementVisitor {
         this.visitorManager = visitorManager;
     }
 
-    public LogicalOperation loopVisitor(
+    public LogicalOperation visitWhile(
             PlBodyVisitor plBodyVisitor,
-            PlSqlParser.Loop_statementContext loop_statementContext,
-            List<LogicalOperation> baseBody,
-            Map<String, PlType> allParams,
+            PlSqlParser.While_statementContext whileStatement,
+            Map<String, PlType> scriptDeclared,
+            Map<String, PlType> visible,
             List<String> structs) {
-        return loopVisitor(
-                plBodyVisitor, loop_statementContext, baseBody, allParams, structs, true);
+        LogicalWhileLoop whileLoop = new LogicalWhileLoop();
+        whileLoop.setCondition(
+                visitorManager
+                        .getExpressionVisitor()
+                        .visitExpressionContext(whileStatement.expression(), visible, structs));
+        whileLoop.setWhileBody(
+                plBodyVisitor.visitBlock(whileStatement.body(), scriptDeclared, visible, structs));
+        return whileLoop;
     }
 
-    public LogicalOperation loopVisitor(
+    public LogicalOperation visitFor(
             PlBodyVisitor plBodyVisitor,
-            PlSqlParser.Loop_statementContext loop_statementContext,
-            List<LogicalOperation> baseBody,
-            Map<String, PlType> allParams,
-            List<String> structs,
-            boolean withCursor) {
-        if (loop_statementContext.FOR() != null) {
-            PlSqlParser.Cursor_loop_paramContext loop_paramContext =
-                    loop_statementContext.cursor_loop_param();
-            if (loop_paramContext.IN() != null && loop_paramContext.DOUBLE_PERIOD() != null) {
-                String indexParam = loop_paramContext.index_name().getText();
-
-                LogicalExpression lowerExpression =
-                        visitorManager
-                                .getExpressionVisitor()
-                                .visitExpressionContext(
-                                        loop_paramContext.lower_bound().concatenation(),
-                                        allParams,
-                                        structs);
-                LogicalExpression upperExpression =
-                        visitorManager
-                                .getExpressionVisitor()
-                                .visitExpressionContext(
-                                        loop_paramContext.upper_bound().concatenation(),
-                                        allParams,
-                                        structs);
-
-                Map<String, PlType> allParamsTmp = new LinkedHashMap<>(allParams);
-                allParamsTmp.put(indexParam, PlType.of(InternalFieldType.INT));
-
-                LogicalForLoop forLoop = new LogicalForLoop();
-                forLoop.setIndexName(indexParam);
-                forLoop.setLowerExpr(lowerExpression);
-                forLoop.setUpperExpr(upperExpression);
-                forLoop.setForBody(
-                        plBodyVisitor.visitBodyStatements(
-                                loop_statementContext.seq_of_statements(),
-                                new LinkedHashMap<>(),
-                                new LinkedHashMap<>(),
-                                allParamsTmp,
-                                baseBody,
-                                structs));
-                return forLoop;
-            } else if (loop_paramContext.IN() != null
-                    && loop_paramContext.record_name() != null
-                    && loop_paramContext.select_statement() != null) {
-                if (!withCursor) {
-                    throw new ParseException("Cursor loop is not supported in function body");
-                }
-                String cursorName = loop_paramContext.record_name().getText();
-                String selectSQL =
-                        PLParserUtil.getFullSQLWithParams(
-                                loop_paramContext.select_statement(), allParams, structs);
-                if (structs == null) {
-                    structs = new ArrayList<>();
-                } else {
-                    structs = new ArrayList<>(structs);
-                }
-                structs.add(cursorName);
-                LogicalForCursorLoop forCursorLoop = new LogicalForCursorLoop();
-                forCursorLoop.setCursorName(cursorName);
-                forCursorLoop.setSelectSQL(selectSQL);
-                forCursorLoop.setForBody(
-                        plBodyVisitor.visitBodyStatements(
-                                loop_statementContext.seq_of_statements(),
-                                new LinkedHashMap<>(),
-                                new LinkedHashMap<>(),
-                                allParams,
-                                baseBody,
-                                structs));
-                return forCursorLoop;
-            } else {
-                throw new ParseException(
-                        String.format(
-                                "Unsupported syntax: %s",
-                                substring(getFullText(loop_statementContext), 0, 100)));
+            PlSqlParser.For_statementContext forStatement,
+            Map<String, PlType> scriptDeclared,
+            Map<String, PlType> visible,
+            List<String> structs) {
+        String name = PlBodyVisitor.identText(forStatement.identifier());
+        PlSqlParser.For_sourceContext source = forStatement.for_source();
+        if (source.for_query() != null) {
+            String selectSQL =
+                    PLParserUtil.getFullSQLWithParams(source.for_query(), visible, structs).trim();
+            if (selectSQL.startsWith("(") && selectSQL.endsWith(")")) {
+                selectSQL = selectSQL.substring(1, selectSQL.length() - 1).trim();
             }
+            List<String> bodyStructs =
+                    structs == null ? new ArrayList<>() : new ArrayList<>(structs);
+            bodyStructs.add(name);
+            LogicalForCursorLoop forCursorLoop = new LogicalForCursorLoop();
+            forCursorLoop.setCursorName(name);
+            forCursorLoop.setSelectSQL(selectSQL);
+            forCursorLoop.setForBody(
+                    plBodyVisitor.visitBlock(
+                            forStatement.body(), scriptDeclared, visible, bodyStructs));
+            return forCursorLoop;
         }
-        if (loop_statementContext.WHILE() != null) {
-            LogicalExpression conditionExpr =
-                    visitorManager
-                            .getExpressionVisitor()
-                            .visitExpressionContext(
-                                    loop_statementContext.condition().expression(),
-                                    allParams,
-                                    structs);
-            LogicalWhileLoop whileLoop = new LogicalWhileLoop();
-            whileLoop.setCondition(conditionExpr);
-            whileLoop.setWhileBody(
-                    plBodyVisitor.visitBodyStatements(
-                            loop_statementContext.seq_of_statements(),
-                            new LinkedHashMap<>(),
-                            new LinkedHashMap<>(),
-                            allParams,
-                            baseBody,
-                            structs));
-            return whileLoop;
-        } else {
-            throw new ParseException(
-                    String.format(
-                            "Unsupported syntax: %s",
-                            substring(getFullText(loop_statementContext), 0, 100)));
-        }
+        Map<String, PlType> loopVisible = new LinkedHashMap<>(visible);
+        loopVisible.put(name, PlType.of(InternalFieldType.INT));
+        LogicalForLoop forLoop = new LogicalForLoop();
+        forLoop.setIndexName(name);
+        forLoop.setLowerExpr(expression(source.expression(0), visible, structs));
+        forLoop.setUpperExpr(expression(source.expression(1), visible, structs));
+        forLoop.setForBody(
+                plBodyVisitor.visitBlock(
+                        forStatement.body(), scriptDeclared, loopVisible, structs));
+        return forLoop;
+    }
+
+    private LogicalExpression expression(
+            PlSqlParser.ExpressionContext expression,
+            Map<String, PlType> visible,
+            List<String> structs) {
+        return visitorManager
+                .getExpressionVisitor()
+                .visitExpressionContext(expression, visible, structs);
     }
 }

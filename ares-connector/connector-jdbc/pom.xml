@@ -18,6 +18,12 @@
         <module>connector-oracle</module>
         <module>connector-postgres</module>
         <module>connector-sqlserver</module>
+        <module>connector-dameng</module>
+        <module>connector-kingbase</module>
+        <module>connector-oceanbase</module>
+        <module>connector-opengauss</module>
+        <module>connector-starrocks</module>
+        <module>connector-doris</module>
     </modules>
 
 

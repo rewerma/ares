@@ -1,13 +1,17 @@
 package com.github.ares.engine.core;
 
+import static com.github.ares.common.utils.DateTimeUtils.DATE_FORMATTER;
 import static com.github.ares.engine.utils.EngineUtil.toEvalParams;
 
 import com.github.ares.common.exceptions.AresException;
+import com.github.ares.common.utils.DateTimeUtils;
 import com.github.ares.sql.expression.sql.ExpressionEngine;
 import com.github.ares.sql.function.FunctionInterface;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
 
@@ -29,7 +33,18 @@ public class ExpressionExecutor extends AbstractBaseExecutor implements Serializ
 
     public Serializable execute(String expr, PlParams plParams) {
         String simpleSql = String.format("SELECT %s", expr);
-        return (Serializable) expressionEngine.evaluate(simpleSql, toEvalParams(plParams));
+        Object resVal = expressionEngine.evaluate(simpleSql, toEvalParams(plParams));
+        if (resVal instanceof byte[]) {
+            resVal = rawToHex(resVal);
+        } else if (resVal instanceof LocalDate) {
+            resVal = ((LocalDate) resVal).format(DATE_FORMATTER);
+        } else if (resVal instanceof LocalDateTime) {
+            resVal = DateTimeUtils.localDateTimeToString((LocalDateTime) resVal);
+        } else if (resVal != null
+                && "org.apache.spark.unsafe.types.UTF8String".equals(resVal.getClass().getName())) {
+            resVal = resVal.toString();
+        }
+        return (Serializable) resVal;
     }
 
     public boolean execute4Bool(String expr) {

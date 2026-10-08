@@ -1,35 +1,19 @@
 /**
- * Ares PL/SQL Parser (simplified).
+ * Ares script parser.
  *
- * Trimmed from the original Oracle 11g/12c PL/SQL grammar (Alexandre Porcelli,
- * Ivan Kochurkin, Mark Adams). Only the rules actually consumed by the ares
- * parser visitors are retained. The removed rules (and their reasoning) are:
+ * Flat statement list. There is no DECLARE section and no BEGIN/END wrapper.
+ * Control flow ends with END. SQL statements are not parsed here: the leading
+ * keyword selects them, and every token up to the terminating semicolon is
+ * kept so a visitor can pass the text to Spark.
  *
- *   - block, rule_on_column, identity_clause / identity_options_*,
- *     encryption_spec, query_block, rollup_cube_clause, grouping_sets_elements,
- *     truncate_table (bare), column_collation_name
- *     => never referenced by any visitor; emit "unsupported syntax" instead.
- *
- *   - select_block / insert_block / update_block / delete_block / merge_block
- *     and their create_table_as / truncate_table_block counterparts
- *     => unified via the greedy .*? capture pattern that the visitors consume
- *       via getFullText().
- *
- *   - REVERSE in cursor_loop_param, the cursor_name branch, label_name suffix,
- *     OR exception_name repetition
- *     => present in the grammar but never read by visitors.
- *
- *   - model_expression, interval_expression, quantified_expression,
- *     case_statement / simple_case_statement / searched_case_statement,
- *     other_function (CAST/XMLCAST/EXTRACT), outer_join_sign, INTRODUCER paths
- *     => not exercised by ares test scripts.
- *
- *   - non_reserved_keywords_in_12c / non_reserved_keywords_pre12c
- *     => ~1700 lines of keyword-as-identifier alternatives that the visitor
- *       code never traverses.
- *
- *   - non_reserved_keywords_* shrunk to a minimal "regular_id" set covering
- *     only the keyword tokens still referenced as keywords elsewhere.
+ *   def a = 1;
+ *   a = a + 1;
+ *   if a > 0 PUT_LINE(a); elsif a = 0 break; else PUT_LINE(a); end
+ *   while a < 10 a = a + 1; end
+ *   for i in 1 .. 10 PUT_LINE(i); end
+ *   for cur in (SELECT id FROM t) PUT_LINE(cur.id); end
+ *   try INSERT INTO t VALUES (:a); catch PUT_LINE(ex.message); raise; end
+ *   CREATE TABLE t USING mysql OPTIONS ( 'dbtable' = 't_user' );
  *
  * Licensed under the Apache License, Version 2.0.
  */
@@ -41,366 +25,252 @@ options {
 }
 
 // ============================================================================
-// Top-level
+// Script
 // ============================================================================
 
 sql_script
-    : ((unit_statement) SEMICOLON?)* EOF
+    : statement* EOF
     ;
-
-unit_statement
-    : anonymous_body
-    | create_procedure_body
-    | create_function_body
-    | create_table
-    | create_table_as
-    | set_bleck
-
-    | select_block
-    | insert_block
-    | update_block
-    | delete_block
-    | merge_block
-    | truncate_table_block
-
-    | call_statement
-    ;
-
-// ============================================================================
-// PL/SQL program units
-// ============================================================================
-
-function_body
-    : FUNCTION identifier (LEFT_PAREN parameter (COMMA parameter)* RIGHT_PAREN)?
-      RETURN type_spec
-      AS (DECLARE? seq_of_declare_specs? body) SEMICOLON
-    ;
-
-create_procedure_body
-    : CREATE PROCEDURE procedure_name (LEFT_PAREN parameter (COMMA parameter)* RIGHT_PAREN)?
-      AS
-      (DECLARE? seq_of_declare_specs? body) SEMICOLON
-    ;
-
-create_function_body
-    : CREATE function_body
-    ;
-
-anonymous_body
-    : DECLARE? seq_of_declare_specs? body SEMICOLON
-    ;
-
-// CREATE TABLE t AS SELECT ...   (visitor takes getFullText())
-create_table_as
-    : CREATE TABLE table_name AS SELECT .*? SEMICOLON
-    ;
-
-// Same shape, used inside a PL body where the surrounding statement provides
-// the terminating SEMICOLON. The visitor (PlBodyVisitor) explicitly looks up
-// create_table_as2(), so this duplicate rule is load-bearing.
-create_table_as2
-    : CREATE TABLE table_name AS SELECT .*?
-    ;
-
-// CREATE TABLE ... (col_defs) ... WITH ('k'='v', ...)
-create_table
-    : CREATE
-        TABLE table_name
-        (relational_table)
-        (create_with)
-      SEMICOLON
-    ;
-
-create_with:                  WITH LEFT_PAREN create_options RIGHT_PAREN;
-create_options:              option_ (COMMA option_)*;
-option_:                     CHAR_STRING EQUALS_OP CHAR_STRING;
-
-table_name:                  identifier;
-
-relational_table:            (LEFT_PAREN relational_property (COMMA relational_property)* RIGHT_PAREN)?;
-relational_property:         column_definition;
-
-// The visitor (PlCreateSourceTableVisitor) only reads column_name and datatype
-// here; the rest of the Oracle column-definition syntax is not consumed.
-column_definition
-    : column_name datatype
-    ;
-
-// Top-level SQL DML/DDL blocks (greedy capture, consumed via getFullText()).
-truncate_table_block:        TRUNCATE TABLE .*? SEMICOLON;
-select_block:                SELECT .*? SEMICOLON;
-update_block:                UPDATE .*? SEMICOLON;
-delete_block:                DELETE FROM .*? SEMICOLON;
-insert_block:                INSERT .*? SEMICOLON;
-merge_block:                 MERGE INTO .*? SEMICOLON;
-set_bleck:                   SET .*? SEMICOLON;
-
-parameter
-    : parameter_name (IN | OUT)* type_spec? default_value_part?
-    ;
-
-default_value_part
-    : (ASSIGN_OP | DEFAULT) expression
-    ;
-
-// ============================================================================
-// Declarations
-// ============================================================================
-
-seq_of_declare_specs:        declare_spec+;
-declare_spec:                variable_declaration;
-
-variable_declaration
-    : identifier CONSTANT? type_spec (NOT NULL_)? default_value_part? SEMICOLON
-    ;
-
-// ============================================================================
-// Statements inside a PL body
-// ============================================================================
-
-seq_of_statements:           (statement (SEMICOLON | EOF))+;
 
 statement
-    : transaction_statement
-    | assignment_statement
-    | continue_statement
-    | exit_statement
+    : terminated_statement
     | if_statement
-    | loop_statement
-    | raise_statement
-    | return_statement
+    | while_statement
+    | for_statement
+    | try_statement
+    ;
+
+// Statements that end with ';'. SQL and SET carry their own semicolon because
+// the raw-token loop has to stop on it. The END that closes if/while/for/try
+// may be followed by a semicolon.
+terminated_statement
+    : (def_statement
+      | assignment_statement
+      | call_statement
+      | transaction_statement
+      | break_statement
+      | continue_statement
+      | raise_statement
+      ) SEMICOLON
+    | set_statement
     | sql_statement
-    | call_statement
+    ;
+
+// END closes if/while/for/try. END TRANSACTION stays a statement, so the body
+// continues only when END is followed by TRANSACTION.
+body
+    : ( { _input.LA(1) != END || _input.LA(2) == TRANSACTION }? statement )*
+    ;
+
+// ============================================================================
+// Variables, calls, config, transaction
+// ============================================================================
+
+// def a = 1;    or    def a;
+def_statement
+    : DEF identifier (EQUALS_OP expression)?
+    ;
+
+// a = a + 1;    dotted targets cover cur.id = ...
+assignment_statement
+    : identifier (PERIOD identifier)* EQUALS_OP expression
+    ;
+
+// PUT_LINE(a);    LOGGER('INFO', msg);
+// Arguments are token sequences, not the expression grammar, so Spark calls
+// such as cast(x AS int) and extract(YEAR FROM x) survive as text.
+call_statement
+    : identifier (PERIOD identifier)* LEFT_PAREN func_args? RIGHT_PAREN
+    ;
+
+set_statement
+    : SET raw_token* SEMICOLON
     ;
 
 transaction_statement
     : START TRANSACTION
-    | BEGIN TRANSACTION
+    | END TRANSACTION
     | COMMIT
     | ROLLBACK
     ;
 
-assignment_statement:        general_element ASSIGN_OP expression;
+break_statement:             BREAK;
 continue_statement:          CONTINUE;
-exit_statement:              EXIT;
-
-if_statement:                IF condition THEN seq_of_statements elsif_part* else_part? END IF;
-elsif_part:                  ELSIF condition THEN seq_of_statements;
-else_part:                   ELSE seq_of_statements;
-
-loop_statement
-    : (WHILE condition | FOR cursor_loop_param)? LOOP seq_of_statements END LOOP
-    ;
-
-// Loop iterator: index IN lower..upper, or record IN (select ...)
-cursor_loop_param
-    : index_name IN lower_bound DOUBLE_PERIOD upper_bound
-    | record_name IN LEFT_PAREN select_statement RIGHT_PAREN
-    ;
-
-select_statement:            SELECT .*? SEMICOLON;
-
-lower_bound:                 concatenation;
-upper_bound:                 concatenation;
-
-raise_statement:             RAISE exception_name?;
-return_statement:            RETURN expression?;
-
-call_statement:              CALL? routine_name function_argument?;
+raise_statement:             RAISE;
 
 // ============================================================================
-// Body & exception handling
+// Control flow
 // ============================================================================
 
-body
-    : BEGIN seq_of_statements (EXCEPTION exception_handler+)? END
+if_statement
+    : IF expression body elsif_clause* else_clause? END SEMICOLON?
     ;
 
-exception_handler
-    : WHEN exception_name (OR exception_name)* THEN seq_of_statements
+elsif_clause
+    : (ELSIF | ELSEIF) expression body
+    ;
+
+else_clause
+    : ELSE body
+    ;
+
+while_statement
+    : WHILE expression body END SEMICOLON?
+    ;
+
+for_statement
+    : FOR identifier IN for_source body END SEMICOLON?
+    ;
+
+// Range first would also start with '(', so the query form is the alternative
+// that requires SELECT or WITH immediately inside the parentheses.
+for_source
+    : for_query
+    | expression DOUBLE_PERIOD expression
+    ;
+
+for_query
+    : LEFT_PAREN (SELECT | WITH) for_query_item* RIGHT_PAREN
+    ;
+
+// Any token except a parenthesis, plus nested parentheses, so
+// SELECT * FROM (SELECT 1) t  survives as text.
+for_query_item
+    : LEFT_PAREN for_query_item* RIGHT_PAREN
+    | ~(LEFT_PAREN | RIGHT_PAREN)
+    ;
+
+try_statement
+    : TRY body CATCH body END SEMICOLON?
     ;
 
 // ============================================================================
-// SQL embedded inside a PL body (greedy capture, consumed via getFullText())
+// SQL passthrough
 // ============================================================================
 
 sql_statement
-    : data_manipulation_language_statements
+    : sql_prefix raw_token* SEMICOLON
     ;
 
-data_manipulation_language_statements
-    : merge_statement
-    | select_statement
-    | update_statement
-    | delete_statement
-    | insert_statement
-    | create_table_as2
-    | truncate_table_block
+sql_prefix
+    : SELECT
+    | INSERT
+    | UPDATE
+    | DELETE
+    | MERGE
+    | TRUNCATE
+    | CREATE
+    | DROP
+    | ALTER
+    | WITH
     ;
 
-update_statement:            UPDATE .*? SEMICOLON;
-delete_statement:            DELETE FROM .*? SEMICOLON;
-insert_statement:            INSERT .*? SEMICOLON;
-merge_statement:             MERGE INTO .*? SEMICOLON;
+// One token that is not a statement terminator. Semicolons inside quoted
+// strings are part of CHAR_STRING, so they do not end the statement.
+raw_token
+    : ~(SEMICOLON)
+    ;
 
 // ============================================================================
 // Expressions
 // ============================================================================
 
-condition:                   expression;
-expressions:                 expression (COMMA expression)*;
+expression:                  or_expression;
 
-expression:                  logical_expression;
-
-logical_expression
-    : unary_logical_expression
-    | logical_expression AND logical_expression
-    | logical_expression OR logical_expression
+or_expression
+    : and_expression (OR and_expression)*
     ;
 
-unary_logical_expression
-    : NOT? multiset_expression (IS NOT? NULL_)?
+and_expression
+    : not_expression (AND not_expression)*
     ;
 
-multiset_expression
-    : relational_expression
+not_expression
+    : NOT not_expression
+    | predicate
     ;
 
-relational_expression
-    : relational_expression relational_operator relational_expression
-    | compound_expression
+predicate
+    : concatenation predicate_tail?
     ;
 
-compound_expression
-    : concatenation
-      (NOT? ( IN in_elements
-            | BETWEEN between_elements
-            | like_type=(LIKE | LIKEC | LIKE2 | LIKE4) concatenation (ESCAPE concatenation)?))?
+predicate_tail
+    : relational_operator concatenation
+    | NOT? IN LEFT_PAREN expression (COMMA expression)* RIGHT_PAREN
+    | NOT? BETWEEN concatenation AND concatenation
+    | NOT? LIKE concatenation (ESCAPE concatenation)?
+    | IS NOT? NULL_
     ;
 
 relational_operator
     : EQUALS_OP
     | NOT_EQUAL_OP
-    | LESS_THAN_OP GREATER_THAN_OP
-    | EXCLAMATION_OPERATOR_PART EQUALS_OP
-    | CARRET_OPERATOR_PART EQUALS_OP
-    | (LESS_THAN_OP | GREATER_THAN_OP) EQUALS_OP?
+    | NULL_SAFE_EQUALS
+    | LESS_THAN_OP EQUALS_OP?
+    | GREATER_THAN_OP EQUALS_OP?
     ;
-
-in_elements
-    : LEFT_PAREN concatenation (COMMA concatenation)* RIGHT_PAREN
-    | constant
-    | bind_variable
-    | general_element
-    ;
-
-between_elements:            concatenation AND concatenation;
 
 concatenation
-    : concatenation op=ASTERISK concatenation
-    | concatenation op=SOLIDUS concatenation
-    | concatenation op=PLUS_SIGN concatenation
-    | concatenation op=MINUS_SIGN concatenation
-    | concatenation op=BAR concatenation
-    | concatenation BAR BAR concatenation
-    | atom
+    : additive (CONCAT additive | BAR BAR additive | BAR additive)*
     ;
 
-unary_expression
-    : (MINUS_SIGN | PLUS_SIGN) unary_expression
+additive
+    : multiplicative ((PLUS_SIGN | MINUS_SIGN) multiplicative)*
+    ;
+
+multiplicative
+    : unary ((ASTERISK | SOLIDUS | PERCENT) unary)*
+    ;
+
+unary
+    : (PLUS_SIGN | MINUS_SIGN) unary
     | atom
     ;
 
 atom
-    : bind_variable
-    | constant
-    | general_element
-    | LEFT_PAREN expressions RIGHT_PAREN
-    | quoted_string
+    : literal
+    | BINDVAR
+    | identifier (PERIOD identifier)* (LEFT_PAREN func_args? RIGHT_PAREN)?
+    | LEFT_PAREN expression RIGHT_PAREN
     ;
 
-// ============================================================================
-// Names and parameters
-// ============================================================================
-
-routine_name:                identifier;
-parameter_name:              identifier;
-procedure_name:              identifier;
-exception_name:              identifier;
-index_name:                  identifier;
-record_name:                 identifier;
-column_name:                 identifier;
-
-function_argument:           LEFT_PAREN (argument (COMMA argument)*)? RIGHT_PAREN;
-argument:                    expression;
-
-// ============================================================================
-// Types
-// ============================================================================
-
-type_spec:                   datatype;
-
-datatype:                    native_datatype_element precision_part?;
-
-precision_part
-    : LEFT_PAREN numeric (COMMA numeric)? RIGHT_PAREN
+// A call argument is every token up to a comma or parenthesis at this depth.
+// Nested parentheses keep their own commas, so assert_equals(if(1 < 2, 'a', 'b'), 'a')
+// is two arguments.
+func_args
+    : func_arg (COMMA func_arg)*
     ;
 
-native_datatype_element
-    : INT
-    | BYTE
-    | SMALLINT
-    | BIGINT
-    | NUMBER
-    | DECIMAL
-    | DOUBLE
-    | FLOAT
-    | VARCHAR
-    | STRING
-    | BOOLEAN
-    | DATE
-    | TIMESTAMP
-    | BINARY
-    | BLOB
+func_arg
+    : func_top+
     ;
 
-bind_variable:               BINDVAR;
+func_top
+    : LEFT_PAREN func_nested* RIGHT_PAREN
+    | ~(LEFT_PAREN | RIGHT_PAREN | COMMA)
+    ;
 
-general_element:             id_expression (PERIOD id_expression)*;
+func_nested
+    : LEFT_PAREN func_nested* RIGHT_PAREN
+    | ~(LEFT_PAREN | RIGHT_PAREN)
+    ;
 
-// ============================================================================
-// Literals / constants / identifiers
-// ============================================================================
-
-constant
-    : TIMESTAMP (quoted_string | bind_variable)
-    | numeric
-    | DATE quoted_string
-    | quoted_string
+literal
+    : numeric
+    | CHAR_STRING
+    | NATIONAL_CHAR_STRING_LIT
     | NULL_
     | TRUE
     | FALSE
-    | DEFAULT
     ;
 
-numeric:                     UNSIGNED_INTEGER | APPROXIMATE_NUM_LIT;
+numeric
+    : UNSIGNED_INTEGER
+    | APPROXIMATE_NUM_LIT
+    ;
 
-quoted_string:               CHAR_STRING | NATIONAL_CHAR_STRING_LIT;
-
-identifier:                  id_expression;
-id_expression:               regular_id | DELIMITED_ID;
-
-// Minimal keyword set that ares still needs to recognise as identifiers.
-// All other keyword tokens are recognised as REGULAR_ID via the lexer.
-regular_id
+identifier
     : REGULAR_ID
-    | AS | IS | IN | OUT | AND | OR | NOT | SET | CALL
-    | CREATE | TABLE | WITH
-    | SELECT | INSERT | UPDATE | DELETE | MERGE | INTO | FROM | WHERE
-    | BEGIN | END | LOOP | FOR | WHILE | IF | THEN | ELSE | ELSIF | EXIT
-    | CONTINUE | RAISE | RETURN | DECLARE | EXCEPTION | WHEN | PROCEDURE | FUNCTION
-    | START | TRANSACTION | COMMIT | ROLLBACK
-    | CONSTANT | DEFAULT
-    | INT | BIGINT | SMALLINT | BYTE | NUMBER | DECIMAL | DOUBLE | FLOAT
-    | VARCHAR | VARCHAR2 | STRING | BOOLEAN | DATE | TIMESTAMP | BINARY | BLOB
+    | DELIMITED_ID
+    | BACKTICK_ID
     ;

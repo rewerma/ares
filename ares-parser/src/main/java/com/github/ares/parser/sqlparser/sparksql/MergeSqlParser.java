@@ -57,6 +57,7 @@ public class MergeSqlParser {
             SqlBaseParser.BooleanExpressionContext onExpressionContext =
                     mergeIntoTableContext.mergeCondition;
             CriteriaParser.parseWhereClause(onExpressionContext, onClause, sqlMerge.getAlias());
+            sqlMerge.setOnSql(getFullText(onExpressionContext));
             List<String> onSelectItems = new ArrayList<>();
             CommonParser.visitCriteriaClause(onClause, onSelectItems);
             sqlMerge.setOnSelectItems(onSelectItems);
@@ -76,11 +77,21 @@ public class MergeSqlParser {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
             if (!mergeIntoTableContext.notMatchedClause().isEmpty()) {
+                SqlBaseParser.NotMatchedClauseContext notMatched =
+                        mergeIntoTableContext.notMatchedClause().get(0);
+                if (notMatched.notMatchedCond != null) {
+                    sqlMerge.setNotMatchedConditionSql(getFullText(notMatched.notMatchedCond));
+                }
                 parseNotMatchedClause(
                         mergeIntoTableContext, sqlMerge, usingSQL, conditionSql.toString());
             }
 
             if (!mergeIntoTableContext.matchedClause().isEmpty()) {
+                SqlBaseParser.MatchedClauseContext matched =
+                        mergeIntoTableContext.matchedClause().get(0);
+                if (matched.matchedCond != null) {
+                    sqlMerge.setMatchedConditionSql(getFullText(matched.matchedCond));
+                }
                 parseMatchedClause(
                         mergeIntoTableContext,
                         sqlMerge,
@@ -194,6 +205,15 @@ public class MergeSqlParser {
 
         SqlBaseParser.MatchedActionContext matchedActionContext =
                 mergeIntoTableContext.matchedClause().get(0).matchedAction();
+        if (matchedActionContext.DELETE() != null) {
+            sqlMerge.setMatchedDelete(true);
+            sqlMerge.setSqlUpdate(sqlUpdate);
+            return;
+        }
+        if (matchedActionContext.assignmentList() == null) {
+            throw new ParseException(
+                    String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sqlMerge.getTable()));
+        }
 
         for (SqlBaseParser.AssignmentContext assignmentContext :
                 matchedActionContext.assignmentList().assignment()) {
@@ -203,10 +223,11 @@ public class MergeSqlParser {
             sqlUpdate.getUpdateValues().add(getFullText(assignmentContext.value));
         }
 
-        if (matchedActionContext.booleanExpression() != null) {
+        if (matchedActionContext.updateCondition != null) {
+            sqlUpdate.setWhereSql(getFullText(matchedActionContext.updateCondition));
             CriteriaClause whereClause = new CriteriaClause();
             parseWhereClause(
-                    matchedActionContext.booleanExpression(), whereClause, sqlUpdate.getAlias());
+                    matchedActionContext.updateCondition, whereClause, sqlUpdate.getAlias());
 
             sqlUpdate.setWhereClause(whereClause);
             List<String> selectItems = new ArrayList<>();

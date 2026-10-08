@@ -17,8 +17,6 @@ public class Spark2FileHadoopTest {
                     "../scripts/spark/connector/file-hadoop-test.sql",
                     "--conf",
                     "spark.jars="
-                            //                +
-                            // "../../ares-connector/connector-hive/target/connector-hive-1.0-SNAPSHOT.jar,"
                             + "../../ares-starter/ares-spark2-starter/target/ares-spark2-starter.jar"
                 };
         AresSparkStarter.main(args);

@@ -20,6 +20,7 @@ import com.github.ares.engine.core.DeleteSelectSqlExecutor;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.PlParams;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,6 +54,16 @@ public class SparkDeleteSelectSqlExecutor extends DeleteSelectSqlExecutor implem
             PlParams plParams) {
         traceLogger.info("SQL: {}; Params: {}", dsSql.getOriginSQL(), plParams);
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
+        if (PaimonTables.isPaimonConnector(
+                String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key())))) {
+            PaimonSparkSql.executeDml(
+                    sparkSession,
+                    sinkConfig,
+                    dsSql.getPaimonSql(),
+                    plParams,
+                    dsSql.getSinkTable().getTableName());
+            return;
+        }
         sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.DELETE.name());
 
         sinkConfig.put(CommonOptions.WHERE_CLAUSE.key(), dsSql.getWhereClause());

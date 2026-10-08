@@ -22,7 +22,7 @@
 -- StarRocks/SelectDB/Doris 默认 query_timeout=300s，全表拉取易超时。
 -- 可通过 query_timeout_sec 在 JDBC 连接建立后自动 SET query_timeout（单位：秒）。
 SET datasource.db_a.connector=mysql;
-SET datasource.db_a.url=jdbc:mysql://127.0.0.1:3306/database_a?useSSL=false&characterEncoding=utf8;
+SET datasource.db_a.url='jdbc:mysql://127.0.0.1:3306/database_a?useSSL=false&characterEncoding=utf8';
 SET datasource.db_a.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.db_a.user=root;
 SET datasource.db_a.password=your_password;
@@ -30,21 +30,23 @@ SET datasource.db_a.query_timeout_sec=3600;
 
 -- ---------- 库 B 数据源配置 ----------
 SET datasource.db_b.connector=mysql;
-SET datasource.db_b.url=jdbc:mysql://127.0.0.1:3306/database_b?useSSL=false&characterEncoding=utf8;
+SET datasource.db_b.url='jdbc:mysql://127.0.0.1:3306/database_b?useSSL=false&characterEncoding=utf8';
 SET datasource.db_b.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.db_b.user=root;
 SET datasource.db_b.password=your_password;
 SET datasource.db_b.query_timeout_sec=3600;
 
 CREATE TABLE tbl_a
-WITH (
+USING mysql
+OPTIONS (
     'datasource' = 'db_a',
     'table_name' = 'your_table_name',
     'type' = 'source'
 );
 
 CREATE TABLE tbl_b
-WITH (
+USING mysql
+OPTIONS (
     'datasource' = 'db_b',
     'table_name' = 'your_table_name',
     'type' = 'source'
@@ -78,23 +80,21 @@ SELECT zjh, COUNT(*) AS cnt
 FROM v_b
 GROUP BY zjh;
 
-DECLARE
-    v_cnt_a          INT := 0;
-    v_cnt_b          INT := 0;
-    v_zjh_a          INT := 0;
-    v_zjh_b          INT := 0;
-    v_sig_match      INT := 0;
-    v_only_in_a      INT := 0;
-    v_only_in_b      INT := 0;
-    v_count_diff     INT := 0;
-    v_only_zjh_a     INT := 0;
-    v_only_zjh_b     INT := 0;
-    v_zjh_cnt_diff   INT := 0;
-    v_surplus_a      INT := 0;
-    v_surplus_b      INT := 0;
-    v_only_rows_a    INT := 0;
-    v_only_rows_b    INT := 0;
-BEGIN
+def v_cnt_a = 0;
+def v_cnt_b = 0;
+def v_zjh_a = 0;
+def v_zjh_b = 0;
+def v_sig_match = 0;
+def v_only_in_a = 0;
+def v_only_in_b = 0;
+def v_count_diff = 0;
+def v_only_zjh_a = 0;
+def v_only_zjh_b = 0;
+def v_zjh_cnt_diff = 0;
+def v_surplus_a = 0;
+def v_surplus_b = 0;
+def v_only_rows_a = 0;
+def v_only_rows_b = 0;
     SELECT COUNT(*) INTO :v_cnt_a FROM v_a;
     SELECT COUNT(*) INTO :v_cnt_b FROM v_b;
     SELECT COUNT(*) INTO :v_zjh_a FROM zjh_cnt_a;
@@ -221,7 +221,6 @@ BEGIN
     PUT_LINE('仅在库B的证件号数: ' || v_only_zjh_b);
     PUT_LINE('证件号两侧都有但总条数不一致数: ' || v_zjh_cnt_diff);
     PUT_LINE('================================================');
-END;
 
 -- 明细1: 行签名仅在库A
 SELECT

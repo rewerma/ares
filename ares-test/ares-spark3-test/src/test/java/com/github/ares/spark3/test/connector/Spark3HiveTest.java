@@ -7,15 +7,13 @@ import com.github.ares.core.starter.command.Common;
 import com.github.ares.spark.starter.AresSparkStarter;
 import com.github.ares.test.spark.HiveTestUtils;
 import com.github.ares.test.spark.Utils;
-import java.nio.file.Path;
-import java.util.Set;
 import org.junit.Assume;
 import org.junit.Test;
 
 public class Spark3HiveTest {
 
     @Test
-    public void embeddedHive3JobWithoutSparkHiveCatalog() {
+    public void hiveViewOnSparkHiveCatalog() {
         Assume.assumeTrue(HiveTestUtils.isHiveIntegrationEnabled());
         String[] args =
                 new String[] {
@@ -31,18 +29,9 @@ public class Spark3HiveTest {
     }
 
     @Test
-    public void sparkSubmitJarPolicyShouldUseHadoopButNotThirdpartyHive() {
-        assertTrue(Common.requiresHadoopThirdPartyConnector("hive"));
-        assertTrue(Common.requiresHadoopThirdPartyConnector("hive3"));
+    public void hiveDoesNotNeedHadoopThirdPartyConnector() {
+        assertFalse(Common.requiresHadoopThirdPartyConnector("hive"));
+        assertFalse(Common.requiresHadoopThirdPartyConnector("hive3"));
         assertTrue(Common.requiresHadoopThirdPartyConnector("FileHadoop"));
-
-        Set<Path> thirdPartyJars =
-                Common.getThirdPartyJars(
-                        "/opt/ares/thirdparty/hive/hive-exec.jar;/opt/ares/thirdparty/hive3/hive-standalone-metastore.jar;/opt/ares/lib/custom.jar");
-        assertTrue(
-                thirdPartyJars.stream().anyMatch(path -> path.toString().endsWith("custom.jar")));
-        assertFalse(
-                thirdPartyJars.stream()
-                        .anyMatch(path -> path.toString().contains("thirdparty/hive")));
     }
 }
