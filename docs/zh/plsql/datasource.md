@@ -357,7 +357,7 @@ SELECT id, name FROM t_user_v;
 
 ### filesystem
 
-`warehouse` 指向 Paimon 仓库。可以写成完整的 HDFS 地址，也可以像 HDFS 文件源一样配置 `fs.defaultFS`，再写仓库路径。`hdfs_site_path` 指向 `hdfs-site.xml` 或其目录时，会作为 Paimon 的 Hadoop 配置目录。filesystem 模式需要 Spark 3，并加载 `connectors/connector-paimon.jar`；仓库在 HDFS 上时还会加载 `thirdparty/hadoop`。
+`warehouse` 指向 Paimon 仓库。可以写成完整的 HDFS 地址，也可以像 HDFS 文件源一样配置 `fs.defaultFS`，再写仓库路径。`hdfs_site_path` 指向 `hdfs-site.xml` 或其目录时，会作为 Paimon 的 Hadoop 配置目录。filesystem 模式需要 Spark 3，并加载 `thirdparty/paimon`；仓库在 HDFS 上时还会加载 `thirdparty/hadoop`。
 
 ```sql
 CREATE TABLE t_user_v

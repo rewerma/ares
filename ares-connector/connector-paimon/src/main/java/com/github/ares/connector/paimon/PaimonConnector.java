@@ -1,6 +1,6 @@
 package com.github.ares.connector.paimon;
 
-/** Shaded Paimon Spark catalog used by filesystem mode. */
+/** Marker for the Paimon connector. The Spark runtime is packaged in thirdparty/paimon. */
 public final class PaimonConnector {
     private PaimonConnector() {}
 }

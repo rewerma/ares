@@ -13,7 +13,7 @@
 
 ## 步骤 3: 安装配置Ares
 
-解压ares-bin.tar.gz文件，进入ares-bin目录。JDBC、文件和 Paimon 连接器在 `connectors` 目录，JDBC 驱动在 `lib` 目录。不需要的连接器可以从 `connectors` 目录删除。JDBC 的连接器名称、驱动和地址见[数据源](../plsql/datasource.md)。
+解压ares-bin.tar.gz文件，进入ares-bin目录。JDBC 和文件连接器在 `connectors` 目录，JDBC 驱动在 `lib` 目录，Paimon filesystem 运行时在 `thirdparty/paimon`。不需要的连接器可以从 `connectors` 目录删除。JDBC 的连接器名称、驱动和地址见[数据源](../plsql/datasource.md)。
 
 ## 步骤 4: 开发Ares-PL/SQL脚本
 

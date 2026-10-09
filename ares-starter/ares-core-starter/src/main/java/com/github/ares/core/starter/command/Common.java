@@ -145,11 +145,24 @@ public class Common {
 
     /** return hadoop jars from thirdparty/hadoop when a job needs Hadoop connectors. */
     public static List<Path> getThirdPartyHadoopJars() {
-        Path hadoopDir = thirdPartyHadoopDir();
-        if (!Files.exists(hadoopDir) || !Files.isDirectory(hadoopDir)) {
+        return jarsIn(thirdPartyHadoopDir());
+    }
+
+    /** Paimon Spark runtime dir. */
+    public static Path thirdPartyPaimonDir() {
+        return Paths.get(getAresHome(), "thirdparty", "paimon");
+    }
+
+    /** return Paimon jars from thirdparty/paimon when a job uses the filesystem catalog. */
+    public static List<Path> getThirdPartyPaimonJars() {
+        return jarsIn(thirdPartyPaimonDir());
+    }
+
+    private static List<Path> jarsIn(Path dir) {
+        if (!Files.exists(dir) || !Files.isDirectory(dir)) {
             return Collections.emptyList();
         }
-        try (Stream<Path> stream = Files.list(hadoopDir)) {
+        try (Stream<Path> stream = Files.list(dir)) {
             return stream.filter(it -> !it.toFile().isDirectory())
                     .filter(it -> it.getFileName().toString().endsWith(".jar"))
                     .collect(Collectors.toList());

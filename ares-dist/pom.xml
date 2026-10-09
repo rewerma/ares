@@ -199,6 +199,12 @@
             <artifactId>connector-paimon</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>ares-paimon</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -76,6 +76,13 @@
             </includes>
             <outputDirectory>/thirdparty/hadoop</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>../ares-shade/ares-paimon/target/</directory>
+            <includes>
+                <include>ares-paimon.jar</include>
+            </includes>
+            <outputDirectory>/thirdparty/paimon</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
