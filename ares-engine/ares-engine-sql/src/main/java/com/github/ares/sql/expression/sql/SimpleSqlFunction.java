@@ -1,11 +1,20 @@
 package com.github.ares.sql.expression.sql;
 
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresDataTypeHelper;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.sql.expression.exception.ExpressionException;
 import com.github.ares.sql.function.FunctionInterface;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CastExpression;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -31,17 +40,6 @@ import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-
-
 public class SimpleSqlFunction implements Serializable {
     private static final long serialVersionUID = -1L;
 
@@ -54,10 +52,17 @@ public class SimpleSqlFunction implements Serializable {
 
     private final Map<String, FunctionInterface> allFunctions;
 
-    public SimpleSqlFunction(SimpleSqlType simpleSqlType, Map<String, FunctionInterface> allFunctions) {
+    private Map<String, Object> params;
+
+    public SimpleSqlFunction(
+            SimpleSqlType simpleSqlType, Map<String, FunctionInterface> allFunctions) {
         this.simpleSqlType = simpleSqlType;
         this.simpleSqlFilter = new SimpleSqlFilter(this);
         this.allFunctions = allFunctions;
+    }
+
+    void setParams(Map<String, Object> params) {
+        this.params = params;
     }
 
     public Object computeForValue(Expression expression, Object[] inputFields) {
@@ -106,9 +111,17 @@ public class SimpleSqlFunction implements Serializable {
 
         if (expression instanceof Column) {
             Column column = (Column) expression;
-            if ("true".equalsIgnoreCase(column.getColumnName())) {
+            String columnName = column.getColumnName();
+            String paramName = ParamPlaceholder.nameOf(columnName);
+            if (paramName != null) {
+                if (params != null && params.containsKey(paramName)) {
+                    return params.get(paramName);
+                }
+                throw new ExpressionException("Unresolved parameter: " + paramName);
+            }
+            if ("true".equalsIgnoreCase(columnName)) {
                 return true;
-            } else if ("false".equalsIgnoreCase(column.getColumnName())) {
+            } else if ("false".equalsIgnoreCase(columnName)) {
                 return false;
             }
         }
@@ -148,7 +161,8 @@ public class SimpleSqlFunction implements Serializable {
             return executeCastExpr(castExpression, leftValue);
         }
         if (expression instanceof NotExpression) {
-            Object value = computeForValue(((NotExpression) expression).getExpression(), inputFields);
+            Object value =
+                    computeForValue(((NotExpression) expression).getExpression(), inputFields);
             if (value == null) {
                 return null;
             } else {
@@ -164,8 +178,7 @@ public class SimpleSqlFunction implements Serializable {
         if (functionInterface != null) {
             return functionInterface.evaluate(args);
         }
-        throw new ExpressionException(
-                String.format("Unsupported function: %s", functionName));
+        throw new ExpressionException(String.format("Unsupported function: %s", functionName));
     }
 
     public Object executeTimeKeyExpr(String timeKeyExpr) {
@@ -242,8 +255,12 @@ public class SimpleSqlFunction implements Serializable {
                 return leftValue.doubleValue() + rightValue.doubleValue();
             } else if (dataType instanceof DecimalType) {
                 DecimalType decimalType = (DecimalType) dataType;
-                BigDecimal decimal1 = new BigDecimal(leftValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
-                BigDecimal decimal2 = new BigDecimal(rightValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal1 =
+                        new BigDecimal(leftValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal2 =
+                        new BigDecimal(rightValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
                 return decimal1.add(decimal2);
             }
         }
@@ -262,8 +279,12 @@ public class SimpleSqlFunction implements Serializable {
                 return leftValue.doubleValue() - rightValue.doubleValue();
             } else if (dataType instanceof DecimalType) {
                 DecimalType decimalType = (DecimalType) dataType;
-                BigDecimal decimal1 = new BigDecimal(leftValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
-                BigDecimal decimal2 = new BigDecimal(rightValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal1 =
+                        new BigDecimal(leftValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal2 =
+                        new BigDecimal(rightValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
                 return decimal1.subtract(decimal2);
             }
         }
@@ -282,8 +303,12 @@ public class SimpleSqlFunction implements Serializable {
                 return leftValue.doubleValue() * rightValue.doubleValue();
             } else if (dataType instanceof DecimalType) {
                 DecimalType decimalType = (DecimalType) dataType;
-                BigDecimal decimal1 = new BigDecimal(leftValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
-                BigDecimal decimal2 = new BigDecimal(rightValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal1 =
+                        new BigDecimal(leftValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal2 =
+                        new BigDecimal(rightValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
                 return decimal1.multiply(decimal2).setScale(12, RoundingMode.HALF_UP);
             }
         }
@@ -305,8 +330,12 @@ public class SimpleSqlFunction implements Serializable {
                 return leftValue.doubleValue() / rightValue.doubleValue();
             } else if (dataType instanceof DecimalType) {
                 DecimalType decimalType = (DecimalType) dataType;
-                BigDecimal decimal1 = new BigDecimal(leftValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
-                BigDecimal decimal2 = new BigDecimal(rightValue.toString()).setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal1 =
+                        new BigDecimal(leftValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
+                BigDecimal decimal2 =
+                        new BigDecimal(rightValue.toString())
+                                .setScale(decimalType.getScale(), RoundingMode.HALF_UP);
                 return decimal1.divide(decimal2, 12, RoundingMode.HALF_UP);
             }
         }
@@ -326,7 +355,8 @@ public class SimpleSqlFunction implements Serializable {
             } else if (dataType == BasicType.LONG_TYPE) {
                 return leftValue.longValue() & rightValue.longValue();
             } else {
-                throw new ExpressionException("BitwiseAnd operation only support for INTEGRAL type.");
+                throw new ExpressionException(
+                        "BitwiseAnd operation only support for INTEGRAL type.");
             }
         }
         if (binaryExpression instanceof BitwiseOr) {
@@ -339,7 +369,8 @@ public class SimpleSqlFunction implements Serializable {
             } else if (dataType == BasicType.LONG_TYPE) {
                 return leftValue.longValue() | rightValue.longValue();
             } else {
-                throw new ExpressionException("BitwiseOr operation only support for INTEGRAL type.");
+                throw new ExpressionException(
+                        "BitwiseOr operation only support for INTEGRAL type.");
             }
         }
         if (binaryExpression instanceof BitwiseXor) {
@@ -352,7 +383,8 @@ public class SimpleSqlFunction implements Serializable {
             } else if (dataType == BasicType.LONG_TYPE) {
                 return leftValue.longValue() ^ rightValue.longValue();
             } else {
-                throw new ExpressionException("BitwiseXor operation only support for INTEGRAL type.");
+                throw new ExpressionException(
+                        "BitwiseXor operation only support for INTEGRAL type.");
             }
         }
         throw new ExpressionException(
@@ -368,8 +400,9 @@ public class SimpleSqlFunction implements Serializable {
     private static AresDataType<?> getMaxDataType(AresDataType<?> type1, AresDataType<?> type2) {
         DecimalType decimalType = null;
         if (type1 instanceof DecimalType) {
-            decimalType = new DecimalType(((DecimalType) type1).getPrecision(),
-                    ((DecimalType) type1).getScale());
+            decimalType =
+                    new DecimalType(
+                            ((DecimalType) type1).getPrecision(), ((DecimalType) type1).getScale());
         }
         if (type2 instanceof DecimalType) {
             int precision = ((DecimalType) type2).getPrecision();
@@ -383,8 +416,14 @@ public class SimpleSqlFunction implements Serializable {
         if (decimalType != null) {
             return decimalType;
         }
-        List<AresDataType<?>> numberTypes = Arrays.asList(BasicType.BYTE_TYPE, BasicType.SHORT_TYPE, BasicType.INT_TYPE, BasicType.LONG_TYPE,
-                BasicType.FLOAT_TYPE, BasicType.DOUBLE_TYPE);
+        List<AresDataType<?>> numberTypes =
+                Arrays.asList(
+                        BasicType.BYTE_TYPE,
+                        BasicType.SHORT_TYPE,
+                        BasicType.INT_TYPE,
+                        BasicType.LONG_TYPE,
+                        BasicType.FLOAT_TYPE,
+                        BasicType.DOUBLE_TYPE);
         int idx1 = numberTypes.indexOf(type1);
         int idx2 = numberTypes.indexOf(type2);
         int idxMax = Math.max(idx1, idx2);

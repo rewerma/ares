@@ -1,5 +1,7 @@
 package com.github.ares.engine.core;
 
+import static com.github.ares.api.common.CommonOptions.CONNECTOR;
+
 import com.github.ares.api.common.PluginType;
 import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
@@ -11,19 +13,19 @@ import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.connector.discovery.AresSinkPluginDiscovery;
 import com.github.ares.connector.discovery.PluginIdentifier;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
-
-import static com.github.ares.api.common.CommonOptions.CONNECTOR;
 
 @Singleton
 public class AresSinkFactory implements Serializable {
     private static final long serialVersionUID = -1L;
 
-    public AresSink<?, ?, ?, ?> createSink(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
-                                           CatalogTable catalogTable, TableSinkFactoryContext context) {
+    public AresSink<?, ?, ?, ?> createSink(
+            Map<String, Object> sinkConfig,
+            Optional<? extends Factory> sinkFactory,
+            CatalogTable catalogTable,
+            TableSinkFactoryContext context) {
         boolean fallBack = !sinkFactory.isPresent() || isFallback(sinkFactory.get());
         AresSink<?, ?, ?, ?> sink;
         if (fallBack) {
@@ -47,7 +49,7 @@ public class AresSinkFactory implements Serializable {
         } catch (Exception e) {
             if (e instanceof UnsupportedOperationException
                     && "The Factory has not been implemented and the deprecated Plugin will be used."
-                    .equals(e.getMessage())) {
+                            .equals(e.getMessage())) {
                 return true;
             }
         }

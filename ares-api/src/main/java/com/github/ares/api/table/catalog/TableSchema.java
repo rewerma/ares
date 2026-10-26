@@ -17,18 +17,14 @@
 
 package com.github.ares.api.table.catalog;
 
-
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRowType;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Represent a physical table schema.
- */
+/** Represent a physical table schema. */
 public final class TableSchema implements Serializable {
     private static final long serialVersionUID = -1L;
     private final List<Column> columns;
@@ -39,7 +35,11 @@ public final class TableSchema implements Serializable {
 
     private final List<ConstraintKey> constraintKeys;
 
-    public TableSchema(List<Column> columns, List<Column> whereColumns, PrimaryKey primaryKey, List<ConstraintKey> constraintKeys) {
+    public TableSchema(
+            List<Column> columns,
+            List<Column> whereColumns,
+            PrimaryKey primaryKey,
+            List<ConstraintKey> constraintKeys) {
         this.columns = columns;
         this.whereColumns = whereColumns;
         this.primaryKey = primaryKey;

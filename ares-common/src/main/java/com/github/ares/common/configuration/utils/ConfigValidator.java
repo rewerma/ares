@@ -1,16 +1,15 @@
 package com.github.ares.common.configuration.utils;
 
+import static com.github.ares.common.configuration.utils.OptionUtil.getOptionKeys;
+
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.configuration.SingleChoiceOption;
 import com.github.ares.common.exceptions.AresException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import static com.github.ares.common.configuration.utils.OptionUtil.getOptionKeys;
 
 public class ConfigValidator {
     private final ReadonlyConfig config;
@@ -33,7 +32,7 @@ public class ConfigValidator {
                     // is required option and not match condition, skip validate
                     if (isConditionOption(requiredOption)
                             && !matchCondition(
-                            (RequiredOption.ConditionalRequiredOptions) requiredOption)) {
+                                    (RequiredOption.ConditionalRequiredOptions) requiredOption)) {
                         continue;
                     }
                     validateSingleChoice(option);
@@ -144,7 +143,9 @@ public class ConfigValidator {
         throw new AresException(
                 String.format(
                         "These options(%s) are bundled, must be present or absent together. The options present are: %s. The options absent are %s.",
-                        getOptionKeys(bundledOptions), getOptionKeys(present), getOptionKeys(absent)));
+                        getOptionKeys(bundledOptions),
+                        getOptionKeys(present),
+                        getOptionKeys(absent)));
     }
 
     void validate(RequiredOption.ExclusiveRequiredOptions exclusiveRequiredOptions) {

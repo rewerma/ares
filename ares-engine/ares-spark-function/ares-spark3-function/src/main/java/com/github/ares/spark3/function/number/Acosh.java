@@ -1,15 +1,13 @@
 package com.github.ares.spark3.function.number;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-
 
 @AutoService(SparkFuncInterface.class)
 public class Acosh implements SparkFuncInterface {
@@ -30,7 +28,8 @@ public class Acosh implements SparkFuncInterface {
         if (arg == null) {
             return null;
         }
-        org.apache.spark.sql.catalyst.expressions.Acosh acosh = new org.apache.spark.sql.catalyst.expressions.Acosh(null);
+        org.apache.spark.sql.catalyst.expressions.Acosh acosh =
+                new org.apache.spark.sql.catalyst.expressions.Acosh(null);
         return acosh.nullSafeEval(arg.doubleValue());
     }
 }

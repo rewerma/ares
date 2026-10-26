@@ -7,9 +7,7 @@ public class DatabaseNotExistException extends AresException {
     private static final String MSG = "Database %s does not exist in Catalog %s.";
 
     public DatabaseNotExistException(String catalogName, String databaseName, Throwable cause) {
-        super(
-                String.format(MSG, databaseName, catalogName),
-                cause);
+        super(String.format(MSG, databaseName, catalogName), cause);
     }
 
     public DatabaseNotExistException(String catalogName, String databaseName) {

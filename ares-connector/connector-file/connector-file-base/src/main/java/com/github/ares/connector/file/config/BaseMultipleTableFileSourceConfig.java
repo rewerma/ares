@@ -2,11 +2,10 @@ package com.github.ares.connector.file.config;
 
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.google.common.collect.Lists;
-import lombok.Getter;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 public abstract class BaseMultipleTableFileSourceConfig implements Serializable {
 

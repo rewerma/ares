@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.ares</groupId>
         <artifactId>ares</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>ares-dist</artifactId>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-        </dependency>
+          </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -34,6 +34,22 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>DmJdbcDriver18</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.com.kingbase</groupId>
+            <artifactId>kingbase8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.oceanbase</groupId>
+            <artifactId>oceanbase-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opengauss</groupId>
+            <artifactId>opengauss-jdbc</artifactId>
         </dependency>
 
 
@@ -64,23 +80,63 @@
         </dependency>
 
         <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikari.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-mysql</artifactId>
+            <artifactId>connector-jdbc-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-oracle</artifactId>
+            <artifactId>connector-mysql</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-postgres</artifactId>
+            <artifactId>connector-oracle</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-jdbc-sqlserver</artifactId>
+            <artifactId>connector-postgres</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-sqlserver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-dameng</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-kingbase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-oceanbase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-opengauss</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-starrocks</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>connector-doris</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -140,14 +196,14 @@
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
-            <artifactId>connector-hive</artifactId>
+            <artifactId>connector-paimon</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.ares</groupId>
-                    <artifactId>connector-file-hadoop</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
+            <artifactId>ares-paimon</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

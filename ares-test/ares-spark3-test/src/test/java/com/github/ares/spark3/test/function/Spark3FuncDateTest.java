@@ -9,12 +9,16 @@ import org.junit.Test;
 public class Spark3FuncDateTest {
     @Test
     public void dateFuncTest() {
-        String[] args = new String[]{
-                "--master", Utils.getSparkMaster(),
-                "--sql", "../scripts/spark/function/spark3-date-function-test.sql",
-                "--conf", "spark.jars="
-                + "../../ares-starter/ares-spark3-starter/target/ares-spark3-starter.jar"
-        };
+        String[] args =
+                new String[] {
+                    "--master",
+                    Utils.getSparkMaster(),
+                    "--sql",
+                    "../scripts/spark/function/spark3-date-function-test.sql",
+                    "--conf",
+                    "spark.jars="
+                            + "../../ares-starter/ares-spark3-starter/target/ares-spark3-starter.jar"
+                };
         AresSparkStarter.main(args);
     }
 }

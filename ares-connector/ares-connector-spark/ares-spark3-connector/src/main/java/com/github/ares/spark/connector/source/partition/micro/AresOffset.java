@@ -1,9 +1,8 @@
 package com.github.ares.spark.connector.source.partition.micro;
 
 import com.github.ares.common.utils.JsonUtils;
-import org.apache.spark.sql.connector.read.streaming.Offset;
-
 import java.io.Serializable;
+import org.apache.spark.sql.connector.read.streaming.Offset;
 
 public class AresOffset extends Offset implements Serializable {
 

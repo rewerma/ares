@@ -20,7 +20,6 @@ package com.github.ares.core.starter.command;
 import com.beust.jcommander.Parameter;
 import com.github.ares.common.configuration.DeployMode;
 import com.github.ares.common.utils.Constants;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -78,6 +77,7 @@ public abstract class AbstractCommandArgs extends CommandArgs {
     public void setSqlFile(String sqlFile) {
         this.sqlFile = sqlFile;
     }
+
     public List<String> getVariables() {
         return variables;
     }

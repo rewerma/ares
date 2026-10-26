@@ -1,6 +1,5 @@
 package com.github.ares.spark.function.string;
 
-
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
 

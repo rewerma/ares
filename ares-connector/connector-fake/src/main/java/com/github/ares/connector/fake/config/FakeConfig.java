@@ -1,20 +1,5 @@
 package com.github.ares.connector.fake.config;
 
-import com.github.ares.api.table.catalog.CatalogTable;
-import com.github.ares.api.table.catalog.CatalogTableUtil;
-import com.github.ares.common.configuration.ReadonlyConfig;
-import com.github.ares.common.exceptions.CommonErrorCode;
-import com.github.ares.common.utils.JsonUtils;
-import com.github.ares.connector.fake.exception.FakeConnectorException;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static com.github.ares.connector.fake.config.FakeOption.ARRAY_SIZE;
 import static com.github.ares.connector.fake.config.FakeOption.BIGINT_FAKE_MODE;
 import static com.github.ares.connector.fake.config.FakeOption.BIGINT_MAX;
@@ -56,86 +41,75 @@ import static com.github.ares.connector.fake.config.FakeOption.TINYINT_MAX;
 import static com.github.ares.connector.fake.config.FakeOption.TINYINT_MIN;
 import static com.github.ares.connector.fake.config.FakeOption.TINYINT_TEMPLATE;
 
+import com.github.ares.api.table.catalog.CatalogTable;
+import com.github.ares.api.table.catalog.CatalogTableUtil;
+import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.common.exceptions.CommonErrorCode;
+import com.github.ares.common.utils.JsonUtils;
+import com.github.ares.connector.fake.exception.FakeConnectorException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
 @Builder
 @Getter
 public class FakeConfig implements Serializable {
-    @Builder.Default
-    private int rowNum = ROW_NUM.defaultValue();
+    @Builder.Default private int rowNum = ROW_NUM.defaultValue();
 
-    @Builder.Default
-    private int splitNum = SPLIT_NUM.defaultValue();
+    @Builder.Default private int splitNum = SPLIT_NUM.defaultValue();
 
-    @Builder.Default
-    private int splitReadInterval = SPLIT_READ_INTERVAL.defaultValue();
+    @Builder.Default private int splitReadInterval = SPLIT_READ_INTERVAL.defaultValue();
 
-    @Builder.Default
-    private int mapSize = MAP_SIZE.defaultValue();
+    @Builder.Default private int mapSize = MAP_SIZE.defaultValue();
 
-    @Builder.Default
-    private int arraySize = ARRAY_SIZE.defaultValue();
+    @Builder.Default private int arraySize = ARRAY_SIZE.defaultValue();
 
-    @Builder.Default
-    private int bytesLength = BYTES_LENGTH.defaultValue();
+    @Builder.Default private int bytesLength = BYTES_LENGTH.defaultValue();
 
-    @Builder.Default
-    private int stringLength = STRING_LENGTH.defaultValue();
+    @Builder.Default private int stringLength = STRING_LENGTH.defaultValue();
 
-    @Builder.Default
-    private int tinyintMin = TINYINT_MIN.defaultValue();
+    @Builder.Default private int tinyintMin = TINYINT_MIN.defaultValue();
 
-    @Builder.Default
-    private int tinyintMax = TINYINT_MAX.defaultValue();
+    @Builder.Default private int tinyintMax = TINYINT_MAX.defaultValue();
 
-    @Builder.Default
-    private int smallintMin = SMALLINT_MIN.defaultValue();
+    @Builder.Default private int smallintMin = SMALLINT_MIN.defaultValue();
 
-    @Builder.Default
-    private int smallintMax = SMALLINT_MAX.defaultValue();
+    @Builder.Default private int smallintMax = SMALLINT_MAX.defaultValue();
 
-    @Builder.Default
-    private int intMin = INT_MIN.defaultValue();
+    @Builder.Default private int intMin = INT_MIN.defaultValue();
 
-    @Builder.Default
-    private int intMax = INT_MAX.defaultValue();
+    @Builder.Default private int intMax = INT_MAX.defaultValue();
 
-    @Builder.Default
-    private long bigintMin = BIGINT_MIN.defaultValue();
+    @Builder.Default private long bigintMin = BIGINT_MIN.defaultValue();
 
-    @Builder.Default
-    private long bigintMax = BIGINT_MAX.defaultValue();
+    @Builder.Default private long bigintMax = BIGINT_MAX.defaultValue();
 
-    @Builder.Default
-    private double floatMin = FLOAT_MIN.defaultValue();
+    @Builder.Default private double floatMin = FLOAT_MIN.defaultValue();
 
-    @Builder.Default
-    private double floatMax = FLOAT_MAX.defaultValue();
+    @Builder.Default private double floatMax = FLOAT_MAX.defaultValue();
 
-    @Builder.Default
-    private double doubleMin = DOUBLE_MIN.defaultValue();
+    @Builder.Default private double doubleMin = DOUBLE_MIN.defaultValue();
 
-    @Builder.Default
-    private double doubleMax = DOUBLE_MAX.defaultValue();
+    @Builder.Default private double doubleMax = DOUBLE_MAX.defaultValue();
 
-    @Builder.Default
-    private FakeOption.FakeMode stringFakeMode = STRING_FAKE_MODE.defaultValue();
+    @Builder.Default private FakeOption.FakeMode stringFakeMode = STRING_FAKE_MODE.defaultValue();
 
-    @Builder.Default
-    private FakeOption.FakeMode tinyintFakeMode = TINYINT_FAKE_MODE.defaultValue();
+    @Builder.Default private FakeOption.FakeMode tinyintFakeMode = TINYINT_FAKE_MODE.defaultValue();
 
     @Builder.Default
     private FakeOption.FakeMode smallintFakeMode = SMALLINT_FAKE_MODE.defaultValue();
 
-    @Builder.Default
-    private FakeOption.FakeMode intFakeMode = INT_FAKE_MODE.defaultValue();
+    @Builder.Default private FakeOption.FakeMode intFakeMode = INT_FAKE_MODE.defaultValue();
 
-    @Builder.Default
-    private FakeOption.FakeMode bigintFakeMode = BIGINT_FAKE_MODE.defaultValue();
+    @Builder.Default private FakeOption.FakeMode bigintFakeMode = BIGINT_FAKE_MODE.defaultValue();
 
-    @Builder.Default
-    private FakeOption.FakeMode floatFakeMode = FLOAT_FAKE_MODE.defaultValue();
+    @Builder.Default private FakeOption.FakeMode floatFakeMode = FLOAT_FAKE_MODE.defaultValue();
 
-    @Builder.Default
-    private FakeOption.FakeMode doubleFakeMode = DOUBLE_FAKE_MODE.defaultValue();
+    @Builder.Default private FakeOption.FakeMode doubleFakeMode = DOUBLE_FAKE_MODE.defaultValue();
 
     private List<String> stringTemplate;
     private List<Integer> tinyintTemplate;

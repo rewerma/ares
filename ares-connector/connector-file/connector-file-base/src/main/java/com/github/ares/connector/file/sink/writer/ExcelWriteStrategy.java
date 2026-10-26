@@ -4,11 +4,10 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
 import com.github.ares.connector.file.sink.util.ExcelGenerator;
-import lombok.NonNull;
-import org.apache.hadoop.fs.FSDataOutputStream;
-
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import lombok.NonNull;
+import org.apache.hadoop.fs.FSDataOutputStream;
 
 public class ExcelWriteStrategy extends AbstractWriteStrategy {
     private final LinkedHashMap<String, ExcelGenerator> beingWrittenWriter;
@@ -47,8 +46,7 @@ public class ExcelWriteStrategy extends AbstractWriteStrategy {
     private ExcelGenerator getOrCreateExcelGenerator(@NonNull String filePath) {
         ExcelGenerator excelGenerator = this.beingWrittenWriter.get(filePath);
         if (excelGenerator == null) {
-            excelGenerator =
-                    new ExcelGenerator(sinkColumnsIndexInRow, aresRowType, fileSinkConfig);
+            excelGenerator = new ExcelGenerator(sinkColumnsIndexInRow, aresRowType, fileSinkConfig);
             this.beingWrittenWriter.put(filePath, excelGenerator);
         }
         return excelGenerator;

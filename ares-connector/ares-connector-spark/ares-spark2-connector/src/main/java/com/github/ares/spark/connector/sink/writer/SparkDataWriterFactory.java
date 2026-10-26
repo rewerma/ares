@@ -23,11 +23,10 @@ import com.github.ares.api.sink.SinkCommitter;
 import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
+import java.io.IOException;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.writer.DataWriter;
 import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
-
-import java.io.IOException;
 
 public class SparkDataWriterFactory<CommitInfoT, StateT> implements DataWriterFactory<InternalRow> {
 
@@ -56,7 +55,6 @@ public class SparkDataWriterFactory<CommitInfoT, StateT> implements DataWriterFa
         } catch (IOException e) {
             throw new RuntimeException("Failed to create SinkCommitter.", e);
         }
-        return new SparkDataWriter<>(
-                writer, committer, catalogTable.getAresRowType(), epochId);
+        return new SparkDataWriter<>(writer, committer, catalogTable.getAresRowType(), epochId);
     }
 }

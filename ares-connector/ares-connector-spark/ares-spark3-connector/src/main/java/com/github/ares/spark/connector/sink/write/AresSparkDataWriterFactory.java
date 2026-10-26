@@ -7,12 +7,11 @@ import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.exceptions.AresException;
+import java.io.IOException;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.write.DataWriter;
 import org.apache.spark.sql.connector.write.DataWriterFactory;
 import org.apache.spark.sql.connector.write.streaming.StreamingDataWriterFactory;
-
-import java.io.IOException;
 
 public class AresSparkDataWriterFactory<CommitInfoT, StateT>
         implements DataWriterFactory, StreamingDataWriterFactory {
@@ -41,8 +40,7 @@ public class AresSparkDataWriterFactory<CommitInfoT, StateT>
         } catch (IOException e) {
             throw new AresException("Failed to create SinkCommitter.", e);
         }
-        return new AresSparkDataWriter<>(
-                writer, committer, catalogTable.getAresRowType(), 0);
+        return new AresSparkDataWriter<>(writer, committer, catalogTable.getAresRowType(), 0);
     }
 
     @Override

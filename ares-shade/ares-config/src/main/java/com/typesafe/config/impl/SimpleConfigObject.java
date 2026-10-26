@@ -5,7 +5,6 @@ import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigRenderOptions;
 import com.typesafe.config.ConfigValue;
-
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -382,8 +381,7 @@ final class SimpleConfigObject extends AbstractConfigObject implements Serializa
             ResolveSource sourceWithParent = source.pushParent(this);
 
             try {
-                ResolveModifier modifier =
-                        new ResolveModifier(context, sourceWithParent);
+                ResolveModifier modifier = new ResolveModifier(context, sourceWithParent);
                 AbstractConfigValue value = this.modifyMayThrow(modifier);
                 return ResolveResult.make(modifier.context, value).asObjectResult();
             } catch (NotPossibleToResolve | RuntimeException var6) {

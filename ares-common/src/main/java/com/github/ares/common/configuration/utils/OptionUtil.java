@@ -2,18 +2,16 @@ package com.github.ares.common.configuration.utils;
 
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
 import com.github.ares.common.configuration.Option;
-import org.apache.commons.lang3.StringUtils;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class OptionUtil {
 
-    private OptionUtil() {
-    }
+    private OptionUtil() {}
 
     public static String getOptionKeys(List<Option<?>> options) {
         StringBuilder builder = new StringBuilder();
@@ -60,16 +58,16 @@ public class OptionUtil {
             if (option != null) {
                 options.add(
                         new Option<>(
-                                StringUtils.isEmpty(option.name())
-                                        ? formatUnderScoreCase(field.getName())
-                                        : option.name(),
-                                new TypeReference<Object>() {
-                                    @Override
-                                    public Type getType() {
-                                        return field.getType();
-                                    }
-                                },
-                                field.get(object))
+                                        StringUtils.isEmpty(option.name())
+                                                ? formatUnderScoreCase(field.getName())
+                                                : option.name(),
+                                        new TypeReference<Object>() {
+                                            @Override
+                                            public Type getType() {
+                                                return field.getType();
+                                            }
+                                        },
+                                        field.get(object))
                                 .withDescription(option.description()));
             }
         }

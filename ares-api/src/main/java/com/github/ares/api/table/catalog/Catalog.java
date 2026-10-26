@@ -1,16 +1,15 @@
 package com.github.ares.api.table.catalog;
 
 import com.github.ares.common.configuration.ReadonlyConfig;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Interface for reading and writing table metadata from Ares. Each connector need to contain
- * the implementation of Catalog.
+ * Interface for reading and writing table metadata from Ares. Each connector need to contain the
+ * implementation of Catalog.
  */
 public interface Catalog extends AutoCloseable {
 
@@ -18,9 +17,7 @@ public interface Catalog extends AutoCloseable {
         return Optional.empty();
     }*/
 
-    /**
-     * Open the catalog. Used for any required preparation in initialization phase.
-     */
+    /** Open the catalog. Used for any required preparation in initialization phase. */
     void open();
 
     /**

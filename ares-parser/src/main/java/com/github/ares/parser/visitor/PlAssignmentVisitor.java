@@ -5,7 +5,6 @@ import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.model.Argument;
 import com.github.ares.parser.plan.LogicalAssignment;
 import com.github.ares.parser.plan.LogicalOperation;
-
 import java.util.List;
 import java.util.Map;
 
@@ -16,19 +15,29 @@ public class PlAssignmentVisitor {
         this.visitorManager = visitorManager;
     }
 
-    public LogicalOperation visitAssignment(PlSqlParser.Assignment_statementContext assignmentStatement,
-                                            Map<String, PlType> declaredParams, Map<String, PlType> allParams,
-                                            List<String> structs) {
-        String element = assignmentStatement.general_element().getText();
-        PlType type = declaredParams.get(element);
+    public LogicalOperation visitAssignment(
+            PlSqlParser.Assignment_statementContext assignmentStatement,
+            Map<String, PlType> visible,
+            List<String> structs) {
+        StringBuilder name = new StringBuilder();
+        for (PlSqlParser.IdentifierContext identifier : assignmentStatement.identifier()) {
+            if (name.length() > 0) {
+                name.append('.');
+            }
+            name.append(PlBodyVisitor.identText(identifier));
+        }
+        String element = name.toString();
+        PlType type = visible.get(element);
         if (type == null) {
             throw new IllegalArgumentException("Argument: " + element + " undefined.");
         }
         LogicalAssignment assignment = new LogicalAssignment();
-        Argument argument = new Argument(element, type);
-        argument.setName(element);
-        assignment.setParam(argument);
-        assignment.setExpr(visitorManager.getExpressionVisitor().visitExpressionContext(assignmentStatement.expression(), allParams, structs).getExpr());
+        assignment.setParam(new Argument(element, type));
+        assignment.setExpr(
+                visitorManager
+                        .getExpressionVisitor()
+                        .visitExpressionContext(assignmentStatement.expression(), visible, structs)
+                        .getExpr());
         return assignment;
     }
 }

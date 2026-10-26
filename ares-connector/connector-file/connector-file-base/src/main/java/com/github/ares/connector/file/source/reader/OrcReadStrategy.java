@@ -1,5 +1,7 @@
 package com.github.ares.connector.file.source.reader;
 
+import static com.github.ares.api.utils.TypeUtil.canConvert;
+
 import com.github.ares.api.source.Collector;
 import com.github.ares.api.table.catalog.PrimitiveByteArrayType;
 import com.github.ares.api.table.type.AresDataType;
@@ -12,10 +14,26 @@ import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.api.table.type.SqlType;
 import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.config.BaseSourceConfigOptions;
 import com.github.ares.connector.file.exception.FileConnectorErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.writer.OrcWriteStrategy;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -36,27 +54,6 @@ import org.apache.orc.storage.ql.exec.vector.StructColumnVector;
 import org.apache.orc.storage.ql.exec.vector.TimestampColumnVector;
 import org.apache.orc.storage.ql.exec.vector.UnionColumnVector;
 import org.apache.orc.storage.ql.exec.vector.VectorizedRowBatch;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.github.ares.common.exceptions.CommonErrorCode;
-
-import static com.github.ares.api.utils.TypeUtil.canConvert;
-
 
 @Slf4j
 public class OrcReadStrategy extends AbstractReadStrategy {
@@ -169,8 +166,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
             return getActualAresRowTypeInfo();
         } catch (IOException e) {
             String errorMsg = String.format("Create orc reader for this file [%s] failed", path);
-            throw new FileConnectorException(
-                    CommonErrorCode.READER_OPERATION_FAILED, errorMsg);
+            throw new FileConnectorException(CommonErrorCode.READER_OPERATION_FAILED, errorMsg);
         }
     }
 
@@ -213,8 +209,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
         }
     }
 
-    private AresDataType<?> getFinalType(
-            AresDataType<?> fileType, AresDataType<?> configType) {
+    private AresDataType<?> getFinalType(AresDataType<?> fileType, AresDataType<?> configType) {
         if (configType == null) {
             return fileType;
         }
@@ -258,8 +253,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
                 return getFinalType(new DecimalType(precision, scale), configType);
             case LIST:
                 TypeDescription listType = typeDescription.getChildren().get(0);
-                AresDataType<?> aresDataType =
-                        orcDataType2AresDataType(listType, null);
+                AresDataType<?> aresDataType = orcDataType2AresDataType(listType, null);
                 if (configType instanceof ArrayType) {
                     AresDataType<?> elementType = ((ArrayType) configType).getElementType();
                     aresDataType = orcDataType2AresDataType(listType, elementType);
@@ -294,8 +288,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
                 TypeDescription valueType = typeDescription.getChildren().get(1);
                 if (configType instanceof MapType) {
                     AresDataType<?> keyDataType = ((MapType<?, ?>) configType).getKeyType();
-                    AresDataType<?> valueDataType =
-                            ((MapType<?, ?>) configType).getValueType();
+                    AresDataType<?> valueDataType = ((MapType<?, ?>) configType).getValueType();
                     keyDataType = orcDataType2AresDataType(keyType, keyDataType);
                     valueDataType = orcDataType2AresDataType(valueType, valueDataType);
                     return new MapType<>(keyDataType, valueDataType);
@@ -329,8 +322,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
                         String.format(
                                 "Ares file connector not supported this orc type [%s] yet",
                                 typeDescription.getCategory());
-                throw new FileConnectorException(
-                        CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
+                throw new FileConnectorException(CommonErrorCode.UNSUPPORTED_DATA_TYPE, errorMsg);
         }
     }
 
@@ -385,10 +377,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
     }
 
     private Object readLongVal(
-            ColumnVector colVec,
-            TypeDescription colType,
-            AresDataType<?> dataType,
-            int rowNum) {
+            ColumnVector colVec, TypeDescription colType, AresDataType<?> dataType, int rowNum) {
         Object colObj = null;
         if (!colVec.isNull[rowNum]) {
             LongColumnVector longVec = (LongColumnVector) colVec;
@@ -479,10 +468,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
     }
 
     private Object readTimestampVal(
-            ColumnVector colVec,
-            TypeDescription colType,
-            AresDataType<?> dataType,
-            int rowNum) {
+            ColumnVector colVec, TypeDescription colType, AresDataType<?> dataType, int rowNum) {
         Object timestampVal = null;
         if (!colVec.isNull[rowNum]) {
             TimestampColumnVector timestampVec = (TimestampColumnVector) colVec;
@@ -511,10 +497,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
     }
 
     private Object readStructVal(
-            ColumnVector colVec,
-            TypeDescription colType,
-            AresDataType<?> dataType,
-            int rowNum) {
+            ColumnVector colVec, TypeDescription colType, AresDataType<?> dataType, int rowNum) {
         Object structObj = null;
         if (!colVec.isNull[rowNum]) {
             StructColumnVector structVector = (StructColumnVector) colVec;
@@ -552,8 +535,7 @@ public class OrcReadStrategy extends AbstractReadStrategy {
             }
         } else {
             throw new FileConnectorException(
-                    CommonErrorCode.ILLEGAL_ARGUMENT,
-                    "readMapVal: unsupported key or value types");
+                    CommonErrorCode.ILLEGAL_ARGUMENT, "readMapVal: unsupported key or value types");
         }
         return objMap;
     }

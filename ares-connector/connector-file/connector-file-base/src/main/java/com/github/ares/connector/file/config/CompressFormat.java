@@ -1,9 +1,8 @@
 package com.github.ares.connector.file.config;
 
+import java.io.Serializable;
 import org.apache.orc.CompressionKind;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-
-import java.io.Serializable;
 
 public enum CompressFormat implements Serializable {
     // text json orc parquet support

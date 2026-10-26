@@ -5,15 +5,13 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.serialization.Serializer;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
 public interface AresSink<IN, StateT, CommitInfoT, AggregatedCommitInfoT>
-        extends Serializable,
-        PluginIdentifierInterface {
+        extends Serializable, PluginIdentifierInterface {
 
     /**
      * Set the row type info of sink row data. This method will be automatically called by
@@ -90,7 +88,7 @@ public interface AresSink<IN, StateT, CommitInfoT, AggregatedCommitInfoT>
      * @throws IOException throws IOException when createAggregatedCommitter failed.
      */
     default Optional<SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT>>
-    createAggregatedCommitter() throws IOException {
+            createAggregatedCommitter() throws IOException {
         return Optional.empty();
     }
 

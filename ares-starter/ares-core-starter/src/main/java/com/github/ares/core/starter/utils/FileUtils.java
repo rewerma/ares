@@ -2,7 +2,6 @@ package com.github.ares.core.starter.utils;
 
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.core.starter.command.AbstractCommandArgs;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;

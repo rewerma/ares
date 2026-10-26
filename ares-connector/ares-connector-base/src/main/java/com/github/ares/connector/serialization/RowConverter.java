@@ -6,7 +6,6 @@ import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.api.table.type.ArrayType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.api.table.type.SqlType;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;

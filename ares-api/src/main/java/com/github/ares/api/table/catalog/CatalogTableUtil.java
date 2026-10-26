@@ -3,26 +3,20 @@ package com.github.ares.api.table.catalog;
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.table.catalog.schema.ReadonlyConfigParser;
 import com.github.ares.api.table.catalog.schema.TableSchemaOptions;
-import com.github.ares.api.table.factory.FactoryUtil;
 import com.github.ares.api.table.type.AresDataType;
-import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.MultipleRowType;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.configuration.ReadonlyConfig;
-import com.github.ares.common.exceptions.AresException;
-import org.apache.commons.lang3.StringUtils;
-
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /** Utils contains some common methods for construct CatalogTable. */
 @Slf4j
@@ -38,11 +32,7 @@ public class CatalogTableUtil implements Serializable {
     }
 
     public static CatalogTable getCatalogTable(
-            String catalog,
-            String database,
-            String schema,
-            String tableName,
-            AresRowType rowType) {
+            String catalog, String database, String schema, String tableName, AresRowType rowType) {
         TableSchema.Builder schemaBuilder = TableSchema.builder();
         for (int i = 0; i < rowType.getTotalFields(); i++) {
             PhysicalColumn column =
@@ -79,8 +69,7 @@ public class CatalogTableUtil implements Serializable {
         } else {
             catalogTables =
                     Collections.singletonList(
-                            CatalogTableUtil.getCatalogTable(
-                                    tableId, (AresRowType) aresDataType));
+                            CatalogTableUtil.getCatalogTable(tableId, (AresRowType) aresDataType));
         }
         return catalogTables;
     }

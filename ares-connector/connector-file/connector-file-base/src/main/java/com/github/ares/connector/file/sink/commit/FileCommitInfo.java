@@ -17,16 +17,26 @@
 
 package com.github.ares.connector.file.sink.commit;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class FileCommitInfo implements Serializable {
+    private static final long serialVersionUID = -1L;
+
+    public FileCommitInfo() {}
+
+    public FileCommitInfo(
+            LinkedHashMap<String, String> needMoveFiles,
+            LinkedHashMap<String, List<String>> partitionDirAndValuesMap,
+            String transactionDir) {
+        this.needMoveFiles = needMoveFiles;
+        this.partitionDirAndValuesMap = partitionDirAndValuesMap;
+        this.transactionDir = transactionDir;
+    }
+
     /**
      * Storage the commit info in map.
      *
@@ -34,7 +44,7 @@ public class FileCommitInfo implements Serializable {
      *
      * <p>V is the target file path of the data file.
      */
-    private final LinkedHashMap<String, String> needMoveFiles;
+    private LinkedHashMap<String, String> needMoveFiles;
 
     /**
      * Storage the partition information in map.
@@ -43,8 +53,8 @@ public class FileCommitInfo implements Serializable {
      *
      * <p>V is the list of partition column's values.
      */
-    private final LinkedHashMap<String, List<String>> partitionDirAndValuesMap;
+    private LinkedHashMap<String, List<String>> partitionDirAndValuesMap;
 
     /** Storage the transaction directory */
-    private final String transactionDir;
+    private String transactionDir;
 }

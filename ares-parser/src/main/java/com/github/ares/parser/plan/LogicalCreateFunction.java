@@ -1,18 +1,16 @@
 package com.github.ares.parser.plan;
 
+import static com.github.ares.parser.utils.PLParserUtil.getOriginalType;
+
 import com.github.ares.common.engine.PlType;
 import com.github.ares.parser.enums.OperationType;
 import com.github.ares.parser.model.CreateMethod;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-
-import static com.github.ares.parser.utils.PLParserUtil.getOriginalType;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

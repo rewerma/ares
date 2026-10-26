@@ -2,7 +2,6 @@ package com.github.ares.api.common;
 
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.Options;
-
 import java.util.List;
 
 public interface CommonOptions {
@@ -56,21 +55,39 @@ public interface CommonOptions {
                             "When parallelism is not specified, the parallelism in env is used by default. "
                                     + "When parallelism is specified, it will override the parallelism in env.");
 
-    Option<SinkType> SINK_TYPE =
-            Options.key("sink_type").enumType(SinkType.class).noDefaultValue().withDescription("INSERT, UPDATE, DELETE, MERGE ...");
+    Option<String> SINK_TYPE =
+            Options.key("sink_type")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("INSERT, UPDATE, DELETE, MERGE ...");
 
     Option<List<String>> INSERT_COLUMNS =
-            Options.key("insert_columns").listType().noDefaultValue().withDescription("insert columns");
+            Options.key("insert_columns")
+                    .listType()
+                    .noDefaultValue()
+                    .withDescription("insert columns");
 
     Option<List<String>> UPDATE_COLUMNS =
-            Options.key("update_columns").listType().noDefaultValue().withDescription("update columns");
+            Options.key("update_columns")
+                    .listType()
+                    .noDefaultValue()
+                    .withDescription("update columns");
 
     Option<List<String>> WHERE_COLUMNS =
-            Options.key("where_columns").listType().noDefaultValue().withDescription("where columns");
+            Options.key("where_columns")
+                    .listType()
+                    .noDefaultValue()
+                    .withDescription("where columns");
 
     Option<CriteriaClause> WHERE_CLAUSE =
-            Options.key("where_clause").objectType(CriteriaClause.class).noDefaultValue().withDescription("where clause");
+            Options.key("where_clause")
+                    .objectType(CriteriaClause.class)
+                    .noDefaultValue()
+                    .withDescription("where clause");
 
     Option<Boolean> HAS_TARGET_COLUMNS =
-            Options.key("has_target_columns").booleanType().defaultValue(Boolean.FALSE).withDescription("has target columns flag");
+            Options.key("has_target_columns")
+                    .booleanType()
+                    .defaultValue(Boolean.FALSE)
+                    .withDescription("has target columns flag");
 }

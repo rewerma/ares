@@ -1,20 +1,18 @@
 package com.github.ares.spark.function.number;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresDataTypeHelper;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-
 
 @AutoService(SparkFuncInterface.class)
 public class Mod implements SparkFuncInterface {
@@ -80,8 +78,14 @@ public class Mod implements SparkFuncInterface {
         if (type2 instanceof DecimalType) {
             type2 = BasicType.INT_TYPE;
         }
-        List<AresDataType<?>> numberTypes = Arrays.asList(BasicType.BYTE_TYPE, BasicType.SHORT_TYPE, BasicType.INT_TYPE, BasicType.LONG_TYPE,
-                BasicType.FLOAT_TYPE, BasicType.DOUBLE_TYPE);
+        List<AresDataType<?>> numberTypes =
+                Arrays.asList(
+                        BasicType.BYTE_TYPE,
+                        BasicType.SHORT_TYPE,
+                        BasicType.INT_TYPE,
+                        BasicType.LONG_TYPE,
+                        BasicType.FLOAT_TYPE,
+                        BasicType.DOUBLE_TYPE);
         int idx1 = numberTypes.indexOf(type1);
         int idx2 = numberTypes.indexOf(type2);
         int idxMax = Math.max(idx1, idx2);

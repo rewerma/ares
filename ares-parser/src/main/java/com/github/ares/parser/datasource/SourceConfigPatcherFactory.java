@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SourceConfigPatcherFactory {
-    private SourceConfigPatcherFactory() {
-    }
+    private SourceConfigPatcherFactory() {}
 
     private static final Map<String, SourceConfigPatcher> sourceConfigPatchers = new HashMap<>();
 

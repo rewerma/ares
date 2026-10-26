@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.ares</groupId>
         <artifactId>ares</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>ares-shade</artifactId>
@@ -16,8 +16,8 @@
         <module>ares-guava</module>
         <module>ares-jackson</module>
         <module>ares-hadoop3</module>
+        <module>ares-paimon</module>
         <module>ares-config</module>
-        <module>ares-hive2</module>
     </modules>
 
     <properties>

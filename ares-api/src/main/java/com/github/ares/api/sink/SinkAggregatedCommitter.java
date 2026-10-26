@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * The committer combine taskManager/Worker Commit message. Then commit it uses {@link
- * SinkAggregatedCommitter#commit(List)}. This class will execute in single thread.
+ * SinkAggregatedCommitter#commit(String)}. This class will execute in single thread.
  *
  * <p>See Also {@link SinkCommitter}
  *
@@ -33,23 +33,9 @@ import java.util.List;
 public interface SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> extends Serializable {
 
     /** init sink aggregated committer */
-    default void init() {};
+    default void init() {}
 
-    /** Re-commit message to third party data receiver, The method need to achieve idempotency. */
-    default List<AggregatedCommitInfoT> restoreCommit(
-            List<AggregatedCommitInfoT> aggregatedCommitInfo) throws IOException {
-        return commit(aggregatedCommitInfo);
-    }
-
-    /**
-     * Commit message to third party data receiver, The method need to achieve idempotency.
-     *
-     * @param aggregatedCommitInfo The list of combine commit message.
-     * @return The commit message which need retry.
-     * @throws IOException throw IOException when commit failed.
-     */
-    List<AggregatedCommitInfoT> commit(List<AggregatedCommitInfoT> aggregatedCommitInfo)
-            throws IOException;
+    void commit(String commitInfosSerialized) throws IOException;
 
     /**
      * The logic about how to combine commit message.
@@ -59,14 +45,7 @@ public interface SinkAggregatedCommitter<CommitInfoT, AggregatedCommitInfoT> ext
      */
     AggregatedCommitInfoT combine(List<CommitInfoT> commitInfos);
 
-    /**
-     * If {@link #commit(List)} failed, this method will be called (**Only** on Spark engine at
-     * now).
-     *
-     * @param aggregatedCommitInfo The list of combine commit message.
-     * @throws Exception throw Exception when abort failed.
-     */
-    void abort(List<AggregatedCommitInfoT> aggregatedCommitInfo) throws Exception;
+    void abort(String commitInfosSerialized) throws Exception;
 
     /**
      * Close this resource.

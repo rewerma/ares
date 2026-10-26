@@ -1,7 +1,6 @@
 package com.github.ares.sql.function;
 
 import com.github.ares.api.table.type.AresDataType;
-
 import java.io.Serializable;
 import java.util.List;
 

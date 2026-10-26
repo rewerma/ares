@@ -2,7 +2,6 @@ package com.typesafe.config.impl;
 
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigParseOptions;
-
 import java.util.Iterator;
 import java.util.List;
 

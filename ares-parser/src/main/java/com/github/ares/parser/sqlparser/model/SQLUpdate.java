@@ -1,7 +1,6 @@
 package com.github.ares.parser.sqlparser.model;
 
 import com.github.ares.api.common.CriteriaClause;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +22,15 @@ public class SQLUpdate implements Serializable {
 
     private CriteriaClause whereClause;
 
+    private String whereSql;
+
     // for merge into SQL
     private List<String> selectWhereItems;
 
     private String sourceSql;
+
+    /** Statement-level {@code WITH} clause, kept for engines that rebuild the DML text. */
+    private String leadingCte;
 
     private List<SQLHint> hints;
 
@@ -94,6 +98,14 @@ public class SQLUpdate implements Serializable {
         this.whereClause = whereClause;
     }
 
+    public String getWhereSql() {
+        return whereSql;
+    }
+
+    public void setWhereSql(String whereSql) {
+        this.whereSql = whereSql;
+    }
+
     public List<String> getSelectWhereItems() {
         return selectWhereItems;
     }
@@ -108,6 +120,14 @@ public class SQLUpdate implements Serializable {
 
     public void setSourceSql(String sourceSql) {
         this.sourceSql = sourceSql;
+    }
+
+    public String getLeadingCte() {
+        return leadingCte;
+    }
+
+    public void setLeadingCte(String leadingCte) {
+        this.leadingCte = leadingCte;
     }
 
     public List<SQLHint> getHints() {

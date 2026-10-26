@@ -4,7 +4,6 @@ import com.github.ares.api.table.catalog.Column;
 import com.github.ares.api.table.catalog.ConstraintKey;
 import com.github.ares.api.table.catalog.PrimaryKey;
 import com.github.ares.api.table.catalog.TableSchema;
-
 import java.util.List;
 
 public interface TableSchemaParser<T> {

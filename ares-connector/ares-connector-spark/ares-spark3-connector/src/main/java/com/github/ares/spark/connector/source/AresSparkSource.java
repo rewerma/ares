@@ -17,14 +17,13 @@
 
 package com.github.ares.spark.connector.source;
 
+import java.util.Map;
 import org.apache.spark.sql.connector.catalog.Table;
 import org.apache.spark.sql.connector.catalog.TableProvider;
 import org.apache.spark.sql.connector.expressions.Transform;
 import org.apache.spark.sql.sources.DataSourceRegister;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
-
-import java.util.Map;
 
 /** Ares source class of Spark 3+, can be used as source */
 public class AresSparkSource implements DataSourceRegister, TableProvider {

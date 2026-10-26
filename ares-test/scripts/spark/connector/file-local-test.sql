@@ -1,28 +1,21 @@
-CREATE TABLE test1 (
-    id NUMBER(10,0),
-    name VARCHAR,
-    c_time TIMESTAMP
-)
-WITH (
-    'connector' = 'FileLocal',
+CREATE TABLE test1
+USING FileLocal
+OPTIONS (
     'path' = '/Users/rewerma/Develop/ares/data',
     'file_format_type'='text',
     'delimiter' = ',',
+    'schema' = '{"columns":[{"name":"id","type":"decimal(10,0)"},{"name":"name","type":"string"},{"name":"c_time","type":"timestamp"}]}',
     'type' = 'source'
 );
 
 CREATE TABLE test2
-(
-    id NUMBER(10,0),
-    name VARCHAR,
-    c_time TIMESTAMP
-)
-WITH (
-    'connector' = 'FileLocal',
+USING FileLocal
+OPTIONS (
     'path' = '/Users/rewerma/Develop/ares/data2',
     'file_format_type'='text',
     'delimiter' = ',',
     'field_delimiter' = ',',
+    'schema' = '{"columns":[{"name":"id","type":"decimal(10,0)"},{"name":"name","type":"string"},{"name":"c_time","type":"timestamp"}]}',
     'type' = 'sink,source'
 );
 

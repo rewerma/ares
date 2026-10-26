@@ -8,13 +8,12 @@ import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.connector.sink.AbstractSinkWriter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class ConsoleSinkWriter extends AbstractSinkWriter<AresRow, Void> {
@@ -27,10 +26,7 @@ public class ConsoleSinkWriter extends AbstractSinkWriter<AresRow, Void> {
     int delayMs = 0;
 
     public ConsoleSinkWriter(
-            AresRowType aresRowType,
-            SinkWriter.Context context,
-            boolean isPrintData,
-            int delayMs) {
+            AresRowType aresRowType, SinkWriter.Context context, boolean isPrintData, int delayMs) {
         this.aresRowType = aresRowType;
         this.context = context;
         this.isPrintData = isPrintData;
@@ -79,8 +75,7 @@ public class ConsoleSinkWriter extends AbstractSinkWriter<AresRow, Void> {
         for (int i = 0; i < aresRowType.getTotalFields(); i++) {
             fieldsInfo[i] =
                     String.format(
-                            "%s<%s>",
-                            aresRowType.getFieldName(i), aresRowType.getFieldType(i));
+                            "%s<%s>", aresRowType.getFieldName(i), aresRowType.getFieldType(i));
         }
         return StringUtils.join(fieldsInfo, ", ");
     }
@@ -105,8 +100,7 @@ public class ConsoleSinkWriter extends AbstractSinkWriter<AresRow, Void> {
                 for (int i = 0; i < rowType.getTotalFields(); i++) {
                     rowData.add(
                             fieldToString(
-                                    rowType.getFieldTypes()[i],
-                                    ((AresRow) value).getField(i)));
+                                    rowType.getFieldTypes()[i], ((AresRow) value).getField(i)));
                 }
                 return rowData.toString();
             default:

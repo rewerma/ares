@@ -1,12 +1,11 @@
 package com.github.ares.common.utils;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
-
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 public final class VariablesSubstitute {
 

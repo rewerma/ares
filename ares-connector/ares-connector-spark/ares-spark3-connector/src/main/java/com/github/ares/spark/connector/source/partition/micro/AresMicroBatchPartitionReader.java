@@ -18,10 +18,9 @@
 package com.github.ares.spark.connector.source.partition.micro;
 
 import com.github.ares.spark.connector.source.partition.batch.ParallelBatchPartitionReader;
+import java.io.IOException;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.read.PartitionReader;
-
-import java.io.IOException;
 
 public class AresMicroBatchPartitionReader implements PartitionReader<InternalRow> {
 

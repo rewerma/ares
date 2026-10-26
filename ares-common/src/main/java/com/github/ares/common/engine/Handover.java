@@ -1,10 +1,10 @@
 package com.github.ares.common.engine;
 
+import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Closeable;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
 
 public final class Handover<T> implements Closeable {
     private static final int DEFAULT_QUEUE_SIZE = 10000;

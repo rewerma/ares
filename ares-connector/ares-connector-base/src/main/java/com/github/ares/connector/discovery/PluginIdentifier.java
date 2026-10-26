@@ -2,9 +2,7 @@ package com.github.ares.connector.discovery;
 
 import java.util.Objects;
 
-/**
- * Used to identify a plugin.
- */
+/** Used to identify a plugin. */
 public class PluginIdentifier {
     private final String pluginType;
     private final String pluginName;
@@ -42,9 +40,13 @@ public class PluginIdentifier {
 
     @Override
     public String toString() {
-        return "PluginIdentifier{" +
-                "pluginType='" + pluginType + '\'' +
-                ", pluginName='" + pluginName + '\'' +
-                '}';
+        return "PluginIdentifier{"
+                + "pluginType='"
+                + pluginType
+                + '\''
+                + ", pluginName='"
+                + pluginName
+                + '\''
+                + '}';
     }
 }

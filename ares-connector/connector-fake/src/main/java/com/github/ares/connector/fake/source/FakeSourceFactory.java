@@ -1,18 +1,5 @@
 package com.github.ares.connector.fake.source;
 
-import com.github.ares.api.source.AresSource;
-import com.github.ares.api.source.SourceSplit;
-import com.github.ares.api.source.TableSource;
-import com.github.ares.api.table.catalog.schema.TableSchemaOptions;
-import com.github.ares.api.table.factory.Factory;
-import com.github.ares.api.table.factory.TableSourceFactory;
-import com.github.ares.api.table.factory.TableSourceFactoryContext;
-import com.github.ares.common.configuration.utils.OptionRule;
-import com.github.ares.connector.fake.config.FakeOption;
-import com.google.auto.service.AutoService;
-
-import java.io.Serializable;
-
 import static com.github.ares.connector.fake.config.FakeOption.ARRAY_SIZE;
 import static com.github.ares.connector.fake.config.FakeOption.BIGINT_FAKE_MODE;
 import static com.github.ares.connector.fake.config.FakeOption.BIGINT_TEMPLATE;
@@ -41,6 +28,18 @@ import static com.github.ares.connector.fake.config.FakeOption.TIME_MINUTE_TEMPL
 import static com.github.ares.connector.fake.config.FakeOption.TIME_SECOND_TEMPLATE;
 import static com.github.ares.connector.fake.config.FakeOption.TINYINT_FAKE_MODE;
 import static com.github.ares.connector.fake.config.FakeOption.TINYINT_TEMPLATE;
+
+import com.github.ares.api.source.AresSource;
+import com.github.ares.api.source.SourceSplit;
+import com.github.ares.api.source.TableSource;
+import com.github.ares.api.table.catalog.schema.TableSchemaOptions;
+import com.github.ares.api.table.factory.Factory;
+import com.github.ares.api.table.factory.TableSourceFactory;
+import com.github.ares.api.table.factory.TableSourceFactoryContext;
+import com.github.ares.common.configuration.utils.OptionRule;
+import com.github.ares.connector.fake.config.FakeOption;
+import com.google.auto.service.AutoService;
+import java.io.Serializable;
 
 @AutoService(Factory.class)
 public class FakeSourceFactory implements TableSourceFactory {
@@ -88,7 +87,7 @@ public class FakeSourceFactory implements TableSourceFactory {
     @Override
     @SuppressWarnings("unchecked")
     public <T, SplitT extends SourceSplit, StateT extends Serializable>
-    TableSource<T, SplitT, StateT> createSource(TableSourceFactoryContext context) {
+            TableSource<T, SplitT, StateT> createSource(TableSourceFactoryContext context) {
         return () -> (AresSource<T, SplitT, StateT>) new FakeSource(context.getOptions());
     }
 

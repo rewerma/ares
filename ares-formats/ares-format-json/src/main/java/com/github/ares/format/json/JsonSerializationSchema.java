@@ -1,18 +1,16 @@
 package com.github.ares.format.json;
 
+import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
+
 import com.github.ares.api.serialization.SerializationSchema;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ares.com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.ares.common.exceptions.CommonError;
-import lombok.Getter;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
-import static com.github.ares.com.google.common.base.Preconditions.checkNotNull;
-
+import lombok.Getter;
 
 public class JsonSerializationSchema implements SerializationSchema {
 

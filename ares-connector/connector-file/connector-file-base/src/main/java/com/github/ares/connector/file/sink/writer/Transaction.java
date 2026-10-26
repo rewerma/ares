@@ -1,9 +1,7 @@
-
 package com.github.ares.connector.file.sink.writer;
 
 import com.github.ares.connector.file.sink.commit.FileCommitInfo;
 import com.github.ares.connector.file.sink.state.FileSinkState;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;

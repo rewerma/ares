@@ -2,7 +2,6 @@ package com.github.ares.format.json;
 
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.Options;
-
 import java.util.Map;
 
 public class JsonFormatOptions {

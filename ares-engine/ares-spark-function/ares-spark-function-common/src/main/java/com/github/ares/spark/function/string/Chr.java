@@ -9,5 +9,4 @@ public class Chr extends Char implements SparkFuncInterface {
     public String functionName() {
         return "CHR";
     }
-
 }

@@ -1,12 +1,5 @@
 package com.github.ares.format.text.splitor;
 
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @Slf4j
 public class CsvLineSplitor implements TextLineSplitor, Serializable {

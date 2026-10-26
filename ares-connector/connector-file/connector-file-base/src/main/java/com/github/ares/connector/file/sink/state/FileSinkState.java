@@ -17,12 +17,11 @@
 
 package com.github.ares.connector.file.sink.state;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

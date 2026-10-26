@@ -4,26 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DbType {
-    /**
-     * MYSQL
-     */
+    /** MYSQL */
     MYSQL("mysql"),
-    /**
-     * ORACLE
-     */
+    /** ORACLE */
     ORACLE("oracle"),
-    /**
-     * PGSQL
-     */
+    /** PGSQL */
     PGSQL("postgresql"),
-    /**
-     * DAMENG
-     */
+    /** DAMENG */
     DAMENG("dm"),
-    /**
-     * OCEANBASE
-     */
-    OCEANBASE("oceanbase");
+    /** KINGBASE */
+    KINGBASE("kingbase"),
+    /** OCEANBASE */
+    OCEANBASE("oceanbase"),
+    /** OPENGAUSS */
+    OPENGAUSS("opengauss");
 
     private static final String JDBC_PREFIX = "jdbc:";
 
@@ -34,7 +28,9 @@ public enum DbType {
         TYPES.put(ORACLE.type, ORACLE);
         TYPES.put(PGSQL.type, PGSQL);
         TYPES.put(DAMENG.type, DAMENG);
+        TYPES.put(KINGBASE.type, KINGBASE);
         TYPES.put(OCEANBASE.type, OCEANBASE);
+        TYPES.put(OPENGAUSS.type, OPENGAUSS);
     }
 
     private final String type;
@@ -64,8 +60,14 @@ public enum DbType {
         if (jdbcUrl.startsWith(JDBC_PREFIX + DAMENG.type)) {
             return DAMENG;
         }
+        if (jdbcUrl.startsWith(JDBC_PREFIX + KINGBASE.type)) {
+            return KINGBASE;
+        }
         if (jdbcUrl.startsWith(JDBC_PREFIX + OCEANBASE.type)) {
             return OCEANBASE;
+        }
+        if (jdbcUrl.startsWith(JDBC_PREFIX + OPENGAUSS.type)) {
+            return OPENGAUSS;
         }
         throw new IllegalArgumentException("Unsupported jdbc type: " + jdbcUrl);
     }

@@ -1,30 +1,31 @@
 package com.github.ares.engine.utils;
 
-import com.github.ares.common.engine.InternalFieldType;
+import static com.github.ares.common.utils.DateTimeUtils.DATE_FORMATTER;
+import static com.github.ares.engine.core.ExpressionExecutor.rawToHex;
+import static com.github.ares.engine.utils.EngineUtil.handleQuoteIdentifier;
+
 import com.github.ares.common.engine.PlType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.utils.DateTimeUtils;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.github.ares.common.utils.DateTimeUtils.DATE_FORMATTER;
-import static com.github.ares.engine.core.ExpressionExecutor.rawToHex;
-import static com.github.ares.engine.utils.EngineUtil.handleQuoteIdentifier;
-
 public class DataTypeConvertor {
-    public static Serializable convert(String fieldName, PlType fieldType, Serializable originValue) {
+    public static Serializable convert(
+            String fieldName, PlType fieldType, Serializable originValue) {
         return convert(fieldName, fieldType, originValue, false);
     }
 
-    public static Serializable convertWithIdentifier(String fieldName, PlType fieldType, Serializable originValue) {
+    public static Serializable convertWithIdentifier(
+            String fieldName, PlType fieldType, Serializable originValue) {
         return convert(fieldName, fieldType, originValue, true);
     }
 
-    public static Serializable convert(String fieldName, PlType fieldType, Serializable originValue, boolean isIdentifier) {
+    public static Serializable convert(
+            String fieldName, PlType fieldType, Serializable originValue, boolean isIdentifier) {
         if (originValue == null) {
             return null;
         }
@@ -90,9 +91,11 @@ public class DataTypeConvertor {
             case BOOLEAN:
                 if (originValue instanceof Boolean) {
                     return originValue;
-                } else if (originValue instanceof Number) {
+                }
+                if (originValue instanceof Number) {
                     return ((Number) originValue).intValue() != 0;
                 }
+                throw invalidBooleanValue(fieldName, originValue);
             case INT:
                 return Integer.parseInt(objectToString(originValue).split("\\.")[0]);
             case SMALLINT:
@@ -109,10 +112,22 @@ public class DataTypeConvertor {
                 return bigDecimal.setScale(scale, RoundingMode.HALF_UP);
         }
         if (fieldName != null) {
-            throw new AresException(String.format("Invalid param %s type: %s", fieldName, fieldType.getType().name()));
+            throw new AresException(
+                    String.format(
+                            "Invalid param %s type: %s", fieldName, fieldType.getType().name()));
         } else {
             throw new AresException(String.format("Invalid type: %s", fieldType.getType().name()));
         }
+    }
+
+    private static AresException invalidBooleanValue(String fieldName, Serializable originValue) {
+        String actual = originValue.getClass().getSimpleName() + ": " + originValue;
+        if (fieldName != null) {
+            return new AresException(
+                    String.format(
+                            "Cannot convert param %s to BOOLEAN, value: %s", fieldName, actual));
+        }
+        return new AresException(String.format("Cannot convert value to BOOLEAN: %s", actual));
     }
 
     private static String objectToString(Object obj) {
@@ -126,5 +141,4 @@ public class DataTypeConvertor {
             return obj.toString();
         }
     }
-
 }

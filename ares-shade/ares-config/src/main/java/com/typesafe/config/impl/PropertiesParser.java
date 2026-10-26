@@ -3,7 +3,6 @@ package com.typesafe.config.impl;
 
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigOrigin;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;

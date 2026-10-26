@@ -1,6 +1,5 @@
 package com.github.ares.format.arvo.avro.exception;
 
-
 import com.github.ares.common.exceptions.AresErrorCode;
 
 public enum AvroFormatErrorCode implements AresErrorCode {

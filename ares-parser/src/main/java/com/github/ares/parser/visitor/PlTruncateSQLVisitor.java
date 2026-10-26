@@ -1,15 +1,13 @@
 package com.github.ares.parser.visitor;
 
-
 import com.github.ares.common.exceptions.ParseException;
-import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalTruncateSQL;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLTruncate;
-
 import java.util.Locale;
 import java.util.Map;
 
@@ -27,9 +25,11 @@ public class PlTruncateSQLVisitor {
     public LogicalOperation visitTruncateSQL(String truncateSQL) {
         SQLTruncate sqlTruncate = sqlParser.parseTruncate(truncateSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlTruncate.getTableName().toLowerCase(Locale.ROOT));
-        if (sinkTable == null ) {
-            throw new ParseException(String.format("sink table name not exists: %s", sqlTruncate.getTableName()));
+        LogicalCreateSinkTable sinkTable =
+                sinkTables.get(sqlTruncate.getTableName().toLowerCase(Locale.ROOT));
+        if (sinkTable == null) {
+            throw new ParseException(
+                    String.format("sink table name not exists: %s", sqlTruncate.getTableName()));
         }
 
         LogicalTruncateSQL truncSQL = new LogicalTruncateSQL();

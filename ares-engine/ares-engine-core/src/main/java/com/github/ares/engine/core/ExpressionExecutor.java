@@ -1,48 +1,91 @@
 package com.github.ares.engine.core;
 
-import com.github.ares.sql.expression.sql.ExpressionEngine;
-import lombok.Getter;
+import static com.github.ares.common.utils.DateTimeUtils.DATE_FORMATTER;
+import static com.github.ares.engine.utils.EngineUtil.toEvalParams;
 
+import com.github.ares.common.exceptions.AresException;
+import com.github.ares.common.utils.DateTimeUtils;
+import com.github.ares.sql.expression.sql.ExpressionEngine;
+import com.github.ares.sql.function.FunctionInterface;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import lombok.Getter;
 
 public class ExpressionExecutor extends AbstractBaseExecutor implements Serializable {
     private static final long serialVersionUID = -1L;
 
-    @Getter
-    private ExpressionEngine expressionEngine;
+    @Getter private ExpressionEngine expressionEngine;
 
     public void init(ExecutorManager executorManager) {
         expressionEngine = new ExpressionEngine();
         super.init(executorManager);
+        expressionEngine.initDynamicFunctions(
+                executorManager.getUdfManager().getDynamicFunctions());
     }
 
     public Serializable execute(String expr) {
+        return execute(expr, null);
+    }
+
+    public Serializable execute(String expr, PlParams plParams) {
         String simpleSql = String.format("SELECT %s", expr);
-        return (Serializable) expressionEngine.evaluate(simpleSql);
+        Object resVal = expressionEngine.evaluate(simpleSql, toEvalParams(plParams));
+        if (resVal instanceof byte[]) {
+            resVal = rawToHex(resVal);
+        } else if (resVal instanceof LocalDate) {
+            resVal = ((LocalDate) resVal).format(DATE_FORMATTER);
+        } else if (resVal instanceof LocalDateTime) {
+            resVal = DateTimeUtils.localDateTimeToString((LocalDateTime) resVal);
+        } else if (resVal != null
+                && "org.apache.spark.unsafe.types.UTF8String".equals(resVal.getClass().getName())) {
+            resVal = resVal.toString();
+        }
+        return (Serializable) resVal;
     }
 
     public boolean execute4Bool(String expr) {
+        return execute4Bool(expr, null);
+    }
+
+    public boolean execute4Bool(String expr, PlParams plParams) {
         String simpleSql = String.format("SELECT %s", expr);
-        return expressionEngine.evaluateForBool(simpleSql);
+        return expressionEngine.evaluateForBool(simpleSql, toEvalParams(plParams));
     }
 
     public Serializable execute4Hex(String expression) {
+        return execute4Hex(expression, null);
+    }
+
+    public Serializable execute4Hex(String expression, PlParams plParams) {
         Serializable resVal;
-        if (expression.startsWith("'")
-                && expression.endsWith("'")) {
-            resVal = execute(expression);
+        if (expression.startsWith("'") && expression.endsWith("'")) {
+            resVal = execute(expression, plParams);
             resVal = rawToHex(resVal);
         } else {
             try {
                 BigDecimal bigDecimalVal = new BigDecimal(expression);
                 resVal = rawToHex(bigDecimalVal.longValue());
             } catch (NumberFormatException e) {
-                resVal = execute(expression);
+                resVal = execute(expression, plParams);
             }
         }
         return resVal;
+    }
+
+    public Object invokeFunction(String functionName, List<Object> args) {
+        expressionEngine.initDynamicFunctions(
+                executorManager.getUdfManager().getDynamicFunctions());
+        FunctionInterface function =
+                expressionEngine.getAllFunctions().get(functionName.toUpperCase());
+        if (function == null) {
+            throw new AresException(
+                    String.format("Procedure or function undefined: %s", functionName));
+        }
+        return function.evaluate(args);
     }
 
     public static String rawToHex(Object arg) {
@@ -65,7 +108,7 @@ public class ExpressionExecutor extends AbstractBaseExecutor implements Serializ
             BigDecimal bd = new BigDecimal(s);
             return Long.toHexString(bd.longValue());
         } catch (NumberFormatException e) {
-            //ignore
+            // ignore
         }
 
         byte[] bytes = s.getBytes(StandardCharsets.UTF_8);

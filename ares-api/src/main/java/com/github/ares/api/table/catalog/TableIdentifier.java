@@ -13,7 +13,8 @@ public final class TableIdentifier implements Serializable {
 
     private final String tableName;
 
-    public TableIdentifier(String catalogName, String databaseName, String schemaName, String tableName) {
+    public TableIdentifier(
+            String catalogName, String databaseName, String schemaName, String tableName) {
         this.catalogName = catalogName;
         this.databaseName = databaseName;
         this.schemaName = schemaName;

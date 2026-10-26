@@ -15,13 +15,12 @@ import com.github.ares.connector.file.source.reader.ReadStrategy;
 import com.github.ares.connector.file.source.split.FileSourceSplit;
 import com.github.ares.connector.file.source.split.FileSourceSplitEnumerator;
 import com.github.ares.connector.file.source.state.FileSourceState;
-
 import java.util.List;
 
 public abstract class BaseFileSource
         implements AresSource<AresRow, FileSourceSplit, FileSourceState>,
-        SupportParallelism,
-        SupportColumnProjection {
+                SupportParallelism,
+                SupportColumnProjection {
     protected AresRowType rowType;
     protected ReadStrategy readStrategy;
     protected HadoopConf hadoopConf;
@@ -39,8 +38,7 @@ public abstract class BaseFileSource
     }
 
     @Override
-    public SourceReader<AresRow, FileSourceSplit> createReader(
-            SourceReader.Context readerContext) {
+    public SourceReader<AresRow, FileSourceSplit> createReader(SourceReader.Context readerContext) {
         return new BaseFileSourceReader(readStrategy, readerContext);
     }
 
@@ -57,5 +55,4 @@ public abstract class BaseFileSource
             throws Exception {
         return new FileSourceSplitEnumerator(enumeratorContext, filePaths, checkpointState);
     }
-
 }

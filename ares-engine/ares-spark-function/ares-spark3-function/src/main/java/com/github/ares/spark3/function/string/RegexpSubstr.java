@@ -3,7 +3,6 @@ package com.github.ares.spark3.function.string;
 import com.github.ares.spark.function.string.RegexpExtract;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class RegexpSubstr extends RegexpExtract implements SparkFuncInterface {
         List<Object> argList = new ArrayList<>(args);
         argList.add(0);
         String result = (String) super.evaluate(argList);
-        if(result != null && result.isEmpty()) {
+        if (result != null && result.isEmpty()) {
             return null;
         }
         return result;

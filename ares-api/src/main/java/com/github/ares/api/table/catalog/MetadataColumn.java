@@ -18,14 +18,11 @@
 
 package com.github.ares.api.table.catalog;
 
-
 import com.github.ares.api.table.type.AresDataType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Representation of a metadata column.
- */
+/** Representation of a metadata column. */
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class MetadataColumn extends Column {

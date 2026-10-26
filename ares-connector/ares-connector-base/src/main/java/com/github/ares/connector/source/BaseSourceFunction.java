@@ -18,7 +18,6 @@
 package com.github.ares.connector.source;
 
 import com.github.ares.api.source.Collector;
-
 import java.util.List;
 import java.util.Map;
 

@@ -6,14 +6,14 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.connector.serialization.RowConverter;
 import com.github.ares.spark.connector.serialization.InternalRowConverter;
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.connector.write.DataWriter;
-import org.apache.spark.sql.connector.write.WriterCommitMessage;
-
-import javax.annotation.Nullable;
+import com.github.ares.spark.connector.statistic.WriterStatistic;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
+import javax.annotation.Nullable;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.connector.write.DataWriter;
+import org.apache.spark.sql.connector.write.WriterCommitMessage;
 
 public class AresSparkDataWriter<CommitInfoT, StateT> implements DataWriter<InternalRow> {
 
@@ -23,6 +23,7 @@ public class AresSparkDataWriter<CommitInfoT, StateT> implements DataWriter<Inte
     private final RowConverter<InternalRow> rowConverter;
     private CommitInfoT latestCommitInfoT;
     private long epochId;
+    private final WriterStatistic statistic;
 
     public AresSparkDataWriter(
             SinkWriter<AresRow, CommitInfoT, StateT> sinkWriter,
@@ -33,11 +34,14 @@ public class AresSparkDataWriter<CommitInfoT, StateT> implements DataWriter<Inte
         this.sinkCommitter = sinkCommitter;
         this.rowConverter = new InternalRowConverter(dataType);
         this.epochId = epochId == 0 ? 1 : epochId;
+        this.statistic = new WriterStatistic();
     }
 
     @Override
     public void write(InternalRow record) throws IOException {
+        statistic.incrementRead();
         sinkWriter.write(rowConverter.reconvert(record));
+        statistic.incrementWrite();
     }
 
     @Override
@@ -53,7 +57,7 @@ public class AresSparkDataWriter<CommitInfoT, StateT> implements DataWriter<Inte
             }
         }
         AresSparkWriterCommitMessage<CommitInfoT> aresSparkWriterCommitMessage =
-                new AresSparkWriterCommitMessage<>(latestCommitInfoT);
+                new AresSparkWriterCommitMessage<>(latestCommitInfoT, statistic);
         cleanCommitInfo();
         sinkWriter.close();
         return aresSparkWriterCommitMessage;

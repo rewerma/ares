@@ -11,14 +11,6 @@ import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.common.utils.TimeUtils;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
@@ -30,6 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 public class ExcelGenerator {
     private final List<Integer> sinkColumnsIndexInRow;
@@ -97,8 +96,7 @@ public class ExcelGenerator {
         wb.close();
     }
 
-    private void setCellValue(
-            AresDataType<?> type, String fieldName, Object value, Cell cell) {
+    private void setCellValue(AresDataType<?> type, String fieldName, Object value, Cell cell) {
         if (value == null) {
             cell.setBlank();
         } else {
@@ -241,8 +239,7 @@ public class ExcelGenerator {
             cell.setCellStyle(timeCellStyle);
         } else {
             throw new FileConnectorException(
-                    CommonErrorCode.UNSUPPORTED_DATA_TYPE,
-                    "Time series type expected for field");
+                    CommonErrorCode.UNSUPPORTED_DATA_TYPE, "Time series type expected for field");
         }
     }
 

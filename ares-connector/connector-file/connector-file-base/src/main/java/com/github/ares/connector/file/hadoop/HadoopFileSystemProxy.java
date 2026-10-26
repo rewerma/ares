@@ -2,6 +2,11 @@ package com.github.ares.connector.file.hadoop;
 
 import com.github.ares.common.exceptions.CommonError;
 import com.github.ares.connector.file.config.HadoopConf;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +21,6 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.security.UserGroupInformation;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class HadoopFileSystemProxy implements Serializable, Closeable {

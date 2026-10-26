@@ -18,7 +18,6 @@
 package com.github.ares.api.table.event;
 
 import com.github.ares.api.table.catalog.TablePath;
-
 import java.io.Serializable;
 
 /** Represents a structural change to a table schema. */

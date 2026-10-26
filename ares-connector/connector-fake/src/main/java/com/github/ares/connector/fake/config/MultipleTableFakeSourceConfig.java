@@ -2,13 +2,12 @@ package com.github.ares.connector.fake.config;
 
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.google.common.collect.Lists;
-import lombok.Getter;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class MultipleTableFakeSourceConfig implements Serializable {
 

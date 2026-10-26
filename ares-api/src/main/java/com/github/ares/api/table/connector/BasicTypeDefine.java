@@ -17,11 +17,10 @@
 
 package com.github.ares.api.table.connector;
 
+import java.io.Serializable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Tolerate;
-
-import java.io.Serializable;
 
 @Data
 @Builder

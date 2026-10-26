@@ -19,7 +19,6 @@ package com.github.ares.common.exceptions;
 
 import com.github.ares.com.fasterxml.jackson.core.type.TypeReference;
 import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +38,7 @@ public class AresRuntimeException extends RuntimeException {
                 aresErrorCode.getDescription(), params);
     }
 
-    public AresRuntimeException(
-            AresErrorCode aresErrorCode, String errorMessage, Throwable cause) {
+    public AresRuntimeException(AresErrorCode aresErrorCode, String errorMessage, Throwable cause) {
         super(aresErrorCode.getErrorMessage() + " - " + errorMessage, cause);
         this.aresErrorCode = aresErrorCode;
         this.params = new HashMap<>();
@@ -56,8 +54,7 @@ public class AresRuntimeException extends RuntimeException {
                 aresErrorCode.getDescription(), params);
     }
 
-    public AresRuntimeException(
-            AresErrorCode aresErrorCode, Map<String, String> params) {
+    public AresRuntimeException(AresErrorCode aresErrorCode, Map<String, String> params) {
         super(ExceptionParamsUtil.getDescription(aresErrorCode.getErrorMessage(), params));
         this.aresErrorCode = aresErrorCode;
         this.params = params;
@@ -65,9 +62,7 @@ public class AresRuntimeException extends RuntimeException {
 
     public AresRuntimeException(
             AresErrorCode aresErrorCode, Map<String, String> params, Throwable cause) {
-        super(
-                ExceptionParamsUtil.getDescription(aresErrorCode.getErrorMessage(), params),
-                cause);
+        super(ExceptionParamsUtil.getDescription(aresErrorCode.getErrorMessage(), params), cause);
         this.aresErrorCode = aresErrorCode;
         this.params = params;
     }

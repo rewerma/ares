@@ -26,7 +26,6 @@ import com.github.ares.connector.source.BaseSourceFunction;
 import com.github.ares.connector.source.CoordinatedSource;
 import com.github.ares.spark.connector.serialization.InternalRowCollector;
 import com.github.ares.spark.connector.source.state.ReaderState;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;

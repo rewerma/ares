@@ -6,7 +6,6 @@ import org.apache.spark.sql.catalyst.expressions.codegen.CodegenContext;
 import org.apache.spark.sql.catalyst.expressions.codegen.ExprCode;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.DecimalType;
 import scala.collection.IndexedSeq;
 import scala.collection.Seq;
 
@@ -14,8 +13,7 @@ public class DecimalTypeExpression extends Expression {
     private Integer precision;
     private Integer scale;
 
-    public DecimalTypeExpression() {
-    }
+    public DecimalTypeExpression() {}
 
     public DecimalTypeExpression(Integer precision, Integer scale) {
         this.precision = precision;
@@ -26,16 +24,13 @@ public class DecimalTypeExpression extends Expression {
         return false;
     }
 
-
     public Object eval(InternalRow input) {
         return null;
     }
 
-
     public ExprCode doGenCode(CodegenContext ctx, ExprCode ev) {
         return null;
     }
-
 
     public DataType dataType() {
         if (precision != null && scale != null) {
@@ -45,7 +40,6 @@ public class DecimalTypeExpression extends Expression {
         }
     }
 
-
     public Seq<Expression> children() {
         return null;
     }
@@ -54,16 +48,13 @@ public class DecimalTypeExpression extends Expression {
         return null;
     }
 
-
     public boolean canEqual(Object that) {
         return false;
     }
 
-
     public Object productElement(int n) {
         return null;
     }
-
 
     public int productArity() {
         return 0;

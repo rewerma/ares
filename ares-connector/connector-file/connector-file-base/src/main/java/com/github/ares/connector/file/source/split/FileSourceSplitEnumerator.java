@@ -2,15 +2,14 @@ package com.github.ares.connector.file.source.split;
 
 import com.github.ares.api.source.SourceSplitEnumerator;
 import com.github.ares.connector.file.source.state.FileSourceState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileSourceSplitEnumerator
         implements SourceSplitEnumerator<FileSourceSplit, FileSourceState> {
@@ -119,10 +118,9 @@ public class FileSourceSplitEnumerator
         return new FileSourceState(assignedSplit);
     }
 
-//    @Override
-//    public void notifyCheckpointComplete(long checkpointId) {}
+    //    @Override
+    //    public void notifyCheckpointComplete(long checkpointId) {}
 
     @Override
-    public void handleSplitRequest(int subtaskId) {
-    }
+    public void handleSplitRequest(int subtaskId) {}
 }

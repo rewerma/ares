@@ -8,7 +8,6 @@ import com.github.ares.parser.antlr4.CaseChangingCharStream;
 import com.github.ares.parser.antlr4.CustomErrorListener;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseLexer;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -37,7 +36,8 @@ public class CommonParser {
     }
 
     public static void visitCriteriaClause(CriteriaClause criteriaClause, List<String> items) {
-        if ("AND".equalsIgnoreCase(criteriaClause.getOperator()) || "OR".equalsIgnoreCase(criteriaClause.getOperator())) {
+        if ("AND".equalsIgnoreCase(criteriaClause.getOperator())
+                || "OR".equalsIgnoreCase(criteriaClause.getOperator())) {
             visitCriteriaClause(criteriaClause.getLeftCriteria(), items);
             visitCriteriaClause(criteriaClause.getRightCriteria(), items);
         } else {

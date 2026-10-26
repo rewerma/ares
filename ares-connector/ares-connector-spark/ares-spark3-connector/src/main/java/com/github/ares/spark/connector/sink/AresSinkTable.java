@@ -4,10 +4,13 @@ import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
+import com.github.ares.common.utils.PluginClassLoader;
 import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.spark.connector.sink.write.AresWriteBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
 import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.connector.catalog.SupportsWrite;
 import org.apache.spark.sql.connector.catalog.Table;
@@ -16,14 +19,11 @@ import org.apache.spark.sql.connector.write.LogicalWriteInfo;
 import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 
-import java.util.Map;
-import java.util.Set;
-
 public class AresSinkTable implements Table, SupportsWrite {
 
     private static final String SINK_TABLE_NAME = "AresSinkTable";
 
-    private final AresSink<AresRow, ?, ?, ?> aresSink;
+    private AresSink<AresRow, ?, ?, ?> aresSink;
 
     private final CatalogTable catalogTable;
 
@@ -32,7 +32,9 @@ public class AresSinkTable implements Table, SupportsWrite {
         if (StringUtils.isBlank(sinkSerialization)) {
             throw new IllegalArgumentException(Constants.SINK_SERIALIZATION + " must be specified");
         }
-        this.aresSink = SerializationUtils.stringToObject(sinkSerialization);
+        this.aresSink =
+                PluginClassLoader.deserializePlugin(sinkSerialization, getClass().getClassLoader());
+
         String sinkCatalogTableSerialization =
                 properties.getOrDefault(SparkSinkInjector.SINK_CATALOG_TABLE, "");
         if (StringUtils.isBlank(sinkCatalogTableSerialization)) {

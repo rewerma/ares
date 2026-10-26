@@ -1,6 +1,11 @@
 package com.github.ares.connector.file.ftp.system;
 
 import com.github.ares.connector.file.ftp.source.FTPInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTP;
@@ -22,13 +27,6 @@ import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.util.Progressable;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.URI;
-import java.rmi.RemoteException;
 
 /**
  * A {@link FileSystem} backed by an FTP client provided by <a
@@ -152,7 +150,7 @@ public class AresFTPFileSystem extends FileSystem {
      * Set FTP connection mode. *
      *
      * @param client FTPClient
-     * @param mode   mode
+     * @param mode mode
      */
     private void setFsFtpConnectionMode(FTPClient client, String mode) {
         switch (FtpConnectionMode.fromMode(mode)) {
@@ -191,7 +189,7 @@ public class AresFTPFileSystem extends FileSystem {
      * Resolve against given working directory. *
      *
      * @param workDir workDir
-     * @param path    path
+     * @param path path
      * @return Path
      */
     private Path makeAbsolute(Path workDir, Path path) {
@@ -223,7 +221,8 @@ public class AresFTPFileSystem extends FileSystem {
         client.changeWorkingDirectory(parent.toUri().getPath());
         InputStream is = client.retrieveFileStream(file.getName());
         try {
-            FSDataInputStream fis = new FSDataInputStream(new FTPInputStream(is, client, statistics));
+            FSDataInputStream fis =
+                    new FSDataInputStream(new FTPInputStream(is, client, statistics));
             if (!FTPReply.isPositivePreliminary(client.getReplyCode())) {
                 // The ftpClient is an inconsistent state. Must close the stream
                 // which in turn will logout and disconnect from FTP server
@@ -307,9 +306,7 @@ public class AresFTPFileSystem extends FileSystem {
         return fos;
     }
 
-    /**
-     * This optional operation is not yet supported.
-     */
+    /** This optional operation is not yet supported. */
     @Override
     public FSDataOutputStream append(Path f, int bufferSize, Progressable progress)
             throws IOException {
@@ -430,7 +427,7 @@ public class AresFTPFileSystem extends FileSystem {
         Path absolute = makeAbsolute(workDir, file);
         FileStatus fileStat = getFileStatus(client, absolute);
         if (fileStat.isFile()) {
-            return new FileStatus[]{fileStat};
+            return new FileStatus[] {fileStat};
         }
         FTPFile[] ftpFiles = client.listFiles(absolute.toUri().getPath());
         FileStatus[] fileStats = new FileStatus[ftpFiles.length];
@@ -451,7 +448,7 @@ public class AresFTPFileSystem extends FileSystem {
         }
     }
 
-    private FileStatus getDirStatus(FTPClient client, Path file)  throws IOException {
+    private FileStatus getDirStatus(FTPClient client, Path file) throws IOException {
         Path workDir = new Path(client.printWorkingDirectory());
         Path absolute = makeAbsolute(workDir, file);
         String pathName = absolute.toUri().getPath();
@@ -461,17 +458,7 @@ public class AresFTPFileSystem extends FileSystem {
         } else {
             client.changeWorkingDirectory(currentWorkDir);
         }
-        return  new FileStatus(
-                0,
-                true,
-                0,
-                0,
-                0,
-                0,
-                null,
-                null,
-                null,
-                null);
+        return new FileStatus(0, true, 0, 0, 0, 0, null, null, null, null);
     }
 
     /**
@@ -522,7 +509,7 @@ public class AresFTPFileSystem extends FileSystem {
     /**
      * Convert the file information in FTPFile to a {@link FileStatus} object. *
      *
-     * @param ftpFile    ftpFile
+     * @param ftpFile ftpFile
      * @param parentPath parent path
      * @return FileStatus
      */
@@ -624,7 +611,7 @@ public class AresFTPFileSystem extends FileSystem {
      * Probe for a path being a parent of another
      *
      * @param parent parent path
-     * @param child  possible child path
+     * @param child possible child path
      * @return true if the parent's path matches the start of the child's
      */
     private boolean isParentOf(Path parent, Path child) {
@@ -644,8 +631,8 @@ public class AresFTPFileSystem extends FileSystem {
      * connection.
      *
      * @param client FTPClient
-     * @param src    src
-     * @param dst    dst
+     * @param src src
+     * @param dst dst
      * @return result
      * @throws IOException IOException
      */

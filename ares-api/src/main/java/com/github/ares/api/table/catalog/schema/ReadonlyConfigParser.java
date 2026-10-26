@@ -10,7 +10,6 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.com.fasterxml.jackson.databind.JsonNode;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.utils.JsonUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

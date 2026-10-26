@@ -3,7 +3,6 @@ package com.github.ares.api.env;
 import com.github.ares.common.configuration.Option;
 import com.github.ares.common.configuration.Options;
 import com.github.ares.common.utils.JobMode;
-
 import java.util.Map;
 
 public interface EnvCommonOptions {

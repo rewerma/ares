@@ -1,18 +1,15 @@
 package com.github.ares.spark.function.string;
 
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.unsafe.types.UTF8String;
-
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class FormatString implements SparkFuncInterface {
@@ -31,7 +28,8 @@ public class FormatString implements SparkFuncInterface {
         if (args.isEmpty()) {
             throw new AresException(
                     String.format(
-                            "The `format_string` requires > 0 parameters but the actual number is %d", args.size()));
+                            "The `format_string` requires > 0 parameters but the actual number is %d",
+                            args.size()));
         }
 
         StringBuffer sb = new StringBuffer();

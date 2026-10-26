@@ -4,8 +4,7 @@ import com.github.ares.common.exceptions.AresErrorCode;
 import com.github.ares.common.exceptions.AresRuntimeException;
 
 public class AresJsonFormatException extends AresRuntimeException {
-    public AresJsonFormatException(
-            AresErrorCode aresErrorCode, String errorMessage) {
+    public AresJsonFormatException(AresErrorCode aresErrorCode, String errorMessage) {
         super(aresErrorCode, errorMessage);
     }
 

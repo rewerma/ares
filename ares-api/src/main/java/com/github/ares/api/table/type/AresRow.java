@@ -287,5 +287,4 @@ public class AresRow implements Serializable {
                 + Arrays.toString(fields)
                 + '}';
     }
-
 }

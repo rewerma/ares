@@ -14,15 +14,14 @@ import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
 import com.github.ares.format.text.TextSerializationSchema;
 import io.airlift.compress.lzo.LzopCodec;
-import lombok.NonNull;
-import org.apache.hadoop.fs.FSDataOutputStream;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.NonNull;
+import org.apache.hadoop.fs.FSDataOutputStream;
 
 public class TextWriteStrategy extends AbstractWriteStrategy {
     private final LinkedHashMap<String, FSDataOutputStream> beingWrittenOutputStream;
@@ -56,8 +55,7 @@ public class TextWriteStrategy extends AbstractWriteStrategy {
         super.setAresRowTypeInfo(aresRowType);
         this.serializationSchema =
                 TextSerializationSchema.builder()
-                        .aresRowType(
-                                buildSchemaWithRowType(aresRowType, sinkColumnsIndexInRow))
+                        .aresRowType(buildSchemaWithRowType(aresRowType, sinkColumnsIndexInRow))
                         .delimiter(fieldDelimiter)
                         .dateFormatter(dateFormat)
                         .dateTimeFormatter(dateTimeFormat)

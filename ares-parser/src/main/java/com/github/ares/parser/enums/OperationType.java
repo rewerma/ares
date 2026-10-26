@@ -17,6 +17,9 @@ public enum OperationType {
     CREATE_SOURCE_TABLE("createSourceTable"),
     CREATE_SINK_TABLE("createSinkTable"),
     CREATE_TABLE_AS_SQL("createTableAsSQL"),
+    CREATE_HIVE_TABLE("createHiveTable"),
+    CREATE_PAIMON_TABLE("createPaimonTable"),
+    SPARK_NATIVE_SQL("sparkNativeSql"),
     SELECT_INTO_SQL("selectIntoSQL"),
     SELECT_SQL("selectSQL"),
     INSERT_SELECT_SQL("insertSelectSQL"),
@@ -26,7 +29,11 @@ public enum OperationType {
     TRUNCATE_SQL("truncateSQL"),
     EXCEPTION_HANDLER("exceptionHandler"),
     EXPRESSION("expression"),
-    SET_CONFIG("setConfig");
+    SET_CONFIG("setConfig"),
+    START_TRANSACTION("startTransaction"),
+    END_TRANSACTION("endTransaction"),
+    COMMIT("commit"),
+    ROLLBACK("rollback");
 
     private final String name;
 

@@ -8,8 +8,6 @@ import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.engine.core.CreateSourceTableExecutor;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
-import com.github.ares.com.google.inject.Inject;
-import com.github.ares.com.google.inject.Singleton;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -32,14 +30,16 @@ public class SparkCreateSourceTableExecutor extends CreateSourceTableExecutor {
         try {
             LogicalCreateSourceTable sourceTable = createSourceTables.get(tableName);
             if (sourceTable != null) {
-                source.prepare(ReadonlyConfig.fromMap(sourceTable.getSourceTableConfig()).toConfig());
+                source.prepare(
+                        ReadonlyConfig.fromMap(sourceTable.getSourceTableConfig()).toConfig());
             }
         } catch (UnsupportedOperationException e) {
             // ignore
         }
         StructType schema = (StructType) TypeConverterUtils.convert(source.getProducedType());
         Dataset<Row> dataset =
-                sparkExecutorManager.getSparkSessionManager()
+                sparkExecutorManager
+                        .getSparkSessionManager()
                         .getSparkSession()
                         .read()
                         .format(AresSource.class.getSimpleName())

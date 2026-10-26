@@ -4,11 +4,10 @@ import com.github.ares.api.common.EngineType;
 import com.github.ares.api.common.ExecutionEngineType;
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.sqlparser.model.SQLHint;
-import net.sf.jsqlparser.expression.OracleHint;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.sf.jsqlparser.expression.OracleHint;
+import net.sf.jsqlparser.statement.select.PlainSelect;
 
 public class SQLHintParser {
 
@@ -49,7 +48,8 @@ public class SQLHintParser {
         plainSelect.setOracleHint(null);
         for (SQLHint hint : hints) {
             if (ExecutionEngineType.engineType == EngineType.SPARK) {
-                if ("mapjoin".equalsIgnoreCase(hint.getHintName()) || "broadcast".equalsIgnoreCase(hint.getHintName())) {
+                if ("mapjoin".equalsIgnoreCase(hint.getHintName())
+                        || "broadcast".equalsIgnoreCase(hint.getHintName())) {
                     String args = String.join(", ", hint.getArguments());
                     String mapJoinValue = hint.getHintName() + "(" + args + ")";
                     oracleHint.setValue(mapJoinValue);

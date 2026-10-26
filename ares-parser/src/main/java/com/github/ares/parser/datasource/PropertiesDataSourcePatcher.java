@@ -20,13 +20,14 @@ public class PropertiesDataSourcePatcher implements SourceConfigPatcher {
     public Map<String, String> patchSourceConf(String datasource, Properties properties) {
         Map<String, String> result = new LinkedHashMap<>();
         String prefix = "datasource." + datasource + ".";
-        properties.forEach((k, v) -> {
-            String key = (String) k;
-            if (key.startsWith(prefix)) {
-                String resKey = key.substring(prefix.length());
-                result.put(resKey, v == null ? null : String.valueOf(v));
-            }
-        });
+        properties.forEach(
+                (k, v) -> {
+                    String key = (String) k;
+                    if (key.startsWith(prefix)) {
+                        String resKey = key.substring(prefix.length());
+                        result.put(resKey, v == null ? null : String.valueOf(v));
+                    }
+                });
 
         return result;
     }

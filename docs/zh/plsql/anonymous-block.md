@@ -1,38 +1,37 @@
-# Ares-PL/SQL语法-匿名过程块 PL语法
+# Ares-PL/SQL语法-脚本与变量
 
-## BEGIN-END 语法
-
-在Ares的作业脚本可以定义匿名过程块，以执行内部的过程代码，语法如下：
+脚本由顶层语句顺序组成，直接执行，不需要 `BEGIN/END` 包裹。
 
 ```sql
-BEGIN
-  -- 匿名过程块内部的代码
-END;
+def v_name = 'John';
+PUT_LINE(v_name);
 ```
 
-过程块内部的代码可以是任何有效的PL/SQL代码，在执行过程中会被直接执行，不需要额外的调用。
+## 变量
 
-## 变量声明使用语法
-
-在匿名过程块内部，可以声明使用变量，语法如下：
+用 `def` 定义变量，用 `=` 赋值。不再使用 `DECLARE` 和 `:=`。
 
 ```sql
-DECLARE
-  v_name VARCHAR;
-  v_age INT;
-  v_email VARCHAR := 'xxx@xxx.xxx'; -- 变量初始化
-BEGIN
-  v_name := 'John';
-  v_age := 35;
-  v_email := 'john@example.com';
-  PUT_LINE('Name: '||v_name||', Age: '||v_age||', Email: '||v_email);
-  
-  -- 需要先定义数据源 table_name         
-  SELECT * FROM table_name WHERE age > :v_age;
-END;
+def v_name;
+def v_age = 35;
+def v_email = 'xxx@xxx.xxx';
+
+v_name = 'John';
+v_email = 'john@example.com';
+PUT_LINE('Name: ' || v_name || ', Age: ' || v_age || ', Email: ' || v_email);
+
+SELECT * FROM table_name WHERE age > :v_age;
 ```
 
-**注意事项**：如果在SQL中使用变量，必须使用冒号`:`作为前缀，例如`:v_age`。
+初值决定变量类型：
+
+- 整数字面量按整数处理；超过 9 位按长整数处理
+- 小数字面量按双精度处理
+- 单引号字符串按字符串处理
+- `true` / `false` 按布尔处理
+- 不写初值，或初值是函数调用时，按字符串处理
+
+在 SQL 里引用变量必须加冒号，例如 `:v_age`。过程表达式里直接写变量名。
 
 ## SELECT结果赋值给变量
 

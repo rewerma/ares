@@ -8,11 +8,10 @@ import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.format.arvo.avro.exception.AresAvroFormatException;
 import com.github.ares.format.arvo.avro.exception.AvroFormatErrorCode;
-import org.apache.avro.LogicalTypes;
-import org.apache.avro.Schema;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.avro.LogicalTypes;
+import org.apache.avro.Schema;
 
 public class AresRowTypeToAvroSchemaConverter {
 
@@ -26,13 +25,9 @@ public class AresRowTypeToAvroSchemaConverter {
         return Schema.createRecord("AresRecord", null, null, false, fields);
     }
 
-    private static Schema.Field generateField(
-            String fieldName, AresDataType<?> aresDataType) {
+    private static Schema.Field generateField(String fieldName, AresDataType<?> aresDataType) {
         return new Schema.Field(
-                fieldName,
-                aresDataType2AvroDataType(fieldName, aresDataType),
-                null,
-                null);
+                fieldName, aresDataType2AvroDataType(fieldName, aresDataType), null, null);
     }
 
     private static Schema aresDataType2AvroDataType(
@@ -62,8 +57,7 @@ public class AresRowTypeToAvroSchemaConverter {
                 BasicType<?> elementType = ((ArrayType<?, ?>) aresDataType).getElementType();
                 return Schema.createArray(aresDataType2AvroDataType(fieldName, elementType));
             case ROW:
-                AresDataType<?>[] fieldTypes =
-                        ((AresRowType) aresDataType).getFieldTypes();
+                AresDataType<?>[] fieldTypes = ((AresRowType) aresDataType).getFieldTypes();
                 String[] fieldNames = ((AresRowType) aresDataType).getFieldNames();
                 List<Schema.Field> subField = new ArrayList<>();
                 for (int i = 0; i < fieldNames.length; i++) {

@@ -1,5 +1,8 @@
 package com.github.ares.format.json;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
@@ -10,8 +13,8 @@ import com.github.ares.com.fasterxml.jackson.databind.JsonNode;
 import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ares.com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.ares.com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.format.json.exception.AresJsonFormatException;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,11 +24,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-
-import com.github.ares.common.exceptions.CommonErrorCode;
 
 public class RowToJsonConverters implements Serializable {
 
@@ -161,8 +159,7 @@ public class RowToJsonConverters implements Serializable {
                         mapType.toString(), mapType.getKeyType(), mapType.getValueType());
             default:
                 throw new AresJsonFormatException(
-                        CommonErrorCode.UNSUPPORTED_DATA_TYPE,
-                        "unsupported parse type: " + type);
+                        CommonErrorCode.UNSUPPORTED_DATA_TYPE, "unsupported parse type: " + type);
         }
     }
 

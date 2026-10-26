@@ -2,11 +2,10 @@ package com.github.ares.common.configuration;
 
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.com.typesafe.config.ConfigValue;
-import lombok.NonNull;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 
 public final class TypesafeConfigUtils {
 

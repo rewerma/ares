@@ -1,6 +1,5 @@
 package com.github.ares.connector.file.ftp.source;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.net.ftp.FTPClient;
@@ -68,11 +67,11 @@ public class FTPInputStream extends FSInputStream {
         } else {
             int result = this.wrappedStream.read(buf, off, len);
             if (result > 0) {
-                this.pos += (long)result;
+                this.pos += (long) result;
             }
 
             if (this.stats != null && result > 0) {
-                this.stats.incrementBytesRead((long)result);
+                this.stats.incrementBytesRead((long) result);
             }
 
             return result;
@@ -90,7 +89,9 @@ public class FTPInputStream extends FSInputStream {
                 this.client.logout();
                 this.client.disconnect();
                 if (!cmdCompleted) {
-                    throw new FTPException("Could not complete transfer, Reply Code - " + this.client.getReplyCode());
+                    throw new FTPException(
+                            "Could not complete transfer, Reply Code - "
+                                    + this.client.getReplyCode());
                 }
             }
         }
@@ -100,8 +101,7 @@ public class FTPInputStream extends FSInputStream {
         return false;
     }
 
-    public void mark(int readLimit) {
-    }
+    public void mark(int readLimit) {}
 
     public void reset() throws IOException {
         throw new IOException("Mark not supported");

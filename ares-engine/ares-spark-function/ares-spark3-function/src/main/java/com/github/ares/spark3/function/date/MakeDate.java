@@ -1,16 +1,14 @@
 package com.github.ares.spark3.function.date;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.LocalTimeType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.time.LocalDate;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-
 
 @AutoService(SparkFuncInterface.class)
 public class MakeDate implements SparkFuncInterface {
@@ -34,7 +32,8 @@ public class MakeDate implements SparkFuncInterface {
         if (arg1 == null || arg2 == null || arg3 == null) {
             return null;
         }
-        org.apache.spark.sql.catalyst.expressions.MakeDate makeDate = new org.apache.spark.sql.catalyst.expressions.MakeDate(null, null, null);
+        org.apache.spark.sql.catalyst.expressions.MakeDate makeDate =
+                new org.apache.spark.sql.catalyst.expressions.MakeDate(null, null, null);
         Object res = makeDate.nullSafeEval(arg1.intValue(), arg2.intValue(), arg3.intValue());
         return LocalDate.ofEpochDay((Integer) res);
     }

@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.ares</groupId>
         <artifactId>ares-connector</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>connector-jdbc</artifactId>
@@ -14,10 +14,16 @@
     <packaging>pom</packaging>
     <modules>
         <module>connector-jdbc-base</module>
-        <module>connector-jdbc-mysql</module>
-        <module>connector-jdbc-oracle</module>
-        <module>connector-jdbc-postgres</module>
-        <module>connector-jdbc-sqlserver</module>
+        <module>connector-mysql</module>
+        <module>connector-oracle</module>
+        <module>connector-postgres</module>
+        <module>connector-sqlserver</module>
+        <module>connector-dameng</module>
+        <module>connector-kingbase</module>
+        <module>connector-oceanbase</module>
+        <module>connector-opengauss</module>
+        <module>connector-starrocks</module>
+        <module>connector-doris</module>
     </modules>
 
 

@@ -1,13 +1,9 @@
 package com.github.ares.sql.function;
 
 import com.github.ares.api.table.type.AresDataType;
-import com.github.ares.common.exceptions.AresException;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DynamicFunction implements Serializable {
 
@@ -24,27 +20,28 @@ public class DynamicFunction implements Serializable {
 
     public UdfInterface toUdfInterface() {
         DynamicFunction dynamicFunction = this;
-        UdfInterface udfInterface = new UdfInterface() {
-            @Override
-            public String functionName() {
-                return dynamicFunction.getFunctionName();
-            }
+        UdfInterface udfInterface =
+                new UdfInterface() {
+                    @Override
+                    public String functionName() {
+                        return dynamicFunction.getFunctionName();
+                    }
 
-            @Override
-            public AresDataType<?> resultType() {
-                return dynamicFunction.getResultType();
-            }
+                    @Override
+                    public AresDataType<?> resultType() {
+                        return dynamicFunction.getResultType();
+                    }
 
-            @Override
-            public List<AresDataType<?>> argTypes() {
-                return dynamicFunction.getArgTypes();
-            }
+                    @Override
+                    public List<AresDataType<?>> argTypes() {
+                        return dynamicFunction.getArgTypes();
+                    }
 
-            @Override
-            public Object evaluate(List<Object> args) {
-                return dynamicFunction.evaluate(args);
-            }
-        };
+                    @Override
+                    public Object evaluate(List<Object> args) {
+                        return dynamicFunction.evaluate(args);
+                    }
+                };
         return udfInterface;
     }
 

@@ -9,5 +9,4 @@ public class Position extends Locate implements SparkFuncInterface {
     public String functionName() {
         return "POSITION";
     }
-
 }

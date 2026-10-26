@@ -3,12 +3,10 @@ package com.github.ares.parser.plan;
 import com.github.ares.api.common.CriteriaClause;
 import com.github.ares.parser.enums.OperationType;
 import com.github.ares.parser.model.BaseSqlOption;
-
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -23,6 +21,11 @@ public class LogicalDeleteSelectSQL extends BaseSqlOption implements Serializabl
     private Boolean withEx;
 
     private CriteriaClause whereClause;
+
+    /**
+     * Spark SQL for a Paimon table, with {@code __ARES_PAIMON_TARGET__} as the table placeholder.
+     */
+    private String paimonSql;
 
     public LogicalDeleteSelectSQL() {
         super(OperationType.DELETE_SELECT_SQL);

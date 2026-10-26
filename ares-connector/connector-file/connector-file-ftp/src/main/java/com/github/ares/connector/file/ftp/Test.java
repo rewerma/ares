@@ -1,8 +1,7 @@
 package com.github.ares.connector.file.ftp;
 
-import org.apache.commons.net.ftp.FTPClient;
-
 import java.io.IOException;
+import org.apache.commons.net.ftp.FTPClient;
 
 public class Test {
     public static void main(String[] args) throws IOException {

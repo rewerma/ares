@@ -1,11 +1,10 @@
 package com.github.ares.common.configuration;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.commons.lang3.StringUtils;
 
 public class Common {
     private static String ARES_HOME;

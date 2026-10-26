@@ -9,5 +9,4 @@ public class Lower extends Lcase implements SparkFuncInterface {
     public String functionName() {
         return "LOWER";
     }
-
 }

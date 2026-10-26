@@ -23,11 +23,10 @@ import com.github.ares.api.table.type.AresRow;
 import com.github.ares.spark.connector.source.reader.AresInputPartitionReader;
 import com.github.ares.spark.connector.source.reader.batch.CoordinatedBatchPartitionReader;
 import com.github.ares.spark.connector.source.reader.batch.ParallelBatchPartitionReader;
+import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.reader.InputPartition;
 import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
-
-import java.util.Map;
 
 public class BatchPartition implements InputPartition<InternalRow> {
     protected final AresSource<AresRow, ?, ?> source;

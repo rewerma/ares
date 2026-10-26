@@ -1,14 +1,13 @@
 package com.github.ares.spark.function.system;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
 
 @AutoService(SparkFuncInterface.class)
 public class If implements SparkFuncInterface {
@@ -32,8 +31,19 @@ public class If implements SparkFuncInterface {
         Object arg2 = args.get(1);
         Object arg3 = args.get(2);
         if (!(arg1 instanceof Boolean)) {
-            throw new AresException("Cannot resolve \"IF(" + arg1 + ", " + arg2 + ", " + arg3 + ")\" due to data type mismatch: " +
-                    "Parameter 1 requires the \"BOOLEAN\" type, however \"" + arg1 + "\" has the type \"" + arg1.getClass().getSimpleName() + "\".");
+            throw new AresException(
+                    "Cannot resolve \"IF("
+                            + arg1
+                            + ", "
+                            + arg2
+                            + ", "
+                            + arg3
+                            + ")\" due to data type mismatch: "
+                            + "Parameter 1 requires the \"BOOLEAN\" type, however \""
+                            + arg1
+                            + "\" has the type \""
+                            + arg1.getClass().getSimpleName()
+                            + "\".");
         }
         if ((Boolean) arg1) {
             return arg2;

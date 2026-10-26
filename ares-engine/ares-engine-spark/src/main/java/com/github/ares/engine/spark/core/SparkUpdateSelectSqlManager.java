@@ -1,5 +1,7 @@
 package com.github.ares.engine.spark.core;
 
+import static com.github.ares.engine.utils.EngineUtil.replaceParams;
+
 import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.common.SinkType;
 import com.github.ares.api.sink.AresSink;
@@ -13,35 +15,31 @@ import com.github.ares.api.table.factory.TableSinkFactoryContext;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.engine.core.AresSinkFactory;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.PlParams;
-import com.github.ares.engine.core.AresSinkFactory;
 import com.github.ares.engine.core.UpdateSelectSqlExecutor;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static com.github.ares.engine.utils.EngineUtil.replaceParams;
-
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
 public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor implements Serializable {
     private static final long serialVersionUID = -1L;
 
     private SparkExecutorManager sparkExecutorManager;
 
-    @Inject
-    private AresSinkFactory aresSinkFactory;
+    @Inject private AresSinkFactory aresSinkFactory;
 
     public void init(ExecutorManager executorManager) {
         this.sparkExecutorManager = (SparkExecutorManager) executorManager;
@@ -49,13 +47,26 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
     }
 
     @Override
-    public void execute(Map<String, Object> sinkConfig, Optional<? extends Factory> sinkFactory,
-                        LogicalUpdateSelectSQL usSql, PlParams plParams) {
+    public void execute(
+            Map<String, Object> sinkConfig,
+            Optional<? extends Factory> sinkFactory,
+            LogicalUpdateSelectSQL usSql,
+            PlParams plParams) {
         if (usSql.getOriginSQL() != null) {
             traceLogger.info("SQL: {}; Params: {}", usSql.getOriginSQL(), plParams);
         }
         SparkSession sparkSession = sparkExecutorManager.getSparkSessionManager().getSparkSession();
-        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.UPDATE);
+        if (PaimonTables.isPaimonConnector(
+                String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key())))) {
+            PaimonSparkSql.executeDml(
+                    sparkSession,
+                    sinkConfig,
+                    usSql.getPaimonSql(),
+                    plParams,
+                    usSql.getSinkTable().getTableName());
+            return;
+        }
+        sinkConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.UPDATE.name());
         ArrayList<String> updateColumns = new ArrayList<>(usSql.getUpdateItems());
         sinkConfig.put(CommonOptions.UPDATE_COLUMNS.key(), updateColumns);
         sinkConfig.put(CommonOptions.WHERE_CLAUSE.key(), usSql.getWhereClause());
@@ -63,8 +74,13 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
         String selectSql = replaceParams(usSql.getSelectSQL(), plParams);
         Dataset<Row> resultDf = sparkSession.sql(selectSql);
         if (usSql.getRepartitionNums() != null) {
-            resultDf = sparkExecutorManager.getSparkCommonExecutor().repartition(resultDf, usSql.getRepartitionNums(),
-                    usSql.getRepartitionColumns());
+            resultDf =
+                    sparkExecutorManager
+                            .getSparkCommonExecutor()
+                            .repartition(
+                                    resultDf,
+                                    usSql.getRepartitionNums(),
+                                    usSql.getRepartitionColumns());
         }
         if (usSql.getWithShow() != null) {
             traceLogger.info("SQL show result: {}", usSql.getSelectSQL());
@@ -83,25 +99,29 @@ public class SparkUpdateSelectSqlManager extends UpdateSelectSqlExecutor impleme
         TableSchema tableSchema = builder.columns(columns).build();
 
         TableIdentifier tableIdentifier = TableIdentifier.of("default", "default", "default");
-        CatalogTable catalogTable = CatalogTable.of(
-                tableIdentifier,
-                tableSchema,
-                new HashMap<>(),
-                new ArrayList<>(),
-                "");
+        CatalogTable catalogTable =
+                CatalogTable.of(
+                        tableIdentifier, tableSchema, new HashMap<>(), new ArrayList<>(), "");
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         TableSinkFactoryContext context =
                 new TableSinkFactoryContext(
-                        catalogTable,
-                        ReadonlyConfig.fromMap(sinkConfig),
-                        classLoader);
-        AresSink<?, ?, ?, ?> aresSink = aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
+                        catalogTable, ReadonlyConfig.fromMap(sinkConfig), classLoader);
+        AresSink<?, ?, ?, ?> aresSink =
+                aresSinkFactory.createSink(sinkConfig, sinkFactory, catalogTable, context);
+        if (sparkExecutorManager.tryTransactionalSink(
+                aresSink, resultDf, catalogTable, usSql.getSinkTable().getTableName())) {
+            return;
+        }
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
 
         // reload target table
-        if (executorManager.getSourceTables().containsKey(usSql.getSinkTable().getTableName().toLowerCase())) {
-            executorManager.getReloadFunctionExecutor().reloadSourceTable(usSql.getSinkTable().getTableName());
+        if (executorManager
+                .getSourceTables()
+                .containsKey(usSql.getSinkTable().getTableName().toLowerCase())) {
+            executorManager
+                    .getReloadFunctionExecutor()
+                    .reloadSourceTable(usSql.getSinkTable().getTableName());
         }
     }
 }

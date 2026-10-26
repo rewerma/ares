@@ -17,10 +17,10 @@
 
 package com.github.ares.core.starter.command;
 
-import com.github.ares.common.configuration.DeployMode;
-import com.github.ares.com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
+import com.github.ares.com.google.common.annotations.VisibleForTesting;
+import com.github.ares.common.configuration.DeployMode;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+import org.apache.commons.lang3.StringUtils;
 
 public class Common {
 
@@ -92,11 +91,11 @@ public class Common {
 
     /**
      * Root dir varies between different spark master and deploy mode, it also varies between
-     * relative and absolute path. When running Ares in --master local, you can put plugins
-     * related files in $project_dir/plugins, then these files will be automatically copied to
-     * $project_dir/ares-core/target and token in effect if you start ares in IDE tools
-     * such as IDEA. When running ares in --master yarn or --master mesos, you can put plugins
-     * related files in plugins dir.
+     * relative and absolute path. When running Ares in --master local, you can put plugins related
+     * files in $project_dir/plugins, then these files will be automatically copied to
+     * $project_dir/ares-core/target and token in effect if you start ares in IDE tools such as
+     * IDEA. When running ares in --master yarn or --master mesos, you can put plugins related files
+     * in plugins dir.
      */
     public static Path appRootDir() {
         if (DeployMode.CLIENT == MODE || DeployMode.RUN == MODE || STARTER) {
@@ -139,6 +138,49 @@ public class Common {
         return Paths.get(getAresHome(), "lib");
     }
 
+    /** Hadoop third-party dir */
+    public static Path thirdPartyHadoopDir() {
+        return Paths.get(getAresHome(), "thirdparty", "hadoop");
+    }
+
+    /** return hadoop jars from thirdparty/hadoop when a job needs Hadoop connectors. */
+    public static List<Path> getThirdPartyHadoopJars() {
+        return jarsIn(thirdPartyHadoopDir());
+    }
+
+    /** Paimon Spark runtime dir. */
+    public static Path thirdPartyPaimonDir() {
+        return Paths.get(getAresHome(), "thirdparty", "paimon");
+    }
+
+    /** return Paimon jars from thirdparty/paimon when a job uses the filesystem catalog. */
+    public static List<Path> getThirdPartyPaimonJars() {
+        return jarsIn(thirdPartyPaimonDir());
+    }
+
+    private static List<Path> jarsIn(Path dir) {
+        if (!Files.exists(dir) || !Files.isDirectory(dir)) {
+            return Collections.emptyList();
+        }
+        try (Stream<Path> stream = Files.list(dir)) {
+            return stream.filter(it -> !it.toFile().isDirectory())
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean requiresHadoopThirdPartyConnector(String connectorName) {
+        if (StringUtils.isBlank(connectorName)) {
+            return false;
+        }
+        String normalized = connectorName.toLowerCase();
+        return "filehadoop".equals(normalized)
+                || "fileftp".equals(normalized)
+                || "filesftp".equals(normalized);
+    }
+
     /** return lib jars, which located in 'lib/*' or 'lib/{dir}/*'. */
     public static List<Path> getLibJars() {
         Path libRootDir = Common.libDir();
@@ -160,7 +202,13 @@ public class Common {
         return Arrays.stream(paths.split(";"))
                 .filter(s -> !"".equals(s))
                 .filter(it -> it.endsWith(".jar"))
-                .map(path -> Paths.get(URI.create(path)))
+                .map(
+                        path -> {
+                            if (path.contains("://")) {
+                                return Paths.get(URI.create(path));
+                            }
+                            return Paths.get(path);
+                        })
                 .collect(Collectors.toSet());
     }
 

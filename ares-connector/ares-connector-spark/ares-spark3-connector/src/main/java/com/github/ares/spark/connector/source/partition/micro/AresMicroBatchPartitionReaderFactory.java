@@ -4,13 +4,12 @@ import com.github.ares.api.source.AresSource;
 import com.github.ares.api.source.SupportCoordinate;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.spark.connector.source.partition.batch.ParallelBatchPartitionReader;
+import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.read.InputPartition;
 import org.apache.spark.sql.connector.read.PartitionReader;
 import org.apache.spark.sql.connector.read.PartitionReaderFactory;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
-
-import java.util.Map;
 
 public class AresMicroBatchPartitionReaderFactory implements PartitionReaderFactory {
 
@@ -35,8 +34,7 @@ public class AresMicroBatchPartitionReaderFactory implements PartitionReaderFact
 
     @Override
     public PartitionReader<InternalRow> createReader(InputPartition partition) {
-        AresMicroBatchInputPartition aresPartition =
-                (AresMicroBatchInputPartition) partition;
+        AresMicroBatchInputPartition aresPartition = (AresMicroBatchInputPartition) partition;
         ParallelBatchPartitionReader partitionReader;
         Integer subtaskId = aresPartition.getSubtaskId();
         Integer checkpointId = aresPartition.getCheckpointId();

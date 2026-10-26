@@ -4,26 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ConnectorType {
-    /**
-     * JDBC
-     */
+    /** JDBC */
     JDBC("jdbc"),
-    /**
-     * T3
-     */
+    /** T3 */
     T3("t3"),
-    /**
-     * FTP
-     */
+    /** FTP */
     FTP("ftp"),
-    /**
-     * SFTP
-     */
+    /** SFTP */
     SFTP("sftp"),
-    /**
-     * HIVE
-     */
-    HIVE("hive"),
     ;
 
     private static final Map<String, ConnectorType> TYPES = new HashMap<>();
@@ -33,7 +21,6 @@ public enum ConnectorType {
         TYPES.put(T3.type, T3);
         TYPES.put(FTP.type, FTP);
         TYPES.put(SFTP.type, SFTP);
-        TYPES.put(HIVE.type, HIVE);
     }
 
     private final String type;

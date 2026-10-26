@@ -22,14 +22,13 @@ import com.github.ares.api.source.SupportCoordinate;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.spark.connector.source.partition.batch.BatchPartition;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.reader.DataSourceReader;
 import org.apache.spark.sql.sources.v2.reader.InputPartition;
 import org.apache.spark.sql.types.StructType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BatchSourceReader implements DataSourceReader {
 
@@ -38,9 +37,7 @@ public class BatchSourceReader implements DataSourceReader {
     private Map<String, String> envOptions;
 
     public BatchSourceReader(
-            AresSource<AresRow, ?, ?> source,
-            Integer parallelism,
-            Map<String, String> envOptions) {
+            AresSource<AresRow, ?, ?> source, Integer parallelism, Map<String, String> envOptions) {
         this.source = source;
         this.parallelism = parallelism;
         this.envOptions = envOptions;

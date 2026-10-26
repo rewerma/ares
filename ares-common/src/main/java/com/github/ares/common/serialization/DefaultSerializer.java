@@ -1,7 +1,6 @@
 package com.github.ares.common.serialization;
 
 import com.github.ares.common.utils.SerializationUtils;
-
 import java.io.IOException;
 import java.io.Serializable;
 

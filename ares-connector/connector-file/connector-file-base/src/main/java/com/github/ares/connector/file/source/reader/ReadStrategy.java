@@ -7,9 +7,10 @@ import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.exceptions.AresRuntimeException;
 import com.github.ares.common.exceptions.CommonError;
+import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.config.FileFormat;
 import com.github.ares.connector.file.config.HadoopConf;
-
+import com.github.ares.connector.file.exception.FileConnectorException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,9 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import com.github.ares.common.exceptions.CommonErrorCode;
-import com.github.ares.connector.file.exception.FileConnectorException;
 
 public interface ReadStrategy extends Serializable, Closeable {
     void init(HadoopConf conf);
@@ -35,8 +33,8 @@ public interface ReadStrategy extends Serializable, Closeable {
         return getAresRowTypeInfo(path);
     }
 
-    default AresRowType getAresRowTypeInfoWithUserConfigRowType(
-            String path, AresRowType rowType) throws FileConnectorException {
+    default AresRowType getAresRowTypeInfoWithUserConfigRowType(String path, AresRowType rowType)
+            throws FileConnectorException {
         return getAresRowTypeInfo(path);
     }
 

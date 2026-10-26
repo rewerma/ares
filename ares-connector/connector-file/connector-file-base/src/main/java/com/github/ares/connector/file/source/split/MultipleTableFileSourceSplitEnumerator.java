@@ -1,11 +1,9 @@
 package com.github.ares.connector.file.source.split;
 
 import com.github.ares.api.source.SourceSplitEnumerator;
+import com.github.ares.connector.file.config.BaseFileSourceConfig;
 import com.github.ares.connector.file.config.BaseMultipleTableFileSourceConfig;
 import com.github.ares.connector.file.source.state.FileSourceState;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,9 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.github.ares.connector.file.config.BaseFileSourceConfig;
-
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 @Slf4j
 public class MultipleTableFileSourceSplitEnumerator
@@ -87,10 +84,10 @@ public class MultipleTableFileSourceSplitEnumerator
         return new FileSourceState(assignedSplit);
     }
 
-//    @Override
-//    public void notifyCheckpointComplete(long checkpointId) {
-//        // do nothing.
-//    }
+    //    @Override
+    //    public void notifyCheckpointComplete(long checkpointId) {
+    //        // do nothing.
+    //    }
 
     private void assignSplit(int taskId) {
         List<FileSourceSplit> currentTaskSplits = new ArrayList<>();

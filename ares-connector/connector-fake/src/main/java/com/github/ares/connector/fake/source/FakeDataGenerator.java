@@ -15,7 +15,6 @@ import com.github.ares.connector.fake.config.FakeConfig;
 import com.github.ares.connector.fake.exception.FakeConnectorException;
 import com.github.ares.connector.fake.utils.FakeDataRandomUtils;
 import com.github.ares.format.json.JsonDeserializationSchema;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -43,8 +42,7 @@ public class FakeDataGenerator {
 
     private AresRow convertRow(FakeConfig.RowData rowData) {
         try {
-            AresRow aresRow =
-                    jsonDeserializationSchema.deserialize(rowData.getFieldsJson());
+            AresRow aresRow = jsonDeserializationSchema.deserialize(rowData.getFieldsJson());
             if (rowData.getKind() != null) {
                 aresRow.setRowKind(RowKind.valueOf(rowData.getKind()));
             }

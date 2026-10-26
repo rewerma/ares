@@ -17,10 +17,9 @@
 
 package com.github.ares.connector.file.sink.config;
 
-import lombok.NonNull;
-
 import java.io.Serializable;
 import java.util.Locale;
+import lombok.NonNull;
 
 public enum SaveMode implements Serializable {
     APPEND(),

@@ -6,7 +6,12 @@ import com.github.ares.sql.expression.exception.ExpressionException;
 import com.github.ares.sql.function.DynamicFunction;
 import com.github.ares.sql.function.FunctionInterface;
 import com.github.ares.sql.function.SparkFuncInterface;
-import com.github.ares.sql.function.UdfInterface;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -15,13 +20,6 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
-
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 public class ExpressionEngine implements Serializable {
     private static final long serialVersionUID = -1L;
@@ -33,6 +31,8 @@ public class ExpressionEngine implements Serializable {
     private final Map<String, FunctionInterface> allFunctions = new LinkedHashMap<>();
 
     private final SimpleSqlFunction simpleSqlFunction;
+
+    private transient Map<String, PlainSelect> parsedSelects;
 
     public ExpressionEngine() {
         init();
@@ -47,8 +47,14 @@ public class ExpressionEngine implements Serializable {
                     functions = new LinkedHashMap<>();
                     ClassLoader cl = Thread.currentThread().getContextClassLoader();
                     if (ExecutionEngineType.engineType == EngineType.SPARK) {
-                        ServiceLoader.load(SparkFuncInterface.class, cl).forEach(functionInterface ->
-                                functions.put(functionInterface.functionName().toUpperCase(), functionInterface));
+                        ServiceLoader.load(SparkFuncInterface.class, cl)
+                                .forEach(
+                                        functionInterface ->
+                                                functions.put(
+                                                        functionInterface
+                                                                .functionName()
+                                                                .toUpperCase(),
+                                                        functionInterface));
                     }
                     allFunctions.putAll(functions);
                 }
@@ -57,47 +63,65 @@ public class ExpressionEngine implements Serializable {
     }
 
     public void initDynamicFunctions(Map<String, DynamicFunction> dynamicFun) {
-        if (dynamicFunctions == null) {
-            synchronized (ExpressionEngine.class) {
-                if (dynamicFunctions == null) {
-                    dynamicFunctions = dynamicFun;
-                    List<UdfInterface> dynamicUdfList =
-                            dynamicFunctions.values()
-                                    .stream().map(DynamicFunction::toUdfInterface)
-                                    .collect(Collectors.toList());
-                    dynamicUdfList.forEach(udf ->
-                            allFunctions.put(udf.functionName().toUpperCase(), FunctionInterface.fromUdf(udf)));
+        if (dynamicFun == null) {
+            return;
+        }
+        synchronized (ExpressionEngine.class) {
+            for (DynamicFunction dynamicFunction : dynamicFun.values()) {
+                String key = dynamicFunction.getFunctionName().toUpperCase();
+                if (!allFunctions.containsKey(key)) {
+                    allFunctions.put(
+                            key, FunctionInterface.fromUdf(dynamicFunction.toUdfInterface()));
                 }
+            }
+            if (dynamicFunctions == null) {
+                dynamicFunctions = dynamicFun;
             }
         }
     }
 
     public Object evaluate(String sql) {
-        PlainSelect selectBody = parseSQL(sql);
-        Object[] outputFields = project(new Object[]{}, selectBody);
-        if (outputFields.length > 0) {
-            return outputFields[0];
+        return evaluate(sql, null);
+    }
+
+    public Object evaluate(String sql, Map<String, Object> params) {
+        simpleSqlFunction.setParams(params);
+        try {
+            Object[] outputFields = project(new Object[] {}, parseSQL(sql));
+            if (outputFields.length > 0) {
+                return outputFields[0];
+            }
+            return null;
+        } finally {
+            simpleSqlFunction.setParams(null);
         }
-        return null;
     }
 
     public boolean evaluateForBool(String sql) {
-        PlainSelect selectBody = parseSQL(sql);
-        Object[] outputFields = project(new Object[]{}, selectBody);
-        if (outputFields.length > 0) {
-            Object res = outputFields[0];
-            if (res instanceof Boolean) {
-                return (Boolean) res;
-            }
-            return res instanceof Number && (((Number) res).intValue() > 0);
+        return evaluateForBool(sql, null);
+    }
+
+    public boolean evaluateForBool(String sql, Map<String, Object> params) {
+        Object res = evaluate(sql, params);
+        if (res instanceof Boolean) {
+            return (Boolean) res;
         }
-        return false;
+        return res instanceof Number && (((Number) res).intValue() > 0);
     }
 
     private PlainSelect parseSQL(String sql) {
+        if (parsedSelects == null) {
+            parsedSelects = new HashMap<>();
+        }
+        PlainSelect cached = parsedSelects.get(sql);
+        if (cached != null) {
+            return cached;
+        }
         try {
             Statement statement = CCJSqlParserUtil.parse(sql);
-            return (PlainSelect) ((Select) statement).getSelectBody();
+            PlainSelect selectBody = (PlainSelect) ((Select) statement).getSelectBody();
+            parsedSelects.put(sql, selectBody);
+            return selectBody;
         } catch (JSQLParserException e) {
             throw new ExpressionException(
                     String.format("SQL parse failed: %s, cause: %s", sql, e.getMessage()));

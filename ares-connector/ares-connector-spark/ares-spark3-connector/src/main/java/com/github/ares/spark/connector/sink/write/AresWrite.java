@@ -4,11 +4,10 @@ import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.spark.connector.sink.AresBatchWrite;
+import java.io.IOException;
 import org.apache.spark.sql.connector.write.BatchWrite;
 import org.apache.spark.sql.connector.write.Write;
 import org.apache.spark.sql.connector.write.streaming.StreamingWrite;
-
-import java.io.IOException;
 
 public class AresWrite<AggregatedCommitInfoT, CommitInfoT, StateT> implements Write {
 

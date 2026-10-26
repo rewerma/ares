@@ -1,7 +1,6 @@
 package com.github.ares.connector.file.source.state;
 
 import com.github.ares.connector.file.source.split.FileSourceSplit;
-
 import java.io.Serializable;
 import java.util.Set;
 

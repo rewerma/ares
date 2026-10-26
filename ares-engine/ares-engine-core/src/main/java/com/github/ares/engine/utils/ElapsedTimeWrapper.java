@@ -1,11 +1,9 @@
 package com.github.ares.engine.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ElapsedTimeWrapper {
     protected static final Logger logger = LoggerFactory.getLogger("[SQLExecution]");
@@ -16,8 +14,9 @@ public class ElapsedTimeWrapper {
         execution.execute();
 
         long endTime = System.currentTimeMillis();
-        BigDecimal elapsedTime = new BigDecimal(endTime - startTime)
-                .divide(new BigDecimal(1000), 2, RoundingMode.HALF_UP);
+        BigDecimal elapsedTime =
+                new BigDecimal(endTime - startTime)
+                        .divide(new BigDecimal(1000), 2, RoundingMode.HALF_UP);
         logger.info("Executed SQL: {}; elapsed time: {}s", executionSQL, elapsedTime);
     }
 

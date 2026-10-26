@@ -16,9 +16,7 @@ public class SparkSinkInjector {
     public static final String SINK_CATALOG_TABLE = "sink.catalog.table";
 
     public static DataStreamWriter<Row> inject(
-            DataStreamWriter<Row> dataset,
-            AresSink<?, ?, ?, ?> sink,
-            CatalogTable catalogTable) {
+            DataStreamWriter<Row> dataset, AresSink<?, ?, ?, ?> sink, CatalogTable catalogTable) {
         return dataset.format(SINK_NAME)
                 .outputMode(OutputMode.Append())
                 .option(Constants.SINK_SERIALIZATION, SerializationUtils.objectToString(sink))
@@ -26,9 +24,7 @@ public class SparkSinkInjector {
     }
 
     public static DataFrameWriter<Row> inject(
-            DataFrameWriter<Row> dataset,
-            AresSink<?, ?, ?, ?> sink,
-            CatalogTable catalogTable) {
+            DataFrameWriter<Row> dataset, AresSink<?, ?, ?, ?> sink, CatalogTable catalogTable) {
         return dataset.format(SINK_NAME)
                 .option(Constants.SINK_SERIALIZATION, SerializationUtils.objectToString(sink))
                 .option(SINK_CATALOG_TABLE, SerializationUtils.objectToString(catalogTable));

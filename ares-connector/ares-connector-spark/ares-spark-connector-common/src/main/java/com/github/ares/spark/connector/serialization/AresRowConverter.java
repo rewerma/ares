@@ -8,13 +8,6 @@ import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.MapType;
 import com.github.ares.connector.serialization.RowConverter;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
-import org.apache.spark.sql.types.StructType;
-import org.apache.spark.unsafe.types.UTF8String;
-import scala.Tuple2;
-import scala.collection.immutable.HashMap.HashTrieMap;
-import scala.collection.mutable.WrappedArray;
-
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -25,6 +18,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
+import org.apache.spark.sql.types.StructType;
+import org.apache.spark.unsafe.types.UTF8String;
+import scala.Tuple2;
+import scala.collection.immutable.HashMap.HashTrieMap;
+import scala.collection.mutable.WrappedArray;
 
 public class AresRowConverter extends RowConverter<AresRow> {
     public AresRowConverter(AresDataType<?> dataType) {

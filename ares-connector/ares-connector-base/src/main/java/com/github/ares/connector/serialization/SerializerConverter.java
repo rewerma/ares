@@ -20,8 +20,8 @@ package com.github.ares.connector.serialization;
 public interface SerializerConverter<AresSerializerT, TargetSerializerT> {
 
     /**
-     * Converts the Ares {@link com.github.ares.common.serialization.Serializer} to the
-     * target serializer.
+     * Converts the Ares {@link com.github.ares.common.serialization.Serializer} to the target
+     * serializer.
      *
      * @param serializer Ares serializer.
      * @return target serializer.

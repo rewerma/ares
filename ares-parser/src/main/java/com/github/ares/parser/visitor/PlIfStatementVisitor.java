@@ -1,13 +1,11 @@
 package com.github.ares.parser.visitor;
 
-import com.github.ares.com.google.inject.Inject;
 import com.github.ares.common.engine.PlType;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.plan.LogicalExpression;
 import com.github.ares.parser.plan.LogicalIfElse;
 import com.github.ares.parser.plan.LogicalOperation;
-
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,45 +16,52 @@ public class PlIfStatementVisitor {
         this.visitorManager = visitorManager;
     }
 
-    public void ifElseVisitor(PlBodyVisitor plBodyVisitor, PlSqlParser.If_statementContext ifStatement,
-                              List<LogicalOperation> baseBody, Map<String, PlType> allParams,
-                              List<LogicalOperation> result, List<String> structs) {
-        LogicalOperation operation = generateIfOperation("if",
-                visitorManager.getExpressionVisitor().visitExpressionContext(ifStatement.condition().expression(), allParams, structs),
-                plBodyVisitor.visitBodyStatements(ifStatement.seq_of_statements(), new LinkedHashMap<>(), new LinkedHashMap<>(),
-                        allParams, baseBody, structs));
-        result.add(operation);
+    public void ifElseVisitor(
+            PlBodyVisitor plBodyVisitor,
+            PlSqlParser.If_statementContext ifStatement,
+            Map<String, PlType> scriptDeclared,
+            Map<String, PlType> visible,
+            List<LogicalOperation> result,
+            List<String> structs) {
+        LogicalIfElse ifElse =
+                newBranch(
+                        expression(ifStatement.expression(), visible, structs),
+                        plBodyVisitor.visitBlock(
+                                ifStatement.body(), scriptDeclared, visible, structs));
 
-        List<PlSqlParser.Elsif_partContext> elseif = ifStatement.elsif_part();
-        for (PlSqlParser.Elsif_partContext elsif_part : elseif) {
-            LogicalOperation operation2 = generateIfOperation("else if",
-                    visitorManager.getExpressionVisitor().visitExpressionContext(elsif_part.condition().expression(), allParams, structs),
-                    plBodyVisitor.visitBodyStatements(elsif_part.seq_of_statements(), new LinkedHashMap<>(), new LinkedHashMap<>(),
-                            allParams, baseBody, structs));
-            result.add(operation2);
+        List<LogicalIfElse> elseIfs = new ArrayList<>();
+        if (ifStatement.elsif_clause() != null) {
+            for (PlSqlParser.Elsif_clauseContext elsif : ifStatement.elsif_clause()) {
+                elseIfs.add(
+                        newBranch(
+                                expression(elsif.expression(), visible, structs),
+                                plBodyVisitor.visitBlock(
+                                        elsif.body(), scriptDeclared, visible, structs)));
+            }
         }
-        if (ifStatement.else_part() != null) {
-            LogicalOperation operation2 = generateIfOperation("else", null,
-                    plBodyVisitor.visitBodyStatements(ifStatement.else_part().seq_of_statements(), new LinkedHashMap<>(), new LinkedHashMap<>(),
-                            allParams, baseBody, structs));
-            result.add(operation2);
+        ifElse.setElseIfs(elseIfs);
+
+        if (ifStatement.else_clause() != null) {
+            ifElse.setElseBody(
+                    plBodyVisitor.visitBlock(
+                            ifStatement.else_clause().body(), scriptDeclared, visible, structs));
         }
+        result.add(ifElse);
     }
 
-    private LogicalOperation generateIfOperation(String type, LogicalExpression confExpr, List<LogicalOperation> ifBody) {
-        LogicalIfElse ifElse = new LogicalIfElse();
-        if ("if".equalsIgnoreCase(type)) {
-            ifElse.setIsIf(true);
-        } else if ("else if".equalsIgnoreCase(type)) {
-            ifElse.setIsElseIf(true);
-        } else if ("else".equalsIgnoreCase(type)) {
-            ifElse.setIsElse(true);
-        }
-        if (confExpr != null) {
-            ifElse.setCondition(confExpr);
-        }
-        ifElse.setIfBody(ifBody);
-//        translation.ifElseOp(ifElse);
-        return ifElse;
+    private LogicalExpression expression(
+            PlSqlParser.ExpressionContext expression,
+            Map<String, PlType> visible,
+            List<String> structs) {
+        return visitorManager
+                .getExpressionVisitor()
+                .visitExpressionContext(expression, visible, structs);
+    }
+
+    private LogicalIfElse newBranch(LogicalExpression condition, List<LogicalOperation> body) {
+        LogicalIfElse branch = new LogicalIfElse();
+        branch.setCondition(condition);
+        branch.setIfBody(body);
+        return branch;
     }
 }

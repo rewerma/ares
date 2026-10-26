@@ -3,12 +3,11 @@ package com.github.ares.connector.file.sftp.system;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.hadoop.fs.FSInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.util.StringUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /** SFTP FileSystem input stream. */
 public class SFTPInputStream extends FSInputStream {

@@ -9,13 +9,17 @@ import org.junit.Test;
 public class Spark3MysqlTest {
     @Test
     public void mysqlSourceSinkTest() {
-        String[] args = new String[]{
-                "--master", Utils.getSparkMaster(),
-                "--sql", "../scripts/spark/connector/mysql-test.sql",
-                "--conf", "spark.jars="
-                + "../../ares-starter/ares-spark3-starter/target/ares-spark3-starter.jar;"
-                + "../../ares-dist/target/ares-dist-test/ares-dist/lib/mysql-connector-j-8.3.0.jar",
-        };
+        String[] args =
+                new String[] {
+                    "--master",
+                    Utils.getSparkMaster(),
+                    "--sql",
+                    "../scripts/spark/connector/mysql-test.sql",
+                    "--conf",
+                    "spark.jars="
+                            + "../../ares-starter/ares-spark3-starter/target/ares-spark3-starter.jar;"
+                            + "../../ares-dist/target/ares-dist-test/ares-dist/lib/mysql-connector-j-8.3.0.jar",
+                };
         AresSparkStarter.main(args);
     }
 }

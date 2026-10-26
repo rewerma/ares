@@ -13,13 +13,14 @@ VALUES (value1, value2,...)
 
 ```sql
 SET datasource.mytest.connector=mysql;
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
+SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest';
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=123456;
 
 CREATE TABLE t_user2_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user2',
     'type' = 'sink'
@@ -43,27 +44,30 @@ SELECT column1, column2,...
 
 ```sql
 SET datasource.mytest.connector=mysql;
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
+SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest';
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=123456;
 
 CREATE TABLE t_user_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user',
     'type' = 'source'
 );
 
 CREATE TABLE t_role_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_role',
     'type' = 'source'
 );
 
 CREATE TABLE t_user2_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user2',
     'type' = 'sink'
@@ -74,3 +78,5 @@ INSERT INTO t_user2_v (id, name, age) SELECT id, name, age FROM t_user_v WHERE i
 INSERT INTO t_user2_v (id, name, age, role_name) SELECT a.id, a.name, a.age, b.name AS role_name FROM t_user_v a 
     LEFT JOIN t_role_v b ON a.role_id = b.id WHERE a.id > 10;
 ```
+
+查询可以先写成 `WITH` 公共表表达式，再插入。`WITH` 可以放在 `INSERT` 前面，也可以放在 `INSERT INTO` 后面的查询前面，详见 [SELECT-SQL](select-sql.md)。

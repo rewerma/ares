@@ -2,7 +2,6 @@ package com.github.ares.sql.function.utils;
 
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.utils.DateTimeUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,8 +19,13 @@ public class Utils {
         if (value instanceof LocalDateTime) {
             return ((LocalDateTime) value).toLocalDate();
         }
-        throw new AresException("cannot resolve to data type mismatch: " +
-                "argument requires Date type, however, " + value + " is of " + value.getClass().getSimpleName() + " type");
+        throw new AresException(
+                "cannot resolve to data type mismatch: "
+                        + "argument requires Date type, however, "
+                        + value
+                        + " is of "
+                        + value.getClass().getSimpleName()
+                        + " type");
     }
 
     public static LocalDateTime toLocalDateTime(Object value) {
@@ -37,8 +41,13 @@ public class Utils {
         if (value instanceof LocalDateTime) {
             return ((LocalDateTime) value);
         }
-        throw new AresException("cannot resolve to data type mismatch: " +
-                "argument requires Timestamp type, however, " + value + " is of " + value.getClass().getSimpleName() + " type");
+        throw new AresException(
+                "cannot resolve to data type mismatch: "
+                        + "argument requires Timestamp type, however, "
+                        + value
+                        + " is of "
+                        + value.getClass().getSimpleName()
+                        + " type");
     }
 
     public static String toStr(Object value) {

@@ -13,15 +13,14 @@ import com.github.ares.connector.file.exception.FileConnectorErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.source.reader.ReadStrategy;
 import com.github.ares.connector.file.source.reader.ReadStrategyFactory;
-import lombok.Getter;
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 
 @Getter
 public abstract class BaseFileSourceConfig implements Serializable {
@@ -92,8 +91,7 @@ public abstract class BaseFileSourceConfig implements Serializable {
         }
     }
 
-    private CatalogTable newCatalogTable(
-            CatalogTable catalogTable, AresRowType aresRowType) {
+    private CatalogTable newCatalogTable(CatalogTable catalogTable, AresRowType aresRowType) {
         TableSchema tableSchema = catalogTable.getTableSchema();
 
         Map<String, Column> columnMap =

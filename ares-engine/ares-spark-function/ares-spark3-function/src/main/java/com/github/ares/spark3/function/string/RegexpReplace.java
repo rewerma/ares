@@ -1,17 +1,16 @@
 package com.github.ares.spark3.function.string;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
+import java.util.List;
 import org.apache.spark.sql.catalyst.expressions.RegExpReplace;
 import org.apache.spark.unsafe.types.UTF8String;
-
-import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class RegexpReplace implements SparkFuncInterface {
@@ -27,7 +26,7 @@ public class RegexpReplace implements SparkFuncInterface {
 
     @Override
     public Object evaluate(List<Object> args) {
-        validateArgCount(functionName(), new int[]{3, 4}, args.size());
+        validateArgCount(functionName(), new int[] {3, 4}, args.size());
         String arg1 = toStr(args.get(0));
         String arg2 = toStr(args.get(1));
         String arg3 = toStr(args.get(2));
@@ -39,7 +38,12 @@ public class RegexpReplace implements SparkFuncInterface {
             position = toNumber(args.get(3)).intValue();
         }
         RegExpReplace regexpReplace = new RegExpReplace(null, null, null);
-        return regexpReplace.nullSafeEval(UTF8String.fromString(arg1), UTF8String.fromString(arg2),
-                UTF8String.fromString(arg3), position).toString();
+        return regexpReplace
+                .nullSafeEval(
+                        UTF8String.fromString(arg1),
+                        UTF8String.fromString(arg2),
+                        UTF8String.fromString(arg3),
+                        position)
+                .toString();
     }
 }

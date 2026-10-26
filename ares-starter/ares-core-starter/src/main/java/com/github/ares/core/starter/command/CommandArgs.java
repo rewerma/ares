@@ -19,7 +19,6 @@ package com.github.ares.core.starter.command;
 
 import com.beust.jcommander.Parameter;
 import com.github.ares.api.common.EngineTypeVersion;
-
 import java.util.List;
 
 public abstract class CommandArgs {

@@ -19,7 +19,6 @@ import com.github.ares.connector.file.sftp.config.SftpConfigOptions;
 import com.github.ares.connector.file.source.BaseFileSource;
 import com.github.ares.connector.file.source.reader.ReadStrategyFactory;
 import com.google.auto.service.AutoService;
-
 import java.io.IOException;
 
 @AutoService(AresSource.class)
@@ -30,7 +29,7 @@ public class SftpFileSource extends BaseFileSource {
     }
 
     @Override
-    public void prepare(Config pluginConfig)  {
+    public void prepare(Config pluginConfig) {
         CheckResult result =
                 CheckConfigUtil.checkAllExists(
                         pluginConfig,

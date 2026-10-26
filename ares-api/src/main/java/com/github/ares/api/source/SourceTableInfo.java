@@ -18,7 +18,6 @@
 package com.github.ares.api.source;
 
 import com.github.ares.api.table.catalog.CatalogTable;
-
 import java.util.List;
 
 public class SourceTableInfo {

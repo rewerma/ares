@@ -20,8 +20,7 @@ public class AresDataTypeConvertorUtil {
      * @param columnType column type, should be {@link AresDataType##toString}.
      * @return {@link AresDataType} instance.
      */
-    public static AresDataType<?> deserializeAresDataType(
-            String field, String columnType) {
+    public static AresDataType<?> deserializeAresDataType(String field, String columnType) {
         SqlType sqlType = null;
         try {
             String compatible = compatibleTypeDeclare(columnType);
@@ -149,8 +148,7 @@ public class AresDataTypeConvertorUtil {
                 default:
                     throw new IllegalArgumentException(
                             String.format(
-                                    "Unsupported parse Ares Type from '%s'.",
-                                    typeVal.unwrapped()));
+                                    "Unsupported parse Ares Type from '%s'.", typeVal.unwrapped()));
             }
         }
         return new AresRowType(fieldNames, fieldTypes);

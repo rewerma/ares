@@ -1,9 +1,8 @@
 package com.github.ares.spark.connector.source.partition.batch;
 
+import java.io.IOException;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.read.PartitionReader;
-
-import java.io.IOException;
 
 public class AresBatchPartitionReader implements PartitionReader<InternalRow> {
 

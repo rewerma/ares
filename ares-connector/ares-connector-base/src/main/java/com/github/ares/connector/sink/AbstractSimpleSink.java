@@ -5,13 +5,11 @@ import com.github.ares.api.sink.SinkAggregatedCommitter;
 import com.github.ares.api.sink.SinkCommitter;
 import com.github.ares.api.sink.SinkWriter;
 import com.github.ares.common.serialization.Serializer;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class AbstractSimpleSink<T, StateT>
-        implements AresSink<T, StateT, Void, Void> {
+public abstract class AbstractSimpleSink<T, StateT> implements AresSink<T, StateT, Void, Void> {
 
     @Override
     public abstract AbstractSinkWriter<T, StateT> createWriter(SinkWriter.Context context)

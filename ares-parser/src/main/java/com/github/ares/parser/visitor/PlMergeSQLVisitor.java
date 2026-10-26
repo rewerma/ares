@@ -1,10 +1,16 @@
 package com.github.ares.parser.visitor;
 
+import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
+import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
+
 import com.github.ares.common.exceptions.ParseException;
-import com.github.ares.parser.plan.LogicalOperation;
-import com.github.ares.parser.plan.LogicalMergeIntoSQL;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonDml;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
+import com.github.ares.parser.plan.LogicalMergeIntoSQL;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
@@ -12,12 +18,8 @@ import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLInsert;
 import com.github.ares.parser.sqlparser.model.SQLMerge;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
-
 import java.util.Locale;
 import java.util.Map;
-
-import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
-import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 public class PlMergeSQLVisitor {
     private Map<String, LogicalCreateSourceTable> sourceTables;
@@ -35,18 +37,28 @@ public class PlMergeSQLVisitor {
     public LogicalOperation visitMergeSQL(String originalSql, String mergeSQL) {
         SQLMerge sqlMerge = sqlParser.parseMerge(mergeSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlMerge.getTable().toLowerCase(Locale.ROOT));
+        LogicalCreateSinkTable sinkTable =
+                sinkTables.get(sqlMerge.getTable().toLowerCase(Locale.ROOT));
         if (sinkTable == null) {
-            throw new ParseException(String.format("sink table name not exists: %s", sqlMerge.getTable()));
+            throw new ParseException(
+                    String.format("sink table name not exists: %s", sqlMerge.getTable()));
         }
+        HiveTables.rejectRowChange(sinkTable.getConnector(), "MERGE");
+        boolean paimon = PaimonTables.isPaimonConnector(sinkTable.getConnector());
         LogicalCreateSourceTable sourceTable = sourceTables.get(sqlMerge.getTable().toLowerCase());
-        if (sourceTable == null) {
-            throw new ParseException(String.format("the target table '%s' must be a source table in merge sql", sqlMerge.getTable()));
+        if (!paimon && sourceTable == null) {
+            throw new ParseException(
+                    String.format(
+                            "the target table '%s' must be a source table in merge sql",
+                            sqlMerge.getTable()));
         }
 
         LogicalMergeIntoSQL mergeIntoSQL = new LogicalMergeIntoSQL();
         mergeIntoSQL.setOriginSQL(originalSql);
         mergeIntoSQL.setSinkTable(sinkTable);
+        if (paimon) {
+            mergeIntoSQL.setPaimonSql(PaimonDml.merge(sqlMerge));
+        }
 
         mergeIntoSQL.setAllWaitCriteria(sqlMerge.getAllWhereClause());
         SQLInsert sqlInsert = sqlMerge.getSqlInsert();

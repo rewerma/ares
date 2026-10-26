@@ -1,5 +1,8 @@
 package com.github.ares.spark.function.system;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
@@ -9,7 +12,6 @@ import com.github.ares.spark.function.string.Hex;
 import com.github.ares.spark.function.string.Unhex;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
@@ -17,9 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class Cast implements SparkFuncInterface {
@@ -40,7 +39,7 @@ public class Cast implements SparkFuncInterface {
 
     @Override
     public Object evaluate(List<Object> args) {
-        validateArgCount(functionName(), new int[]{2, 3, 4}, args.size());
+        validateArgCount(functionName(), new int[] {2, 3, 4}, args.size());
         Object arg = args.get(0);
         if (arg == null) {
             return null;
@@ -85,7 +84,10 @@ public class Cast implements SparkFuncInterface {
                 } else if (arg instanceof String) {
                     return toDate.evaluate(Collections.singletonList(arg));
                 } else {
-                    throw new AresException("cannot cast \"" + arg.getClass().getSimpleName() + "\" to \"DATE\" type");
+                    throw new AresException(
+                            "cannot cast \""
+                                    + arg.getClass().getSimpleName()
+                                    + "\" to \"DATE\" type");
                 }
             case "TIMESTAMP":
                 return toTimestamp.evaluate(Collections.singletonList(arg));

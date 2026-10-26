@@ -19,20 +19,22 @@ WHEN NOT MATCHED THEN
 
 ```sql
 SET datasource.mytest.connector=mysql;
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
+SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest';
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=123456;
     
 CREATE TABLE t_user_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user',
     'type' = 'source'
 );
 
 CREATE TABLE t_user2_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user2',
     'type' = 'source,sink'

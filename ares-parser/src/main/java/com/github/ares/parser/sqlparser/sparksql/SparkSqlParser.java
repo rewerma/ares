@@ -1,5 +1,7 @@
 package com.github.ares.parser.sqlparser.sparksql;
 
+import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG_WITH_PARAM;
+
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
 import com.github.ares.parser.sqlparser.SQLParser;
@@ -9,15 +11,11 @@ import com.github.ares.parser.sqlparser.model.SQLMerge;
 import com.github.ares.parser.sqlparser.model.SQLSelect;
 import com.github.ares.parser.sqlparser.model.SQLTruncate;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static com.github.ares.parser.sqlparser.sparksql.CommonParser.UNSUPPORTED_EXP_MSG_WITH_PARAM;
-
 public class SparkSqlParser implements SQLParser {
-
 
     @Override
     public SQLSelect parseSelect(String sql) {
@@ -53,7 +51,8 @@ public class SparkSqlParser implements SQLParser {
             if (!(statementContext instanceof SqlBaseParser.TruncateTableContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
-            SqlBaseParser.TruncateTableContext truncateTableContext = (SqlBaseParser.TruncateTableContext) statementContext;
+            SqlBaseParser.TruncateTableContext truncateTableContext =
+                    (SqlBaseParser.TruncateTableContext) statementContext;
 
             sqlTruncate.setTableName(truncateTableContext.multipartIdentifier().getText());
         } catch (ParseException e) {

@@ -8,7 +8,6 @@ import com.github.ares.api.table.type.AresRowType;
 import com.github.ares.com.typesafe.config.Config;
 import com.github.ares.common.configuration.CheckConfigUtil;
 import com.github.ares.common.configuration.CheckResult;
-import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.exceptions.AresAPIErrorCode;
 import com.github.ares.common.exceptions.CommonErrorCode;
 import com.github.ares.connector.file.config.BaseSourceConfigOptions;
@@ -16,13 +15,11 @@ import com.github.ares.connector.file.config.FileFormat;
 import com.github.ares.connector.file.config.FileSystemType;
 import com.github.ares.connector.file.exception.FileConnectorErrorCode;
 import com.github.ares.connector.file.exception.FileConnectorException;
+import com.github.ares.connector.file.local.config.LocalFileHadoopConf;
 import com.github.ares.connector.file.source.BaseFileSource;
 import com.github.ares.connector.file.source.reader.ReadStrategyFactory;
-
-import java.io.IOException;
-
-import com.github.ares.connector.file.local.config.LocalFileHadoopConf;
 import com.google.auto.service.AutoService;
+import java.io.IOException;
 
 @AutoService(AresSource.class)
 public class LocalFileSource extends BaseFileSource {
@@ -33,7 +30,7 @@ public class LocalFileSource extends BaseFileSource {
     }
 
     @Override
-    public void prepare(Config pluginConfig)  {
+    public void prepare(Config pluginConfig) {
         CheckResult result =
                 CheckConfigUtil.checkAllExists(
                         pluginConfig,
@@ -57,7 +54,8 @@ public class LocalFileSource extends BaseFileSource {
                     "Sftp file source connector only support read [text, csv, json, xml] files");
         }
         String path = pluginConfig.getString(BaseSourceConfigOptions.FILE_PATH.key());
-        hadoopConf = new LocalFileHadoopConf(); //LocalFileHadoopConf.buildWithConfig(pluginConfig);
+        hadoopConf =
+                new LocalFileHadoopConf(); // LocalFileHadoopConf.buildWithConfig(pluginConfig);
         readStrategy =
                 ReadStrategyFactory.of(
                         pluginConfig.getString(BaseSourceConfigOptions.FILE_FORMAT_TYPE.key()));

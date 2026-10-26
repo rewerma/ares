@@ -1,11 +1,10 @@
 package com.github.ares.connector.file.hadoop;
 
+import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
-
-import java.io.IOException;
-import java.security.PrivilegedExceptionAction;
 
 public class HadoopLoginFactory {
 

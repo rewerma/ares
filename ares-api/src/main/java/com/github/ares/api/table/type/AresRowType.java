@@ -1,34 +1,27 @@
 package com.github.ares.api.table.type;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class AresRowType implements CompositeType<AresRow> {
     private static final long serialVersionUID = -1L;
 
-    /**
-     * The field name of the {@link AresRow}.
-     */
-    @Setter
-    private String[] fieldNames;
-    /**
-     * The type of the field.
-     */
+    /** The field name of the {@link AresRow}. */
+    @Setter private String[] fieldNames;
+    /** The type of the field. */
     private final AresDataType<?>[] fieldTypes;
 
-    @Setter
-    private String[] targetFieldNames;
+    @Setter private String[] targetFieldNames;
 
-    @Setter
-    private AresDataType<?>[] targetFieldTypes;
+    @Setter private AresDataType<?>[] targetFieldTypes;
 
     public AresRowType(String[] fieldNames, AresDataType<?>[] fieldTypes) {
         if (fieldNames.length != fieldTypes.length) {
-            throw new RuntimeException("The number of field names must be the same as the number of field types.");
+            throw new RuntimeException(
+                    "The number of field names must be the same as the number of field types.");
         }
         this.fieldNames = fieldNames;
         this.fieldTypes = fieldTypes;
@@ -43,7 +36,6 @@ public class AresRowType implements CompositeType<AresRow> {
     public SqlType getSqlType() {
         return SqlType.ROW;
     }
-
 
     @Override
     public List<AresDataType<?>> getChildren() {

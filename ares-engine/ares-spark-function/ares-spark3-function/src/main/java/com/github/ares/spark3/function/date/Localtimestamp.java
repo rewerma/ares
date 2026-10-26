@@ -10,5 +10,4 @@ public class Localtimestamp extends CurrentTimestamp implements SparkFuncInterfa
     public String functionName() {
         return "LOCALTIMESTAMP";
     }
-
 }

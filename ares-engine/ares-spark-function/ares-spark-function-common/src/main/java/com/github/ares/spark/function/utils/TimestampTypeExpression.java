@@ -15,21 +15,17 @@ public class TimestampTypeExpression extends Expression {
         return false;
     }
 
-
     public Object eval(InternalRow input) {
         return null;
     }
-
 
     public ExprCode doGenCode(CodegenContext ctx, ExprCode ev) {
         return null;
     }
 
-
     public DataType dataType() {
         return DataTypes.TimestampType;
     }
-
 
     public Seq<Expression> children() {
         return null;
@@ -39,16 +35,13 @@ public class TimestampTypeExpression extends Expression {
         return null;
     }
 
-
     public boolean canEqual(Object that) {
         return false;
     }
 
-
     public Object productElement(int n) {
         return null;
     }
-
 
     public int productArity() {
         return 0;

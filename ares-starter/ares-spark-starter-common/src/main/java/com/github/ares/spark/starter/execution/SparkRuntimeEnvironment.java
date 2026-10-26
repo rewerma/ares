@@ -1,14 +1,14 @@
 package com.github.ares.spark.starter.execution;
 
 import com.github.ares.core.starter.execution.RuntimeEnvironment;
+import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 
-import java.nio.file.Path;
-import java.util.Properties;
-
 public class SparkRuntimeEnvironment implements RuntimeEnvironment {
+    public static final String ENABLE_HIVE_KEY = "ares.enable.hive";
+
     private SparkConf sparkConf;
 
     private SparkSession sparkSession;
@@ -69,40 +69,29 @@ public class SparkRuntimeEnvironment implements RuntimeEnvironment {
             }
             sparkConfig.setJars(jars);
         }
-        properties.forEach((k, v) -> {
-            if (((String) k).startsWith("spark.")) {
-                sparkConfig.set((String) k, String.valueOf(v));
-            }
-        });
+        properties.forEach(
+                (k, v) -> {
+                    if (((String) k).startsWith("spark.")) {
+                        sparkConfig.set((String) k, String.valueOf(v));
+                    }
+                });
 
         return sparkConfig;
     }
 
     protected boolean checkIsContainHive(Properties properties) {
-        /*List<? extends Config> sourceConfigList = config.getConfigList(PluginType.SOURCE.getType());
-        for (Config c : sourceConfigList) {
-            if (c.getString(PLUGIN_NAME_KEY).toLowerCase().contains("hive")) {
-                return true;
-            }
-        }
-        List<? extends Config> sinkConfigList = config.getConfigList(PluginType.SINK.getType());
-        for (Config c : sinkConfigList) {
-            if (c.getString(PLUGIN_NAME_KEY).toLowerCase().contains("hive")) {
-                return true;
-            }
-        }*/
-        return false;
+        return Boolean.parseBoolean(properties.getProperty(ENABLE_HIVE_KEY, "false"));
     }
 
     public static SparkRuntimeEnvironment getInstance(Properties properties) {
-//        if (INSTANCE == null) {
-//            synchronized (SparkRuntimeEnvironment.class) {
-//                if (INSTANCE == null) {
-//                    INSTANCE = new SparkRuntimeEnvironment(properties);
-//                }
-//            }
-//        }
-//        return INSTANCE;
+        //        if (INSTANCE == null) {
+        //            synchronized (SparkRuntimeEnvironment.class) {
+        //                if (INSTANCE == null) {
+        //                    INSTANCE = new SparkRuntimeEnvironment(properties);
+        //                }
+        //            }
+        //        }
+        //        return INSTANCE;
         return new SparkRuntimeEnvironment(properties);
     }
 }

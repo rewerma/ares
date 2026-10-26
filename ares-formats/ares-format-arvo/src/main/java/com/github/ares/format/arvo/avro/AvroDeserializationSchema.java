@@ -4,11 +4,10 @@ import com.github.ares.api.serialization.DeserializationSchema;
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.type.AresRowType;
+import java.io.IOException;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DecoderFactory;
-
-import java.io.IOException;
 
 public class AvroDeserializationSchema implements DeserializationSchema<AresRow> {
 

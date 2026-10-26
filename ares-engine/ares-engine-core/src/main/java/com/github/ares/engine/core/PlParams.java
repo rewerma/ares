@@ -1,12 +1,11 @@
 package com.github.ares.engine.core;
 
 import com.github.ares.common.engine.PlType;
-import lombok.Getter;
-
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 
 @Getter
 public class PlParams implements Serializable {
@@ -16,10 +15,11 @@ public class PlParams implements Serializable {
 
     private final Map<String, PlType> paramTypes;
 
-    public PlParams(){
+    public PlParams() {
         this.allParams = new LinkedHashMap<>();
         this.paramTypes = new LinkedHashMap<>();
     }
+
     public PlParams(Map<String, Serializable> allParams, Map<String, PlType> paramTypes) {
         this.allParams = allParams;
         this.paramTypes = paramTypes;
@@ -59,7 +59,8 @@ public class PlParams implements Serializable {
     }
 
     public PlParams copy() {
-        return new PlParams(new LinkedHashMap<>(this.allParams), new LinkedHashMap<>(this.paramTypes));
+        return new PlParams(
+                new LinkedHashMap<>(this.allParams), new LinkedHashMap<>(this.paramTypes));
     }
 
     @Override

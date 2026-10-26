@@ -1,20 +1,22 @@
 package com.github.ares.parser.visitor;
 
+import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
+import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
+
 import com.github.ares.common.exceptions.ParseException;
-import com.github.ares.parser.plan.LogicalOperation;
-import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
+import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.paimon.PaimonDml;
+import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
+import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
+import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLDelete;
 import com.github.ares.parser.sqlparser.model.SQLHint;
-
 import java.util.Locale;
 import java.util.Map;
-
-import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
-import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 public class PlDeleteSQLVisitor {
     private Map<String, LogicalCreateSinkTable> sinkTables;
@@ -30,10 +32,13 @@ public class PlDeleteSQLVisitor {
     public LogicalOperation visitDeleteSQL(String originalSql, String deleteSQL) {
         SQLDelete sqlDelete = sqlParser.parseDelete(deleteSQL);
 
-        LogicalCreateSinkTable sinkTable = sinkTables.get(sqlDelete.getTable().toLowerCase(Locale.ROOT));
+        LogicalCreateSinkTable sinkTable =
+                sinkTables.get(sqlDelete.getTable().toLowerCase(Locale.ROOT));
         if (sinkTable == null) {
-            throw new ParseException(String.format("Sink table name not exists: %s", sqlDelete.getTable()));
+            throw new ParseException(
+                    String.format("Sink table name not exists: %s", sqlDelete.getTable()));
         }
+        HiveTables.rejectRowChange(sinkTable.getConnector(), "DELETE");
 
         String selectSQL = sqlDelete.getSourceSql();
         LogicalDeleteSelectSQL deleteSelectSQL = new LogicalDeleteSelectSQL();
@@ -41,6 +46,9 @@ public class PlDeleteSQLVisitor {
         deleteSelectSQL.setOriginSQL(originalSql);
         deleteSelectSQL.setSelectSQL(selectSQL);
         deleteSelectSQL.setWhereClause(sqlDelete.getWhereClause());
+        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+            deleteSelectSQL.setPaimonSql(PaimonDml.delete(sqlDelete));
+        }
 
         if (sqlDelete.getHints() != null) {
             for (SQLHint hint : sqlDelete.getHints()) {
@@ -54,5 +62,4 @@ public class PlDeleteSQLVisitor {
 
         return deleteSelectSQL;
     }
-
 }

@@ -1,19 +1,15 @@
 package com.github.ares.spark.function.string;
 
-import com.github.ares.api.table.type.AresDataType;
-import com.github.ares.api.table.type.BasicType;
-import com.github.ares.spark.function.utils.BinaryTypeExpression;
-import com.github.ares.spark.function.utils.LongTypeExpression;
-import com.github.ares.spark.function.utils.StringTypeExpression;
-import com.github.ares.sql.function.SparkFuncInterface;
-import com.google.auto.service.AutoService;
-import org.apache.spark.sql.catalyst.expressions.StringTranslate;
-import org.apache.spark.unsafe.types.UTF8String;
-
-import java.util.List;
-
 import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
 import static com.github.ares.sql.function.utils.Utils.toStr;
+
+import com.github.ares.api.table.type.AresDataType;
+import com.github.ares.api.table.type.BasicType;
+import com.github.ares.sql.function.SparkFuncInterface;
+import com.google.auto.service.AutoService;
+import java.util.List;
+import org.apache.spark.sql.catalyst.expressions.StringTranslate;
+import org.apache.spark.unsafe.types.UTF8String;
 
 @AutoService(SparkFuncInterface.class)
 public class Translate implements SparkFuncInterface {
@@ -38,6 +34,11 @@ public class Translate implements SparkFuncInterface {
             return null;
         }
         StringTranslate translate = new StringTranslate(null, null, null);
-        return translate.nullSafeEval(UTF8String.fromString(arg1), UTF8String.fromString(arg2), UTF8String.fromString(arg3)).toString();
+        return translate
+                .nullSafeEval(
+                        UTF8String.fromString(arg1),
+                        UTF8String.fromString(arg2),
+                        UTF8String.fromString(arg3))
+                .toString();
     }
 }

@@ -1,17 +1,15 @@
 package com.github.ares.spark.function.string;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toNumber;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-import org.apache.spark.sql.catalyst.expressions.Sha1;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toNumber;
 
 @AutoService(SparkFuncInterface.class)
 public class Sha2 implements SparkFuncInterface {
@@ -40,10 +38,20 @@ public class Sha2 implements SparkFuncInterface {
         } else if (arg instanceof String) {
             bytes = arg.toString().getBytes(StandardCharsets.UTF_8);
         } else {
-            throw new AresException("Cannot resolve \"" + functionName() + "(" + arg + ")\" due to data type mismatch: " +
-                    "Parameter 1 requires the \"BINARY\" type, however \"" + arg + "\" has the type \"" + arg.getClass().getSimpleName() + "\".");
+            throw new AresException(
+                    "Cannot resolve \""
+                            + functionName()
+                            + "("
+                            + arg
+                            + ")\" due to data type mismatch: "
+                            + "Parameter 1 requires the \"BINARY\" type, however \""
+                            + arg
+                            + "\" has the type \""
+                            + arg.getClass().getSimpleName()
+                            + "\".");
         }
-        org.apache.spark.sql.catalyst.expressions.Sha2 sha2 = new org.apache.spark.sql.catalyst.expressions.Sha2(null, null);
+        org.apache.spark.sql.catalyst.expressions.Sha2 sha2 =
+                new org.apache.spark.sql.catalyst.expressions.Sha2(null, null);
         return sha2.nullSafeEval(bytes, arg2.intValue()).toString();
     }
 }

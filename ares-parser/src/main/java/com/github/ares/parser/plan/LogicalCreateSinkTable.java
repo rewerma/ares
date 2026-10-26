@@ -1,9 +1,7 @@
 package com.github.ares.parser.plan;
 
 import com.github.ares.parser.enums.OperationType;
-
 import com.github.ares.parser.model.TableWith;
-
 import java.io.Serializable;
 
 public class LogicalCreateSinkTable extends TableWith implements Serializable {

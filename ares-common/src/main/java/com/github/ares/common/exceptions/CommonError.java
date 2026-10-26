@@ -17,15 +17,8 @@
 
 package com.github.ares.common.exceptions;
 
-
-import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.github.ares.common.exceptions.CommonErrorCode.CONVERT_TO_CONNECTOR_TYPE_ERROR_SIMPLE;
 import static com.github.ares.common.exceptions.CommonErrorCode.CONVERT_TO_ARES_TYPE_ERROR_SIMPLE;
+import static com.github.ares.common.exceptions.CommonErrorCode.CONVERT_TO_CONNECTOR_TYPE_ERROR_SIMPLE;
 import static com.github.ares.common.exceptions.CommonErrorCode.FILE_NOT_EXISTED;
 import static com.github.ares.common.exceptions.CommonErrorCode.FILE_OPERATION_FAILED;
 import static com.github.ares.common.exceptions.CommonErrorCode.GET_CATALOG_TABLES_WITH_UNSUPPORTED_TYPE_ERROR;
@@ -33,6 +26,11 @@ import static com.github.ares.common.exceptions.CommonErrorCode.GET_CATALOG_TABL
 import static com.github.ares.common.exceptions.CommonErrorCode.JSON_OPERATION_FAILED;
 import static com.github.ares.common.exceptions.CommonErrorCode.UNSUPPORTED_DATA_TYPE;
 import static com.github.ares.common.exceptions.CommonErrorCode.WRITE_ARES_ROW_ERROR;
+
+import com.github.ares.com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.ares.com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommonError {
     private static final String KEY_IDENTIFIER = "identifier";
@@ -96,8 +94,6 @@ public class CommonError {
         return new AresRuntimeException(CONVERT_TO_ARES_TYPE_ERROR_SIMPLE, params);
     }
 
-
-
     public static AresRuntimeException convertToConnectorTypeError(
             String identifier, String dataType, String field) {
         Map<String, String> params = new HashMap<>();
@@ -131,8 +127,7 @@ public class CommonError {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        return new AresRuntimeException(
-                GET_CATALOG_TABLES_WITH_UNSUPPORTED_TYPE_ERROR, params);
+        return new AresRuntimeException(GET_CATALOG_TABLES_WITH_UNSUPPORTED_TYPE_ERROR, params);
     }
 
     public static AresRuntimeException jsonOperationError(String identifier, String payload) {

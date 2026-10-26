@@ -1,7 +1,6 @@
 package com.github.ares.parser.sqlparser.model;
 
 import com.github.ares.api.common.CriteriaClause;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -18,7 +17,12 @@ public class SQLDelete implements Serializable {
 
     private CriteriaClause whereClause;
 
+    private String whereSql;
+
     private String sourceSql;
+
+    /** Statement-level {@code WITH} clause, kept for engines that rebuild the DML text. */
+    private String leadingCte;
 
     private List<SQLHint> hints;
 
@@ -70,12 +74,28 @@ public class SQLDelete implements Serializable {
         this.whereClause = whereClause;
     }
 
+    public String getWhereSql() {
+        return whereSql;
+    }
+
+    public void setWhereSql(String whereSql) {
+        this.whereSql = whereSql;
+    }
+
     public String getSourceSql() {
         return sourceSql;
     }
 
     public void setSourceSql(String sourceSql) {
         this.sourceSql = sourceSql;
+    }
+
+    public String getLeadingCte() {
+        return leadingCte;
+    }
+
+    public void setLeadingCte(String leadingCte) {
+        this.leadingCte = leadingCte;
     }
 
     public List<SQLHint> getHints() {

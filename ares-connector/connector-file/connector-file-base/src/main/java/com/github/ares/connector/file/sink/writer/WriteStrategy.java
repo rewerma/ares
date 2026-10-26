@@ -6,13 +6,12 @@ import com.github.ares.connector.file.config.HadoopConf;
 import com.github.ares.connector.file.exception.FileConnectorException;
 import com.github.ares.connector.file.hadoop.HadoopFileSystemProxy;
 import com.github.ares.connector.file.sink.config.FileSinkConfig;
-import org.apache.hadoop.conf.Configuration;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.apache.hadoop.conf.Configuration;
 
 public interface WriteStrategy extends Transaction, Serializable, Closeable {
     /**
@@ -87,6 +86,7 @@ public interface WriteStrategy extends Transaction, Serializable, Closeable {
 
     /**
      * delete files in target directory
+     *
      * @throws IOException
      */
     void truncateFiles() throws IOException;

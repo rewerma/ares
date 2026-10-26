@@ -60,5 +60,4 @@ public class CoordinatedReaderContext implements SourceReader.Context {
     public void sendSourceEventToEnumerator(SourceEvent sourceEvent) {
         coordinatedSource.handleReaderEvent(subtaskId, sourceEvent);
     }
-
 }

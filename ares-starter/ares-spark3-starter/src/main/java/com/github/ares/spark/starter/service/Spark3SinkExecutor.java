@@ -14,8 +14,10 @@ public class Spark3SinkExecutor implements SparkSinkExecutor {
     private static final String SINK_NAME = AresSink.class.getSimpleName();
     public static final String SINK_CATALOG_TABLE = "sink.catalog.table";
 
-    public void sink(Dataset<Row> dataset, AresSink<?, ?, ?, ?> aresSink, CatalogTable catalogTable) {
-        dataset.write().format(SINK_NAME)
+    public void sink(
+            Dataset<Row> dataset, AresSink<?, ?, ?, ?> aresSink, CatalogTable catalogTable) {
+        dataset.write()
+                .format(SINK_NAME)
                 .option(Constants.SINK_SERIALIZATION, SerializationUtils.objectToString(aresSink))
                 .option(SINK_CATALOG_TABLE, SerializationUtils.objectToString(catalogTable))
                 .mode(SaveMode.Append)

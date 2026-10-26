@@ -26,7 +26,6 @@ import com.github.ares.core.starter.command.Command;
 import com.github.ares.core.starter.command.Common;
 import com.github.ares.spark.starter.command.SparkConfValidateCommand;
 import com.github.ares.spark.starter.command.SparkTaskExecuteCommand;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +50,12 @@ public class SparkCommandArgs extends AbstractCommandArgs {
         if (checkConfig) {
             return new SparkConfValidateCommand(this);
         }
-//        if (encrypt) {
-//            return new ConfEncryptCommand(this);
-//        }
-//        if (decrypt) {
-//            return new ConfDecryptCommand(this);
-//        }
+        //        if (encrypt) {
+        //            return new ConfEncryptCommand(this);
+        //        }
+        //        if (decrypt) {
+        //            return new ConfDecryptCommand(this);
+        //        }
         return new SparkTaskExecuteCommand(this, engineTypeVersion);
     }
 

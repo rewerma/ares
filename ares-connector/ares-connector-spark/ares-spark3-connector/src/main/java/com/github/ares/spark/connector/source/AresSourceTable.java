@@ -4,10 +4,13 @@ import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.source.AresSource;
 import com.github.ares.api.table.type.AresRow;
 import com.github.ares.common.utils.Constants;
-import com.github.ares.common.utils.SerializationUtils;
+import com.github.ares.common.utils.PluginClassLoader;
 import com.github.ares.spark.connector.source.scan.AresScanBuilder;
 import com.github.ares.spark.connector.utils.TypeConverterUtils;
 import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.connector.catalog.SupportsRead;
 import org.apache.spark.sql.connector.catalog.Table;
@@ -17,16 +20,14 @@ import org.apache.spark.sql.connector.read.ScanBuilder;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-import java.util.Map;
-import java.util.Set;
-
 /** The basic unit of Ares DataSource generated, supporting read and write */
+@Slf4j
 public class AresSourceTable implements Table, SupportsRead {
     private static final String SOURCE_TABLE_NAME = "AresSourceTable";
 
     private final Map<String, String> properties;
 
-    private final AresSource<AresRow, ?, ?> source;
+    private AresSource<AresRow, ?, ?> source;
 
     public AresSourceTable(Map<String, String> properties) {
         this.properties = properties;
@@ -34,7 +35,9 @@ public class AresSourceTable implements Table, SupportsRead {
         if (StringUtils.isBlank(sourceSerialization)) {
             throw new IllegalArgumentException("source.serialization must be specified");
         }
-        this.source = SerializationUtils.stringToObject(sourceSerialization);
+        this.source =
+                PluginClassLoader.deserializePlugin(
+                        sourceSerialization, getClass().getClassLoader());
     }
 
     /**

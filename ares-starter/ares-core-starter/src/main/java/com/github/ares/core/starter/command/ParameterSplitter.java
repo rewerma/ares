@@ -17,7 +17,6 @@
 package com.github.ares.core.starter.command;
 
 import com.beust.jcommander.converters.IParameterSplitter;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

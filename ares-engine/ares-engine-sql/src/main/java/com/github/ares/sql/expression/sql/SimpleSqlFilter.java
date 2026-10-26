@@ -1,6 +1,12 @@
 package com.github.ares.sql.expression.sql;
 
 import com.github.ares.sql.expression.exception.ExpressionException;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.Parenthesis;
@@ -18,13 +24,6 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SimpleSqlFilter implements Serializable {
     private static final long serialVersionUID = -1L;
@@ -88,8 +87,7 @@ public class SimpleSqlFilter implements Serializable {
         if (whereExpr instanceof Parenthesis) {
             return parenthesisExpr((Parenthesis) whereExpr, inputFields);
         }
-        throw new ExpressionException(
-                String.format("Unsupported SQL Expression: %s ", whereExpr));
+        throw new ExpressionException(String.format("Unsupported SQL Expression: %s ", whereExpr));
     }
 
     private boolean functionExpr(Function function, Object[] inputFields) {
@@ -139,7 +137,7 @@ public class SimpleSqlFilter implements Serializable {
      * Like expression filter
      *
      * @param likeExpression like expression
-     * @param inputFields    input fields
+     * @param inputFields input fields
      * @return filter result
      */
     private boolean likeExpr(LikeExpression likeExpression, Object[] inputFields) {
@@ -183,7 +181,7 @@ public class SimpleSqlFilter implements Serializable {
      * Not Like expression filter
      *
      * @param likeExpression not like expression
-     * @param inputFields    input fields
+     * @param inputFields input fields
      * @return filter result
      */
     private boolean notLikeExpr(LikeExpression likeExpression, Object[] inputFields) {

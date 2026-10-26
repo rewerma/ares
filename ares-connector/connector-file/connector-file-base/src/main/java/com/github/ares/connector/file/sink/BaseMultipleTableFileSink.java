@@ -10,7 +10,6 @@ import com.github.ares.common.exceptions.AresException;
 import com.github.ares.common.serialization.DefaultSerializer;
 import com.github.ares.common.serialization.Serializer;
 import com.github.ares.connector.file.config.HadoopConf;
-import com.github.ares.connector.file.hadoop.HadoopFileSystemProxy;
 import com.github.ares.connector.file.sink.commit.FileAggregatedCommitInfo;
 import com.github.ares.connector.file.sink.commit.FileCommitInfo;
 import com.github.ares.connector.file.sink.commit.FileSinkAggregatedCommitter;
@@ -18,14 +17,12 @@ import com.github.ares.connector.file.sink.config.FileSinkConfig;
 import com.github.ares.connector.file.sink.state.FileSinkState;
 import com.github.ares.connector.file.sink.writer.WriteStrategy;
 import com.github.ares.connector.file.sink.writer.WriteStrategyFactory;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public abstract class BaseMultipleTableFileSink
-        implements AresSink<
-        AresRow, FileSinkState, FileCommitInfo, FileAggregatedCommitInfo> {
+        implements AresSink<AresRow, FileSinkState, FileCommitInfo, FileAggregatedCommitInfo> {
 
     private final HadoopConf hadoopConf;
     private final CatalogTable catalogTable;
@@ -51,7 +48,7 @@ public abstract class BaseMultipleTableFileSink
 
     @Override
     public Optional<SinkAggregatedCommitter<FileCommitInfo, FileAggregatedCommitInfo>>
-    createAggregatedCommitter() {
+            createAggregatedCommitter() {
         return Optional.of(new FileSinkAggregatedCommitter(hadoopConf));
     }
 
@@ -86,11 +83,13 @@ public abstract class BaseMultipleTableFileSink
     @Override
     public void truncateTable(String tableName) {
         try (WriteStrategy writeStrategy =
-                     WriteStrategyFactory.of(fileSinkConfig.getFileFormat(), fileSinkConfig)) {
+                WriteStrategyFactory.of(fileSinkConfig.getFileFormat(), fileSinkConfig)) {
             writeStrategy.init(hadoopConf, jobId, null, 0);
             writeStrategy.truncateFiles();
         } catch (Exception e) {
-            throw new AresException(String.format("Truncate table failed: %s, cause %s", tableName, e.getMessage()));
+            throw new AresException(
+                    String.format(
+                            "Truncate table failed: %s, cause %s", tableName, e.getMessage()));
         }
     }
 }

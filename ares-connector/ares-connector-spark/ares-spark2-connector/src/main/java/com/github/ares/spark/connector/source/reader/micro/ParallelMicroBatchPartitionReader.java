@@ -24,13 +24,6 @@ import com.github.ares.connector.source.BaseSourceFunction;
 import com.github.ares.connector.utils.ThreadPoolExecutorFactory;
 import com.github.ares.spark.connector.source.reader.batch.ParallelBatchPartitionReader;
 import com.github.ares.spark.connector.source.state.ReaderState;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 public class ParallelMicroBatchPartitionReader extends ParallelBatchPartitionReader {
     protected static final Integer CHECKPOINT_SLEEP_INTERVAL = 10;

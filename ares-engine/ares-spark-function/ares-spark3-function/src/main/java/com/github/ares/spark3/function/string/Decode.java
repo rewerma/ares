@@ -1,17 +1,16 @@
 package com.github.ares.spark3.function.string;
 
+import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
+import static com.github.ares.sql.function.utils.Utils.toStr;
+
 import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.ArrayType;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.sql.function.SparkFuncInterface;
 import com.google.auto.service.AutoService;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static com.github.ares.sql.function.utils.FunctionArgumentValid.validateArgCount;
-import static com.github.ares.sql.function.utils.Utils.toStr;
 
 @AutoService(SparkFuncInterface.class)
 public class Decode implements SparkFuncInterface {
@@ -40,9 +39,18 @@ public class Decode implements SparkFuncInterface {
         } else if (arg instanceof String) {
             input = ((String) arg).getBytes(StandardCharsets.UTF_8);
         } else {
-            throw new AresException("Cannot resolve \"decode(" + arg + ", " + arg1 + ")\" due to data type mismatch: " +
-                    "Parameter 1 requires the \"BINARY\" type, " +
-                    "however \"" + arg + "\" has the type \"" + arg.getClass().getSimpleName() + "\".");
+            throw new AresException(
+                    "Cannot resolve \"decode("
+                            + arg
+                            + ", "
+                            + arg1
+                            + ")\" due to data type mismatch: "
+                            + "Parameter 1 requires the \"BINARY\" type, "
+                            + "however \""
+                            + arg
+                            + "\" has the type \""
+                            + arg.getClass().getSimpleName()
+                            + "\".");
         }
 
         try {

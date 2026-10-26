@@ -19,11 +19,6 @@ import com.github.ares.connector.file.ftp.config.FtpConfigOptions;
 import com.github.ares.connector.file.source.BaseFileSource;
 import com.github.ares.connector.file.source.reader.ReadStrategyFactory;
 import com.google.auto.service.AutoService;
-import org.apache.hadoop.fs.ByteBufferUtil;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.ftp.FTPInputStream;
-
 import java.io.IOException;
 
 @AutoService(AresSource.class)

@@ -12,13 +12,14 @@ UPDATE table_name SET column1 = value1, column2 = value2,... WHERE condition;
 
 ```sql
 SET datasource.mytest.connector=mysql;
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
+SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest';
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=123456;
 
 CREATE TABLE t_user2_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user2',
     'type' = 'sink'
@@ -42,20 +43,22 @@ UPDATE table_name a, (SELECT * FROM table_name2) b SET a.column1 = b.column1, a.
 
 ```sql
 SET datasource.mytest.connector=mysql;
-SET datasource.mytest.url=jdbc:mysql://127.0.0.1:3306/mytest;
+SET datasource.mytest.url='jdbc:mysql://127.0.0.1:3306/mytest';
 SET datasource.mytest.driver=com.mysql.cj.jdbc.Driver;
 SET datasource.mytest.user=root;
 SET datasource.mytest.password=123456;
 
 CREATE TABLE t_user_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user',
     'type' = 'source'
 );
 
 CREATE TABLE t_user2_v
-WITH (
+USING mysql
+OPTIONS (
     'datasource'='mytest',
     'table_name'='t_user2',
     'type' = 'sink'
@@ -73,4 +76,4 @@ UPDATE t_user2_v a, (SELECT * FROM t_user_v wher id > 10) b SET a.name = b.name,
 UPDATE t_user2_v a, t_user_v b SET a.name = a.name || b.name, a.age = b.age WHERE a.id = a.id + b.id;
 ```
 
-- 部分sink端connectors插件不支持UPDATE语法或只支持通过主键进行UPDATE，如：`file` connector，`hive` connector等。
+- 部分sink端connectors插件不支持UPDATE语法或只支持通过主键进行UPDATE，如：`file` connector。Hive 表通过 Spark 视图访问，不支持对视图别名执行 UPDATE、DELETE、MERGE。

@@ -1,7 +1,6 @@
 package com.github.ares.common.configuration.utils;
 
 import com.github.ares.common.configuration.Option;
-
 import java.util.Objects;
 
 public class Condition<T> {

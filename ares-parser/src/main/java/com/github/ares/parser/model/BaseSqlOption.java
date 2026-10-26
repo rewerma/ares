@@ -1,7 +1,6 @@
 package com.github.ares.parser.model;
 
 import com.github.ares.parser.enums.OperationType;
-
 import java.io.Serializable;
 import java.util.List;
 
