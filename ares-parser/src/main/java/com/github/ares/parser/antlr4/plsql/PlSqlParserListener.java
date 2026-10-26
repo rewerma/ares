@@ -1,4 +1,4 @@
-// Generated from PlSqlParser.g4 by ANTLR 4.13.1
+// Generated from /Users/rewerma/Develop/git_workspace/ares/ares-parser/src/main/java/com/github/ares/parser/antlr4/plsql/PlSqlParser.g4 by ANTLR 4.13.1
 package com.github.ares.parser.antlr4.plsql;
 import com.github.ares.org.antlr.v4.runtime.tree.ParseTreeListener;
 

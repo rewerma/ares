@@ -43,6 +43,7 @@ public class PlCreateTableWithVisitor {
     @Inject private PlCreateSourceTableVisitor plCreateSourceTableVisitor;
     @Inject private PlCreateSinkTableVisitor plCreateSinkTableVisitor;
     @Inject private PlCreateAsSQLVisitor plCreateAsSQLVisitor;
+    @Inject private PlSparkNativeSqlVisitor plSparkNativeSqlVisitor;
 
     private Map<String, LogicalCreateSinkTable> sinkTables;
     private List<LogicalSetConfig> setConfigs = new ArrayList<>();
@@ -50,6 +51,7 @@ public class PlCreateTableWithVisitor {
     public void init(PlVisitorManager plVisitorManager) {
         this.sinkTables = plVisitorManager.getSourceSinkTable().getSinkTables();
         plCreateSourceTableVisitor.init(plVisitorManager.getSourceSinkTable().getSourceTables());
+        plSparkNativeSqlVisitor.init(plVisitorManager);
     }
 
     public void setSetConfigs(List<LogicalSetConfig> setConfigs) {
@@ -63,6 +65,10 @@ public class PlCreateTableWithVisitor {
             SqlBaseParser.CreateViewContext view = (SqlBaseParser.CreateViewContext) statement;
             if (view.query() == null) {
                 throw new ParseException("Unsupported SQL syntax: " + originalSql);
+            }
+            if (view.TEMPORARY() != null) {
+                return plSparkNativeSqlVisitor.visitTempView(
+                        originalSql, sql, view.multipartIdentifier().getText());
             }
             return single(plCreateAs(originalSql, sql, view.multipartIdentifier().getText()));
         }

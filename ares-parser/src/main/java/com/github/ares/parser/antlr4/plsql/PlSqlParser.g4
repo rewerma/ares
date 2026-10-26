@@ -163,6 +163,8 @@ sql_prefix
     | DROP
     | ALTER
     | WITH
+    | CACHE
+    | UNCACHE
     ;
 
 // One token that is not a statement terminator. Semicolons inside quoted

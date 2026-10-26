@@ -25,6 +25,7 @@ public class PlVisitorManager {
     @Inject private PlMergeSQLVisitor mergeSQLVisitor;
     @Inject private PlCreateAsSQLVisitor createAsSQLVisitor;
     @Inject private PlTruncateSQLVisitor truncateSQLVisitor;
+    @Inject private PlSparkNativeSqlVisitor sparkNativeSqlVisitor;
     @Inject private PlIfStatementVisitor ifStatementVisitor;
     @Inject private PlLoopStatementVisitor loopStatementVisitor;
     @Inject private PlExceptionHandlerVisitor exceptionHandlerVisitor;
@@ -45,6 +46,7 @@ public class PlVisitorManager {
 
         createAsSQLVisitor.init(this);
         truncateSQLVisitor.init(this);
+        sparkNativeSqlVisitor.init(this);
 
         exceptionHandlerVisitor.init(this);
         loopStatementVisitor.init(this);

@@ -57,6 +57,7 @@ public class ExecutorManager implements Serializable {
     @Inject protected CreateTableAsSqlExecutor createTableAsSqlExecutor;
     @Inject protected CreateHiveTableExecutor createHiveTableExecutor;
     @Inject protected CreatePaimonTableExecutor createPaimonTableExecutor;
+    @Inject protected SparkNativeSqlExecutor sparkNativeSqlExecutor;
     @Inject protected DeclareParamsExecutor declareParamsExecutor;
 
     @Inject protected InsertSelectSqlExecutor insertSelectSqlExecutor;

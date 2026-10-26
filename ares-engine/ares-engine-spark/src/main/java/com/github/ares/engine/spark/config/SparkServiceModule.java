@@ -15,6 +15,7 @@ import com.github.ares.engine.core.ForCursorLoopExecutor;
 import com.github.ares.engine.core.InsertSelectSqlExecutor;
 import com.github.ares.engine.core.MergeIntoSqlExecutor;
 import com.github.ares.engine.core.SelectIntoSqlExecutor;
+import com.github.ares.engine.core.SparkNativeSqlExecutor;
 import com.github.ares.engine.core.SelectSqlExecutor;
 import com.github.ares.engine.core.UdfManager;
 import com.github.ares.engine.core.UpdateSelectSqlExecutor;
@@ -26,6 +27,7 @@ import com.github.ares.engine.spark.core.SparkCreatePaimonTableExecutor;
 import com.github.ares.engine.spark.core.SparkCreateSourceTableExecutor;
 import com.github.ares.engine.spark.core.SparkCreateTableAsSqlExecutor;
 import com.github.ares.engine.spark.core.SparkDeleteSelectSqlExecutor;
+import com.github.ares.engine.spark.core.SparkExecuteNativeSqlExecutor;
 import com.github.ares.engine.spark.core.SparkExceptionMessageHandler;
 import com.github.ares.engine.spark.core.SparkExecutorManager;
 import com.github.ares.engine.spark.core.SparkForCursorLoopExecutor;
@@ -57,6 +59,9 @@ public class SparkServiceModule extends AbstractModule {
                 .in(Singleton.class);
         bind(CreatePaimonTableExecutor.class)
                 .to(SparkCreatePaimonTableExecutor.class)
+                .in(Singleton.class);
+        bind(SparkNativeSqlExecutor.class)
+                .to(SparkExecuteNativeSqlExecutor.class)
                 .in(Singleton.class);
         bind(SelectIntoSqlExecutor.class).to(SparkSelectIntoSqlExecutor.class).in(Singleton.class);
         bind(InsertSelectSqlExecutor.class)

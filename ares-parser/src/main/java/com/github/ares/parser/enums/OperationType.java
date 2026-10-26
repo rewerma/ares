@@ -19,6 +19,7 @@ public enum OperationType {
     CREATE_TABLE_AS_SQL("createTableAsSQL"),
     CREATE_HIVE_TABLE("createHiveTable"),
     CREATE_PAIMON_TABLE("createPaimonTable"),
+    SPARK_NATIVE_SQL("sparkNativeSql"),
     SELECT_INTO_SQL("selectIntoSQL"),
     SELECT_SQL("selectSQL"),
     INSERT_SELECT_SQL("insertSelectSQL"),

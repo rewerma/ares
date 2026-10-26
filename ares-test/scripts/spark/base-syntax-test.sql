@@ -28,3 +28,6 @@ end
 for cur in (select * from test1)
     println(cur.id||' '||cur.name||' '||cur.c_time);
 end
+
+CACHE TABLE test1_cache AS SELECT id, name FROM test1;
+UNCACHE TABLE IF EXISTS test1_cache;

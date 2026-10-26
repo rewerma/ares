@@ -20,6 +20,7 @@ import com.github.ares.parser.visitor.PlInsertSQLVisitor;
 import com.github.ares.parser.visitor.PlLoopStatementVisitor;
 import com.github.ares.parser.visitor.PlMergeSQLVisitor;
 import com.github.ares.parser.visitor.PlSelectSQLVisitor;
+import com.github.ares.parser.visitor.PlSparkNativeSqlVisitor;
 import com.github.ares.parser.visitor.PlStatementVisitor;
 import com.github.ares.parser.visitor.PlTruncateSQLVisitor;
 import com.github.ares.parser.visitor.PlUpdateSQLVisitor;
@@ -49,6 +50,7 @@ public class ParserServiceModule extends AbstractModule {
         bind(PlMergeSQLVisitor.class).in(Singleton.class);
         bind(PlCreateAsSQLVisitor.class).in(Singleton.class);
         bind(PlTruncateSQLVisitor.class).in(Singleton.class);
+        bind(PlSparkNativeSqlVisitor.class).in(Singleton.class);
         bind(PlIfStatementVisitor.class).in(Singleton.class);
         bind(PlLoopStatementVisitor.class).in(Singleton.class);
         bind(PlExceptionHandlerVisitor.class).in(Singleton.class);

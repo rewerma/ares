@@ -56,6 +56,8 @@ CREATE:                        'CREATE';
 DROP:                          'DROP';
 ALTER:                         'ALTER';
 WITH:                          'WITH';
+CACHE:                         'CACHE';
+UNCACHE:                       'UNCACHE';
 
 // ---------------------------------------------------------------------------
 // Expression keywords

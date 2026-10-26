@@ -247,6 +247,9 @@ public class PlBodyVisitor {
             }
             return created;
         }
+        if (prefix.CACHE() != null || prefix.UNCACHE() != null) {
+            return visitorManager.getSparkNativeSqlVisitor().visit(originalSql, sql);
+        }
         throw new ParseException("Unsupported SQL syntax: " + originalSql);
     }
 

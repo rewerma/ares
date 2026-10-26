@@ -29,6 +29,7 @@ import com.github.ares.parser.plan.LogicalMergeIntoSQL;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalProject;
 import com.github.ares.parser.plan.LogicalSelectSQL;
+import com.github.ares.parser.plan.LogicalSparkNativeSql;
 import com.github.ares.parser.plan.LogicalStartTransaction;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
 import com.github.ares.parser.plan.LogicalWhileLoop;
@@ -687,5 +688,52 @@ public class PlParserTest {
         Assert.assertTrue(hiveCreated.getSql().contains("`default`.`t_hive`"));
         Assert.assertFalse(hiveCreated.getSql().contains("`paimon`"));
         Assert.assertTrue(hiveCreated.getSql().contains("'primary-key'='id'"));
+    }
+
+    @Test
+    public void parseSparkNativeCacheAndTempView() {
+        String cache = "CACHE TABLE cached_src AS SELECT 1 AS id;";
+        LogicalAnonymousBody cacheBody = singleAnonymousBody(plTransformation.parseToBaseBody(cache));
+        LogicalSparkNativeSql cacheOp =
+                (LogicalSparkNativeSql) cacheBody.getAnonymousBody().get(0);
+        Assert.assertTrue(cacheOp.getSql().toUpperCase().contains("CACHE TABLE"));
+
+        String tempView = "CREATE TEMP VIEW IF NOT EXISTS v1 AS SELECT 1 AS id;";
+        LogicalAnonymousBody tempBody =
+                singleAnonymousBody(plTransformation.parseToBaseBody(tempView));
+        LogicalSparkNativeSql tempOp =
+                (LogicalSparkNativeSql) tempBody.getAnonymousBody().get(0);
+        Assert.assertTrue(tempOp.getSql().toUpperCase().contains("IF NOT EXISTS"));
+        Assert.assertTrue(tempOp.getSql().toUpperCase().contains("CREATE TEMP VIEW"));
+
+        String temporaryView = "CREATE TEMPORARY VIEW IF NOT EXISTS v2 AS SELECT 2 AS id;";
+        LogicalAnonymousBody temporaryBody =
+                singleAnonymousBody(plTransformation.parseToBaseBody(temporaryView));
+        LogicalSparkNativeSql temporaryOp =
+                (LogicalSparkNativeSql) temporaryBody.getAnonymousBody().get(0);
+        Assert.assertTrue(temporaryOp.getSql().toUpperCase().contains("CREATE TEMPORARY VIEW"));
+
+        String uncache = "UNCACHE TABLE cached_src;";
+        LogicalSparkNativeSql uncacheOp =
+                (LogicalSparkNativeSql)
+                        singleAnonymousBody(plTransformation.parseToBaseBody(uncache))
+                                .getAnonymousBody()
+                                .get(0);
+        Assert.assertTrue(uncacheOp.getSql().toUpperCase().contains("UNCACHE TABLE"));
+        Assert.assertTrue(uncacheOp.getSql().toUpperCase().contains("CACHED_SRC"));
+
+        String uncacheIfExists = "UNCACHE TABLE IF EXISTS default.cached_src;";
+        LogicalSparkNativeSql uncacheIfExistsOp =
+                (LogicalSparkNativeSql)
+                        singleAnonymousBody(plTransformation.parseToBaseBody(uncacheIfExists))
+                                .getAnonymousBody()
+                                .get(0);
+        Assert.assertTrue(uncacheIfExistsOp.getSql().toUpperCase().contains("IF EXISTS"));
+        Assert.assertTrue(uncacheIfExistsOp.getSql().toUpperCase().contains("DEFAULT.CACHED_SRC"));
+    }
+
+    private static LogicalAnonymousBody singleAnonymousBody(LogicalProject project) {
+        Assert.assertEquals(1, project.getLogicalOperations().size());
+        return (LogicalAnonymousBody) project.getLogicalOperations().get(0);
     }
 }
