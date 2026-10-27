@@ -4,7 +4,6 @@ import com.github.ares.api.common.CommonOptions;
 import com.github.ares.api.common.CriteriaClause;
 import com.github.ares.api.common.SinkType;
 import com.github.ares.api.table.catalog.Column;
-import com.github.ares.api.table.catalog.TablePath;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.exceptions.AresException;
 import com.github.ares.connector.jdbc.internal.dialect.JdbcDialect;
@@ -22,9 +21,7 @@ public class JdbcSinkTypeHandler {
         if (sinkType == null) {
             return null;
         }
-        String tableName = config.get(JdbcOptions.TABLE_NAME);
-        TablePath tablePath = dialect.parse(tableName);
-        String quotedTable = dialect.tableIdentifier(tablePath);
+        String quotedTable = quotedTable(config, dialect);
         String resultSql;
         switch (sinkType) {
             case INSERT:
@@ -92,6 +89,11 @@ public class JdbcSinkTypeHandler {
                         String.format("Unsupported sink type: %s for JDBC", sinkType));
         }
         return resultSql;
+    }
+
+    static String quotedTable(ReadonlyConfig config, JdbcDialect dialect) {
+        String tableName = config.get(JdbcOptions.TABLE_NAME);
+        return dialect.tableIdentifier(dialect.parse(tableName));
     }
 
     private static void visitWhereClause(

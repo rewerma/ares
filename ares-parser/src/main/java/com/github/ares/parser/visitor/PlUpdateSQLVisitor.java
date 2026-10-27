@@ -7,6 +7,7 @@ import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.hive.HiveTables;
 import com.github.ares.parser.paimon.PaimonDml;
 import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
@@ -15,7 +16,6 @@ import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLUpdate;
-import java.util.Locale;
 import java.util.Map;
 
 public class PlUpdateSQLVisitor {
@@ -33,7 +33,7 @@ public class PlUpdateSQLVisitor {
         SQLUpdate sqlUpdate = sqlParser.parseUpdate(updateSQL);
 
         LogicalCreateSinkTable sinkTable =
-                sinkTables.get(sqlUpdate.getTable().toLowerCase(Locale.ROOT));
+                sinkTables.get(SourceSinkTable.normalizeAlias(sqlUpdate.getTable()));
 
         if (sinkTable == null) {
             throw new ParseException(

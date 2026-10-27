@@ -7,6 +7,7 @@ import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.hive.HiveTables;
 import com.github.ares.parser.paimon.PaimonDml;
 import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -15,7 +16,6 @@ import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLDelete;
 import com.github.ares.parser.sqlparser.model.SQLHint;
-import java.util.Locale;
 import java.util.Map;
 
 public class PlDeleteSQLVisitor {
@@ -33,7 +33,7 @@ public class PlDeleteSQLVisitor {
         SQLDelete sqlDelete = sqlParser.parseDelete(deleteSQL);
 
         LogicalCreateSinkTable sinkTable =
-                sinkTables.get(sqlDelete.getTable().toLowerCase(Locale.ROOT));
+                sinkTables.get(SourceSinkTable.normalizeAlias(sqlDelete.getTable()));
         if (sinkTable == null) {
             throw new ParseException(
                     String.format("Sink table name not exists: %s", sqlDelete.getTable()));

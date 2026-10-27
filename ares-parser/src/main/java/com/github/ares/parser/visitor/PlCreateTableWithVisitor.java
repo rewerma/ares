@@ -13,6 +13,7 @@ import com.github.ares.common.utils.JsonUtils;
 import com.github.ares.org.antlr.v4.runtime.CharStream;
 import com.github.ares.org.antlr.v4.runtime.CharStreams;
 import com.github.ares.org.antlr.v4.runtime.CommonTokenStream;
+import com.github.ares.org.antlr.v4.runtime.tree.TerminalNode;
 import com.github.ares.parser.antlr4.CaseChangingCharStream;
 import com.github.ares.parser.antlr4.CustomErrorListener;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseLexer;
@@ -20,6 +21,7 @@ import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
 import com.github.ares.parser.datasource.SourceConfigPatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.paimon.PaimonDdl;
 import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateHiveTable;
@@ -46,10 +48,12 @@ public class PlCreateTableWithVisitor {
     @Inject private PlSparkNativeSqlVisitor plSparkNativeSqlVisitor;
 
     private Map<String, LogicalCreateSinkTable> sinkTables;
+    private SourceSinkTable sourceSinkTable;
     private List<LogicalSetConfig> setConfigs = new ArrayList<>();
 
     public void init(PlVisitorManager plVisitorManager) {
-        this.sinkTables = plVisitorManager.getSourceSinkTable().getSinkTables();
+        this.sourceSinkTable = plVisitorManager.getSourceSinkTable();
+        this.sinkTables = sourceSinkTable.getSinkTables();
         plCreateSourceTableVisitor.init(plVisitorManager.getSourceSinkTable().getSourceTables());
         plSparkNativeSqlVisitor.init(plVisitorManager);
     }
@@ -68,9 +72,23 @@ public class PlCreateTableWithVisitor {
             }
             if (view.TEMPORARY() != null) {
                 return plSparkNativeSqlVisitor.visitTempView(
-                        originalSql, sql, view.multipartIdentifier().getText());
+                        originalSql,
+                        sql,
+                        view.multipartIdentifier().getText(),
+                        isOrReplace(view.OR(), view.REPLACE()),
+                        isIfNotExists(view.IF(), view.NOT(), view.EXISTS()));
             }
             return single(plCreateAs(originalSql, sql, view.multipartIdentifier().getText()));
+        }
+        if (statement instanceof SqlBaseParser.CreateTempViewUsingContext) {
+            SqlBaseParser.CreateTempViewUsingContext tempViewUsing =
+                    (SqlBaseParser.CreateTempViewUsingContext) statement;
+            return plSparkNativeSqlVisitor.visitTempView(
+                    originalSql,
+                    sql,
+                    tempViewUsing.tableIdentifier().getText(),
+                    isOrReplace(tempViewUsing.OR(), tempViewUsing.REPLACE()),
+                    false);
         }
         if (statement instanceof SqlBaseParser.CreateTableContext) {
             SqlBaseParser.CreateTableContext create = (SqlBaseParser.CreateTableContext) statement;
@@ -176,6 +194,7 @@ public class PlCreateTableWithVisitor {
     private List<LogicalOperation> visitHiveNativeTable(
             String originalSql, String sql, String tableName) {
         String hiveTable = HiveTables.writableTable(tableName);
+        sourceSinkTable.cacheCatalogAlias(hiveTable, HiveTables.quoteTable(hiveTable));
         LogicalCreateHiveTable createHiveTable = new LogicalCreateHiveTable();
         createHiveTable.setOriginSQL(originalSql);
         createHiveTable.setSql(sql);
@@ -250,6 +269,7 @@ public class PlCreateTableWithVisitor {
         String hiveTable = HiveTables.requireTableName(options);
         String quotedHiveTable = HiveTables.quoteTable(hiveTable);
         String normalized = tableName.toLowerCase(Locale.ROOT);
+        sourceSinkTable.cacheCatalogAlias(normalized, quotedHiveTable);
         List<LogicalOperation> result = new ArrayList<>();
         if (standardType.contains(SOURCE_TYPE)) {
             String createSql = "CREATE VIEW " + normalized + " AS SELECT * FROM " + quotedHiveTable;
@@ -313,6 +333,7 @@ public class PlCreateTableWithVisitor {
         Map<String, Object> paimonOptions = PaimonTables.connectorOptions(options);
         String quotedTable = PaimonTables.quoteTable(PaimonTables.qualifiedTable(paimonOptions));
         String normalized = tableName.toLowerCase(Locale.ROOT);
+        sourceSinkTable.cacheCatalogAlias(normalized, quotedTable);
         List<LogicalOperation> result = new ArrayList<>();
         if (standardType.contains(SOURCE_TYPE)) {
             String createSql = "CREATE VIEW " + normalized + " AS SELECT * FROM " + quotedTable;
@@ -475,5 +496,14 @@ public class PlCreateTableWithVisitor {
         List<LogicalOperation> result = new ArrayList<>();
         result.add(operation);
         return result;
+    }
+
+    private static boolean isOrReplace(TerminalNode or, TerminalNode replace) {
+        return or != null && replace != null;
+    }
+
+    private static boolean isIfNotExists(
+            TerminalNode ifToken, TerminalNode not, TerminalNode exists) {
+        return ifToken != null && not != null && exists != null;
     }
 }

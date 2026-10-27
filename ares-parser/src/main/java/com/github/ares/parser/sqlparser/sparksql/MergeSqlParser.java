@@ -52,7 +52,7 @@ public class MergeSqlParser {
             if (mergeIntoTableContext.source != null || mergeIntoTableContext.sourceQuery != null) {
                 parseSourceQuery(mergeIntoTableContext, sqlMerge, sql);
             } else if (!mergeIntoTableContext.tableAlias().isEmpty()) {
-                sqlMerge.setAlias(mergeIntoTableContext.tableAlias().get(0).getText());
+                sqlMerge.setAlias(SqlIdentifier.alias(mergeIntoTableContext.tableAlias().get(0)));
             }
 
             CriteriaClause onClause = new CriteriaClause();
@@ -124,9 +124,8 @@ public class MergeSqlParser {
         }
         if (mergeIntoTableContext.source != null) {
             sqlMerge.setUsingTable(mergeIntoTableContext.source.getText());
-            String sourceTableAlias = mergeIntoTableContext.tableAlias().get(1).getText();
-            sqlMerge.setUsingAlias(sourceTableAlias);
-            sqlMerge.setAlias(mergeIntoTableContext.tableAlias().get(0).getText());
+            sqlMerge.setUsingAlias(SqlIdentifier.alias(mergeIntoTableContext.tableAlias().get(1)));
+            sqlMerge.setAlias(SqlIdentifier.alias(mergeIntoTableContext.tableAlias().get(0)));
         } else if (mergeIntoTableContext.sourceQuery != null) {
             if (!(mergeIntoTableContext.sourceQuery.queryTerm()
                     instanceof SqlBaseParser.QueryTermDefaultContext)) {
@@ -139,9 +138,8 @@ public class MergeSqlParser {
             if (!(queryPrimaryContext instanceof SqlBaseParser.QueryPrimaryDefaultContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
-            String sourceTableAlias = mergeIntoTableContext.tableAlias().get(1).getText();
-            sqlMerge.setUsingAlias(sourceTableAlias);
-            sqlMerge.setAlias(mergeIntoTableContext.tableAlias().get(0).getText());
+            sqlMerge.setUsingAlias(SqlIdentifier.alias(mergeIntoTableContext.tableAlias().get(1)));
+            sqlMerge.setAlias(SqlIdentifier.alias(mergeIntoTableContext.tableAlias().get(0)));
             Pair<List<SQLHint>, String> hintsWithSql =
                     HintParser.parseSelectHints(
                             sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);
@@ -169,10 +167,11 @@ public class MergeSqlParser {
             sqlInsert
                     .getColumns()
                     .add(
-                            multipartIdentifierContext
-                                    .errorCapturingIdentifier
-                                    .identifier()
-                                    .getText());
+                            SqlIdentifier.plain(
+                                    multipartIdentifierContext
+                                            .errorCapturingIdentifier
+                                            .identifier()
+                                            .getText()));
         }
 
         List<List<String>> valuesArray = new ArrayList<>();
@@ -230,7 +229,13 @@ public class MergeSqlParser {
                 matchedActionContext.assignmentList().assignment()) {
             sqlUpdate
                     .getUpdateColumns()
-                    .add(assignmentContext.key.errorCapturingIdentifier.identifier().getText());
+                    .add(
+                            SqlIdentifier.plain(
+                                    assignmentContext
+                                            .key
+                                            .errorCapturingIdentifier
+                                            .identifier()
+                                            .getText()));
             sqlUpdate.getUpdateValues().add(getFullText(assignmentContext.value));
         }
 
@@ -250,6 +255,8 @@ public class MergeSqlParser {
             allWhereClause.setOperator("AND");
             allWhereClause.setRightCriteria(whereClause);
             sqlMerge.setAllWhereClause(allWhereClause);
+        } else {
+            sqlMerge.setAllWhereClause(onClause);
         }
         sqlMerge.setSqlUpdate(sqlUpdate);
 

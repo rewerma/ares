@@ -27,6 +27,7 @@ public final class HiveTables {
                     "(?is)\\bCREATE\\s+(?:TEMPORARY\\s+)?(?:EXTERNAL\\s+)?TABLE\\b(?:(?!;).)*\\([^;]*\\)");
     /** {@code CREATE TABLE t AS SELECT} and {@code CREATE TABLE t AS WITH ... SELECT}. */
     private static final Pattern AS_QUERY = Pattern.compile("(?is)\\bAS\\s+(?:SELECT|WITH)\\b");
+
     private static final Pattern EXTERNAL_TABLE =
             Pattern.compile("(?is)\\bCREATE\\s+(?:TEMPORARY\\s+)?EXTERNAL\\s+TABLE\\b");
 

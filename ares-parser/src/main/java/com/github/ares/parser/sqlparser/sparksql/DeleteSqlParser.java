@@ -49,7 +49,7 @@ public class DeleteSqlParser {
                     || deleteFromTableContext.sourceQuery != null) {
                 parseSourceQuery(deleteFromTableContext, sqlDelete, sql);
             } else if (!deleteFromTableContext.tableAlias().isEmpty()) {
-                sqlDelete.setAlias(deleteFromTableContext.tableAlias().get(0).getText());
+                sqlDelete.setAlias(SqlIdentifier.alias(deleteFromTableContext.tableAlias().get(0)));
             }
 
             if (deleteFromTableContext.whereClause() == null) {
@@ -103,9 +103,8 @@ public class DeleteSqlParser {
         }
         if (deleteFromTableContext.source != null) {
             sqlDelete.setJoinTable(deleteFromTableContext.source.getText());
-            String sourceTableAlias = deleteFromTableContext.tableAlias().get(1).getText();
-            sqlDelete.setJoinAlias(sourceTableAlias);
-            sqlDelete.setAlias(deleteFromTableContext.tableAlias().get(0).getText());
+            sqlDelete.setJoinAlias(SqlIdentifier.alias(deleteFromTableContext.tableAlias().get(1)));
+            sqlDelete.setAlias(SqlIdentifier.alias(deleteFromTableContext.tableAlias().get(0)));
         } else if (deleteFromTableContext.sourceQuery != null) {
             if (!(deleteFromTableContext.sourceQuery.queryTerm()
                     instanceof SqlBaseParser.QueryTermDefaultContext)) {
@@ -118,9 +117,8 @@ public class DeleteSqlParser {
             if (!(queryPrimaryContext instanceof SqlBaseParser.QueryPrimaryDefaultContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
-            String sourceTableAlias = deleteFromTableContext.tableAlias().get(1).getText();
-            sqlDelete.setJoinAlias(sourceTableAlias);
-            sqlDelete.setAlias(deleteFromTableContext.tableAlias().get(0).getText());
+            sqlDelete.setJoinAlias(SqlIdentifier.alias(deleteFromTableContext.tableAlias().get(1)));
+            sqlDelete.setAlias(SqlIdentifier.alias(deleteFromTableContext.tableAlias().get(0)));
             Pair<List<SQLHint>, String> hintsWithSql =
                     HintParser.parseSelectHints(
                             sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);

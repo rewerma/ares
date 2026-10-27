@@ -8,6 +8,7 @@ import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.org.antlr.v4.runtime.tree.ParseTree;
 import com.github.ares.org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLInsert;
 import java.io.ByteArrayInputStream;
@@ -19,8 +20,6 @@ import java.util.StringJoiner;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class InsertSqlParser {
-    private static final String SQL_INTO = "INTO";
-
     private InsertSqlParser() {}
 
     /**
@@ -44,32 +43,7 @@ public class InsertSqlParser {
             }
             SqlBaseParser.SingleInsertQueryContext singleInsertQueryContext =
                     (SqlBaseParser.SingleInsertQueryContext) dmlStatementNoWithContext;
-            SqlBaseParser.InsertIntoTableContext insertIntoContext =
-                    (SqlBaseParser.InsertIntoTableContext) singleInsertQueryContext.insertInto();
-            if (insertIntoContext.getChildCount() < 3
-                    || !(insertIntoContext.getChild(1) instanceof TerminalNodeImpl)
-                    || !SQL_INTO.equalsIgnoreCase(insertIntoContext.getChild(1).getText())
-                    || !(insertIntoContext.getChild(2)
-                            instanceof SqlBaseParser.MultipartIdentifierContext)) {
-                throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
-            }
-            SqlBaseParser.MultipartIdentifierContext multipartIdentifierContext =
-                    insertIntoContext.multipartIdentifier();
-            sqlInsert.setTable(multipartIdentifierContext.getText());
-            if (insertIntoContext.identifierList() != null) {
-                SqlBaseParser.IdentifierListContext identifierListContext =
-                        insertIntoContext.identifierList();
-                if (identifierListContext.identifierSeq() == null) {
-                    throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
-                }
-
-                SqlBaseParser.IdentifierSeqContext identifierSeqContext =
-                        identifierListContext.identifierSeq();
-                for (SqlBaseParser.ErrorCapturingIdentifierContext errorCapturingIdentifierContext :
-                        identifierSeqContext.errorCapturingIdentifier()) {
-                    sqlInsert.getColumns().add(errorCapturingIdentifierContext.getText());
-                }
-            }
+            applyInsertTarget(sqlInsert, singleInsertQueryContext.insertInto(), sql);
 
             String selectSql;
             SqlBaseParser.QueryContext queryContext = singleInsertQueryContext.query();
@@ -101,6 +75,58 @@ public class InsertSqlParser {
             throw new ParseException(e.getMessage(), e);
         }
         return sqlInsert;
+    }
+
+    private static void applyInsertTarget(
+            SQLInsert sqlInsert, SqlBaseParser.InsertIntoContext insertInto, String sql) {
+        if (insertInto instanceof SqlBaseParser.InsertOverwriteHiveDirContext
+                || insertInto instanceof SqlBaseParser.InsertOverwriteDirContext) {
+            throw new ParseException("INSERT OVERWRITE DIRECTORY is not supported: " + sql);
+        }
+        if (insertInto instanceof SqlBaseParser.InsertOverwriteTableContext) {
+            SqlBaseParser.InsertOverwriteTableContext overwrite =
+                    (SqlBaseParser.InsertOverwriteTableContext) insertInto;
+            if (overwrite.partitionSpec() != null || overwrite.IF() != null) {
+                throw new ParseException("INSERT OVERWRITE PARTITION is not supported: " + sql);
+            }
+            sqlInsert.setOverwrite(true);
+            fillTarget(sqlInsert, overwrite.multipartIdentifier(), overwrite.identifierList(), sql);
+            return;
+        }
+        if (!(insertInto instanceof SqlBaseParser.InsertIntoTableContext)) {
+            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
+        }
+        SqlBaseParser.InsertIntoTableContext insertIntoContext =
+                (SqlBaseParser.InsertIntoTableContext) insertInto;
+        if (insertIntoContext.INTO() == null || insertIntoContext.multipartIdentifier() == null) {
+            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
+        }
+        fillTarget(
+                sqlInsert,
+                insertIntoContext.multipartIdentifier(),
+                insertIntoContext.identifierList(),
+                sql);
+    }
+
+    private static void fillTarget(
+            SQLInsert sqlInsert,
+            SqlBaseParser.MultipartIdentifierContext table,
+            SqlBaseParser.IdentifierListContext identifierList,
+            String sql) {
+        if (table == null) {
+            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
+        }
+        sqlInsert.setTable(table.getText());
+        if (identifierList == null) {
+            return;
+        }
+        if (identifierList.identifierSeq() == null) {
+            throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
+        }
+        for (SqlBaseParser.ErrorCapturingIdentifierContext identifier :
+                identifierList.identifierSeq().errorCapturingIdentifier()) {
+            sqlInsert.getColumns().add(SourceSinkTable.plainName(identifier.getText()));
+        }
     }
 
     /**

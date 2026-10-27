@@ -16,6 +16,7 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.common.exceptions.AresException;
+import com.github.ares.connector.jdbc.sink.JdbcSink;
 import com.github.ares.engine.core.AresSinkFactory;
 import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.InsertSelectSqlExecutor;
@@ -26,6 +27,7 @@ import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.storage.StorageLevel;
 
 public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implements Serializable {
     private static final long serialVersionUID = -1L;
@@ -74,11 +77,16 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
                                     isSql.getRepartitionNums(),
                                     isSql.getRepartitionColumns());
         }
+        String connector = String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key()));
+        if (isSql.isOverwrite()
+                && (HiveTables.isHiveConnector(connector)
+                        || PaimonTables.isPaimonConnector(connector))) {
+            throw new AresException(overwriteUnsupportedMessage(connector));
+        }
         if (isSql.getWithShow() != null) {
             traceLogger.info("SQL show result: {}", isSql.getSelectSQL());
             resultDf.show(isSql.getWithShow());
         }
-        String connector = String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key()));
         if (HiveTables.isHiveConnector(connector)) {
             HiveSparkSql.insert(
                     sparkSession,
@@ -153,19 +161,98 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
                                 new ArrayList<>(),
                                 "")
                         : catalogTable;
+        if (isSql.isOverwrite() && isAnalyticsConnector(connector)) {
+            overwriteAnalytics(sinkConfig, sinkFactory, resultDf, aresSink, catalogTable, isSql);
+            return;
+        }
+        if (isSql.isOverwrite()) {
+            if (!(aresSink instanceof JdbcSink)) {
+                throw new AresException(overwriteUnsupportedMessage(aresSink.getPluginName()));
+            }
+            JdbcOverwriteWriter.execute(
+                    sparkExecutorManager,
+                    (JdbcSink) aresSink,
+                    resultDf,
+                    writeCatalogTable,
+                    isSql.getSinkTable().getTableName());
+            if (!sparkExecutorManager.getTransactionManager().isActive()) {
+                reloadWrittenTable(isSql.getSinkTable().getTableName());
+            }
+            return;
+        }
         if (sparkExecutorManager.tryTransactionalSink(
                 aresSink, resultDf, writeCatalogTable, isSql.getSinkTable().getTableName())) {
             return;
         }
         sparkExecutorManager.getSparkSinkExecutor().sink(resultDf, aresSink, catalogTable);
 
-        // reload target table
-        if (executorManager
-                .getSourceTables()
-                .containsKey(isSql.getSinkTable().getTableName().toLowerCase(Locale.ROOT))) {
-            executorManager
-                    .getReloadFunctionExecutor()
-                    .reloadSourceTable(isSql.getSinkTable().getTableName());
+        reloadWrittenTable(isSql.getSinkTable().getTableName());
+    }
+
+    /**
+     * Doris and StarRocks replace the whole table by truncating, then using the normal insert path.
+     * The query is cached first so a failed select does not clear the table.
+     */
+    private void overwriteAnalytics(
+            Map<String, Object> sinkConfig,
+            Optional<? extends Factory> sinkFactory,
+            Dataset<Row> resultDf,
+            AresSink<?, ?, ?, ?> insertSink,
+            CatalogTable catalogTable,
+            LogicalInsertSelectSQL isSql) {
+        sparkExecutorManager.getTransactionManager().ensureNotActive("INSERT OVERWRITE");
+        String tableName = isSql.getSinkTable().getTableName();
+        Dataset<Row> cached = resultDf.persist(StorageLevel.MEMORY_AND_DISK());
+        try {
+            cached.count();
+            truncateAnalytics(sinkConfig, sinkFactory, tableName);
+            sparkExecutorManager.getSparkSinkExecutor().sink(cached, insertSink, catalogTable);
+            reloadWrittenTable(tableName);
+        } finally {
+            cached.unpersist();
         }
+    }
+
+    private void truncateAnalytics(
+            Map<String, Object> sinkConfig,
+            Optional<? extends Factory> sinkFactory,
+            String tableName) {
+        Map<String, Object> truncateConfig = new LinkedHashMap<>(sinkConfig);
+        truncateConfig.put(CommonOptions.SINK_TYPE.key(), SinkType.TRUNCATE.name());
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        TableSchema tableSchema =
+                TableSchema.builder()
+                        .columns(
+                                Collections.singletonList(
+                                        new PhysicalColumn("none", null, null, null)))
+                        .build();
+        CatalogTable catalogTable =
+                CatalogTable.of(
+                        TableIdentifier.of("default", "default", "default"),
+                        tableSchema,
+                        new HashMap<>(),
+                        new ArrayList<>(),
+                        "");
+        TableSinkFactoryContext context =
+                new TableSinkFactoryContext(
+                        catalogTable, ReadonlyConfig.fromMap(truncateConfig), classLoader);
+        AresSink<?, ?, ?, ?> truncateSink =
+                aresSinkFactory.createSink(truncateConfig, sinkFactory, catalogTable, context);
+        traceLogger.info("INSERT OVERWRITE truncates {}", tableName);
+        truncateSink.truncateTable(tableName);
+    }
+
+    private void reloadWrittenTable(String tableName) {
+        if (executorManager.getSourceTables().containsKey(tableName.toLowerCase(Locale.ROOT))) {
+            executorManager.getReloadFunctionExecutor().reloadSourceTable(tableName);
+        }
+    }
+
+    private static boolean isAnalyticsConnector(String connector) {
+        return "doris".equalsIgnoreCase(connector) || "starrocks".equalsIgnoreCase(connector);
+    }
+
+    private static String overwriteUnsupportedMessage(String target) {
+        return "INSERT OVERWRITE is only supported for JDBC sinks, got: " + target;
     }
 }

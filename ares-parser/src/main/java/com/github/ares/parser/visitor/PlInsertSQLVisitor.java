@@ -4,6 +4,7 @@ import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
 import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -12,7 +13,6 @@ import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import com.github.ares.parser.sqlparser.model.SQLInsert;
-import java.util.Locale;
 import java.util.Map;
 
 public class PlInsertSQLVisitor {
@@ -31,7 +31,7 @@ public class PlInsertSQLVisitor {
 
         LogicalInsertSelectSQL insertSelectSQL = new LogicalInsertSelectSQL();
         LogicalCreateSinkTable sinkTable =
-                sinkTables.get(sqlInsert.getTable().toLowerCase(Locale.ROOT));
+                sinkTables.get(SourceSinkTable.normalizeAlias(sqlInsert.getTable()));
         if (sinkTable == null) {
             throw new ParseException(
                     String.format("Sink table name not exists: %s", sqlInsert.getTable()));
@@ -40,6 +40,7 @@ public class PlInsertSQLVisitor {
         insertSelectSQL.setOriginSQL(originalSql);
         insertSelectSQL.setSelectSQL(sqlInsert.getSourceSql());
         insertSelectSQL.setTargetColumns(sqlInsert.getColumns());
+        insertSelectSQL.setOverwrite(sqlInsert.isOverwrite());
 
         if (sqlInsert.getHints() != null) {
             for (SQLHint hint : sqlInsert.getHints()) {

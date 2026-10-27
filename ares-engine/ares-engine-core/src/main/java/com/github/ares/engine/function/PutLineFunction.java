@@ -13,8 +13,8 @@ import java.util.List;
 public class PutLineFunction implements UdfInterface {
 
     /**
-     * Prefix on each printed line so a caller can lift driver stdout into a task result.
-     * Keep in sync with {@code com.peacock.common.constants.Constants#PUT_LINE_LOG_MARKER}.
+     * Prefix on each printed line so a caller can lift driver stdout into a task result. Keep in
+     * sync with {@code com.peacock.common.constants.Constants#PUT_LINE_LOG_MARKER}.
      */
     public static final String OUTPUT_PREFIX = "[PUT_LINE] ";
 
@@ -40,7 +40,8 @@ public class PutLineFunction implements UdfInterface {
         }
         Object value = args.get(0);
         String text = value == null ? "null" : String.valueOf(value);
-        // Keep a trailing empty piece so a value that ends with a newline still prints a blank line.
+        // Keep a trailing empty piece so a value that ends with a newline still prints a blank
+        // line.
         String[] lines = text.split("\\R", -1);
         if (lines.length == 0) {
             println(OUTPUT_PREFIX);

@@ -3,6 +3,7 @@ package com.github.ares.parser.test;
 import com.github.ares.api.common.EngineType;
 import com.github.ares.api.common.EngineTypeVersion;
 import com.github.ares.api.common.ExecutionEngineType;
+import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
@@ -31,6 +32,7 @@ public class SqlParserTest {
         String sql =
                 "insert into table1 (id, name, age) values (1, 'abc', 12), (2, 'def', 14), (3, 'ghi', 17)";
         SQLInsert sqlInsert = sqlParser.parseInsert(sql);
+        Assert.assertFalse(sqlInsert.isOverwrite());
         Assert.assertNotNull(sqlInsert.getTable());
         Assert.assertFalse(sqlInsert.getColumns().isEmpty());
         Assert.assertEquals(3, sqlInsert.getValuesArray().size());
@@ -70,6 +72,39 @@ public class SqlParserTest {
         Assert.assertFalse(sqlInsert.getHints().get(0).getArguments().isEmpty());
         Assert.assertEquals("b", sqlInsert.getHints().get(0).getArguments().get(0));
         System.out.println(sqlInsert.getSourceSql());
+    }
+
+    @Test
+    public void testInsertOverwrite() {
+        String sql = "insert overwrite table table1 (id, name) select 1 as id, 'a' as name";
+        SQLInsert sqlInsert = sqlParser.parseInsert(sql);
+        Assert.assertTrue(sqlInsert.isOverwrite());
+        Assert.assertEquals("table1", sqlInsert.getTable());
+        Assert.assertEquals(2, sqlInsert.getColumns().size());
+        Assert.assertEquals("id", sqlInsert.getColumns().get(0));
+        Assert.assertNotNull(sqlInsert.getSourceSql());
+
+        sql = "insert overwrite table1 values (1, 'abc', 12)";
+        sqlInsert = sqlParser.parseInsert(sql);
+        Assert.assertTrue(sqlInsert.isOverwrite());
+        Assert.assertEquals("table1", sqlInsert.getTable());
+        Assert.assertTrue(sqlInsert.getColumns().isEmpty());
+        Assert.assertEquals(1, sqlInsert.getValuesArray().size());
+
+        assertInsertRejected(
+                "insert overwrite table table1 partition (dt = 1) select 1 as id", "PARTITION");
+        assertInsertRejected("insert overwrite directory '/tmp/out' select 1 as id", "DIRECTORY");
+        assertInsertRejected(
+                "insert overwrite local directory '/tmp/out' select 1 as id", "DIRECTORY");
+    }
+
+    private void assertInsertRejected(String sql, String messagePart) {
+        try {
+            sqlParser.parseInsert(sql);
+            Assert.fail("expected ParseException for " + sql);
+        } catch (ParseException e) {
+            Assert.assertTrue(e.getMessage(), e.getMessage().contains(messagePart));
+        }
     }
 
     @Test
@@ -311,5 +346,42 @@ public class SqlParserTest {
         Assert.assertNotNull(sqlMerge.getSqlInsert());
         Assert.assertNotNull(sqlMerge.getSqlUpdate());
         Assert.assertNotNull(sqlMerge.getAllWhereClause());
+
+        sql =
+                "MERGE INTO `t_user01` t USING `__og_filter_2` s ON (t.`id` = s.`id2`) "
+                        + "WHEN MATCHED THEN UPDATE SET t.`id` = s.`id2`, t.`nick` = s.`name`";
+        sqlMerge = sqlParser.parseMerge(sql);
+        Assert.assertEquals("=", sqlMerge.getAllWhereClause().getOperator());
+        Assert.assertEquals("id", sqlMerge.getAllWhereClause().getLeftExpr());
+        Assert.assertEquals("s.`id2`", sqlMerge.getAllWhereClause().getRightExpr());
+    }
+
+    @Test
+    public void testQuotedIdentifiers() {
+        SQLUpdate update =
+                sqlParser.parseUpdate(
+                        "update `table1` `a` set `a`.`name`='abc', `age`=12 "
+                                + "where `a`.`id`=1 and `name` like 'b'");
+        Assert.assertEquals("a", update.getAlias());
+        Assert.assertEquals("name", update.getUpdateColumns().get(0));
+        Assert.assertEquals("age", update.getUpdateColumns().get(1));
+        Assert.assertEquals("id", update.getWhereClause().getLeftCriteria().getLeftExpr());
+        Assert.assertEquals("name", update.getWhereClause().getRightCriteria().getLeftExpr());
+
+        SQLDelete delete =
+                sqlParser.parseDelete("delete from `table1` `a` where `a`.`id` in (1, 2)");
+        Assert.assertEquals("a", delete.getAlias());
+        Assert.assertEquals("id", delete.getWhereClause().getLeftExpr());
+
+        SQLMerge merge =
+                sqlParser.parseMerge(
+                        "merge into `table1` `a` using `table2` `b` on `a`.`id`=`b`.`id` "
+                                + "when matched then update set `a`.`name` = `b`.`name` "
+                                + "when not matched then insert (`id`, `name`) values (`b`.`id`, `b`.`name`)");
+        Assert.assertEquals("a", merge.getAlias());
+        Assert.assertEquals("b", merge.getUsingAlias());
+        Assert.assertEquals("name", merge.getSqlUpdate().getUpdateColumns().get(0));
+        Assert.assertEquals("id", merge.getSqlInsert().getColumns().get(0));
+        Assert.assertEquals("name", merge.getSqlInsert().getColumns().get(1));
     }
 }

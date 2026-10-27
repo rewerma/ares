@@ -65,6 +65,19 @@ public class SparkJdbcTransactionalSinkHandler implements TransactionalSinkHandl
     }
 
     @Override
+    public void prepareOverwrite(AresSink<?, ?, ?, ?> sink, String sinkTableName) {
+        if (!(sink instanceof JdbcSink)) {
+            throw new AresException(
+                    "INSERT OVERWRITE is only supported for JDBC sinks, got: "
+                            + sink.getPluginName());
+        }
+        if (sinkTableName != null) {
+            dirtyTables.add(sinkTableName);
+        }
+        session.clearForOverwrite((JdbcSink) sink);
+    }
+
+    @Override
     public void commit() {
         session.commit();
         for (String tableName : dirtyTables) {

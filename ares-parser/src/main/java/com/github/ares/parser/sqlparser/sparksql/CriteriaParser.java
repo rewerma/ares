@@ -80,14 +80,16 @@ public class CriteriaParser {
             }
 
             if (primaryExpressionContext instanceof SqlBaseParser.ColumnReferenceContext) {
-                criteriaClause.setLeftExpr(primaryExpressionContext.getText());
+                criteriaClause.setLeftExpr(SqlIdentifier.plain(primaryExpressionContext.getText()));
             } else if (primaryExpressionContext instanceof SqlBaseParser.DereferenceContext) {
                 SqlBaseParser.DereferenceContext dereferenceContext =
                         (SqlBaseParser.DereferenceContext) primaryExpressionContext;
-                String field = dereferenceContext.fieldName.getText();
+                String field = SqlIdentifier.plain(dereferenceContext.fieldName.getText());
                 criteriaClause.setLeftExpr(field);
-                String alias = dereferenceContext.primaryExpression().getText();
-                if (!alias.equalsIgnoreCase(targetTableAlias)) {
+                String alias = SqlIdentifier.plain(dereferenceContext.primaryExpression().getText());
+                String expected =
+                        targetTableAlias == null ? null : SqlIdentifier.plain(targetTableAlias);
+                if (!alias.equalsIgnoreCase(expected)) {
                     throw new ParseException(
                             String.format(
                                     "cannot found alias '%s' of field: '%s' in WHERE clause: %s",

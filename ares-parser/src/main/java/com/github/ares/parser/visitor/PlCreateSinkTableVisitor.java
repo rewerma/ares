@@ -2,9 +2,9 @@ package com.github.ares.parser.visitor;
 
 import static com.github.ares.api.common.CommonOptions.CONNECTOR;
 
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class PlCreateSinkTableVisitor {
@@ -15,7 +15,7 @@ public class PlCreateSinkTableVisitor {
         String connector = (String) options.get(CONNECTOR.key());
         LogicalCreateSinkTable sinkTable = new LogicalCreateSinkTable(connector);
         sinkTable.setConnector(connector);
-        sinkTable.setTableName(tableName.toLowerCase(Locale.ROOT));
+        sinkTable.setTableName(SourceSinkTable.normalizeAlias(tableName));
         sinkTable.setOptions(options);
         return sinkTable;
     }

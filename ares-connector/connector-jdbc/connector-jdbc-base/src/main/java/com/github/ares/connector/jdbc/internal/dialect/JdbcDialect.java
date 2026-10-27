@@ -155,6 +155,27 @@ public interface JdbcDialect extends Serializable {
     }
 
     /**
+     * Removes existing rows before {@code INSERT OVERWRITE}. {@code DELETE} stays in the same
+     * transaction as the following insert on MySQL, Oracle, OceanBase and Dameng, where {@code
+     * TRUNCATE} commits immediately. PostgreSQL, Kingbase, openGauss and SQL Server can roll {@code
+     * TRUNCATE} back, so those dialects use it.
+     */
+    default String overwriteClearStatement(String quotedTable) {
+        if (truncateIsTransactional()) {
+            return "TRUNCATE TABLE " + quotedTable;
+        }
+        return "DELETE FROM " + quotedTable;
+    }
+
+    default boolean truncateIsTransactional() {
+        String name = dialectName();
+        return DatabaseIdentifier.POSTGRESQL.equals(name)
+                || DatabaseIdentifier.KINGBASE.equals(name)
+                || DatabaseIdentifier.OPENGAUSS.equals(name)
+                || DatabaseIdentifier.SQLSERVER.equals(name);
+    }
+
+    /**
      * Approximate total number of entries in the lookup table.
      *
      * @param connection The JDBC connection object used to connect to the database.

@@ -47,6 +47,7 @@ public class SparkMergeIntoSqlExecutor extends MergeIntoSqlExecutor implements S
             String updateSourceSql = replaceParams(mergeIntoSql.getUpdateSourceSql(), plParams);
             Map<String, Object> sinkConfig4Update = new HashMap<>(sinkConfig);
             LogicalUpdateSelectSQL updateSelectSQL = new LogicalUpdateSelectSQL();
+            updateSelectSQL.setSinkTable(mergeIntoSql.getSinkTable());
             updateSelectSQL.setUpdateItems(mergeIntoSql.getUpdateColumns());
             updateSelectSQL.setWhereClause(mergeIntoSql.getAllWaitCriteria());
             updateSelectSQL.setSelectSQL(updateSourceSql);
@@ -62,6 +63,7 @@ public class SparkMergeIntoSqlExecutor extends MergeIntoSqlExecutor implements S
             String insertSourceSql = replaceParams(mergeIntoSql.getInsertSourceSql(), plParams);
             Map<String, Object> sinkConfig4Insert = new HashMap<>(sinkConfig);
             LogicalInsertSelectSQL insertSelectSQL = new LogicalInsertSelectSQL();
+            insertSelectSQL.setSinkTable(mergeIntoSql.getSinkTable());
             insertSelectSQL.setSelectSQL(insertSourceSql);
             insertSelectSQL.setTargetColumns(mergeIntoSql.getInsertColumns());
             insertSelectSQL.setWithShow(mergeIntoSql.getWithShow());

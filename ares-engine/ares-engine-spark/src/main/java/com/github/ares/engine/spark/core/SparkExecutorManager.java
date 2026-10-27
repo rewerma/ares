@@ -59,4 +59,8 @@ public class SparkExecutorManager extends ExecutorManager implements Serializabl
         getTransactionManager().write(aresSink, dataset, catalogTable, sinkTableName);
         return true;
     }
+
+    public void prepareJdbcOverwrite(AresSink<?, ?, ?, ?> aresSink, String sinkTableName) {
+        getTransactionManager().prepareOverwrite(aresSink, sinkTableName);
+    }
 }

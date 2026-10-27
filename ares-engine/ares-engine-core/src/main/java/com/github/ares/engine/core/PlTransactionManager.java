@@ -123,6 +123,19 @@ public class PlTransactionManager implements Serializable {
         handler.write(sink, dataset, catalogTable, sinkTableName);
     }
 
+    /**
+     * Runs the JDBC overwrite clear on the open transaction. A following {@link #write} inserts
+     * into the same batch, including when the incoming dataset is empty.
+     */
+    public void prepareOverwrite(AresSink<?, ?, ?, ?> sink, String sinkTableName) {
+        ensureActive("INSERT OVERWRITE");
+        unitOpen = true;
+        if (handler == null) {
+            throw new AresException("Transactional sink handler is not initialized");
+        }
+        handler.prepareOverwrite(sink, sinkTableName);
+    }
+
     public void ensureNotActive(String operation) {
         if (segment) {
             throw new AresException(operation + " is not supported inside START TRANSACTION");

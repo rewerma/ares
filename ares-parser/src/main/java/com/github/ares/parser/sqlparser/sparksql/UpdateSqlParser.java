@@ -48,7 +48,7 @@ public class UpdateSqlParser {
             if (updateTableContext.source != null || updateTableContext.sourceQuery != null) {
                 parseSourceQuery(updateTableContext, sqlUpdate, sql);
             } else if (!updateTableContext.tableAlias().isEmpty()) {
-                sqlUpdate.setAlias(updateTableContext.tableAlias().get(0).getText());
+                sqlUpdate.setAlias(SqlIdentifier.alias(updateTableContext.tableAlias().get(0)));
             }
 
             List<SqlBaseParser.AssignmentContext> assignmentContexts =
@@ -66,7 +66,11 @@ public class UpdateSqlParser {
                             "column owner must be same as table alias in update statement: " + sql);
                 }
                 String targetCol =
-                        assignmentContext.multipartIdentifier().errorCapturingIdentifier.getText();
+                        SqlIdentifier.plain(
+                                assignmentContext
+                                        .multipartIdentifier()
+                                        .errorCapturingIdentifier
+                                        .getText());
                 String sourceExpression = getFullText(assignmentContext.expression());
                 sqlUpdate.getUpdateColumns().add(targetCol);
                 sqlUpdate.getUpdateValues().add(sourceExpression);
@@ -121,9 +125,8 @@ public class UpdateSqlParser {
         }
         if (updateTableContext.source != null) {
             sqlUpdate.setJoinTable(updateTableContext.source.getText());
-            String sourceTableAlias = updateTableContext.tableAlias().get(1).getText();
-            sqlUpdate.setJoinAlias(sourceTableAlias);
-            sqlUpdate.setAlias(updateTableContext.tableAlias().get(0).getText());
+            sqlUpdate.setJoinAlias(SqlIdentifier.alias(updateTableContext.tableAlias().get(1)));
+            sqlUpdate.setAlias(SqlIdentifier.alias(updateTableContext.tableAlias().get(0)));
         } else if (updateTableContext.sourceQuery != null) {
             if (!(updateTableContext.sourceQuery.queryTerm()
                     instanceof SqlBaseParser.QueryTermDefaultContext)) {
@@ -136,9 +139,8 @@ public class UpdateSqlParser {
             if (!(queryPrimaryContext instanceof SqlBaseParser.QueryPrimaryDefaultContext)) {
                 throw new ParseException(String.format(UNSUPPORTED_EXP_MSG_WITH_PARAM, sql));
             }
-            String sourceTableAlias = updateTableContext.tableAlias().get(1).getText();
-            sqlUpdate.setJoinAlias(sourceTableAlias);
-            sqlUpdate.setAlias(updateTableContext.tableAlias().get(0).getText());
+            sqlUpdate.setJoinAlias(SqlIdentifier.alias(updateTableContext.tableAlias().get(1)));
+            sqlUpdate.setAlias(SqlIdentifier.alias(updateTableContext.tableAlias().get(0)));
             Pair<List<SQLHint>, String> hintsWithSql =
                     HintParser.parseSelectHints(
                             sql, (SqlBaseParser.QueryPrimaryDefaultContext) queryPrimaryContext);

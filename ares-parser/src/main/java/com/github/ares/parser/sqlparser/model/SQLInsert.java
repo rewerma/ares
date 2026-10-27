@@ -15,6 +15,9 @@ public class SQLInsert implements Serializable {
 
     private List<SQLHint> hints;
 
+    /** True when the statement is {@code INSERT OVERWRITE}, not {@code INSERT INTO}. */
+    private boolean overwrite;
+
     public String getTable() {
         return table;
     }
@@ -53,5 +56,13 @@ public class SQLInsert implements Serializable {
 
     public void setHints(List<SQLHint> hints) {
         this.hints = hints;
+    }
+
+    public boolean isOverwrite() {
+        return overwrite;
+    }
+
+    public void setOverwrite(boolean overwrite) {
+        this.overwrite = overwrite;
     }
 }

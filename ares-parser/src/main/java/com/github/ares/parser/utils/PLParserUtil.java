@@ -7,6 +7,7 @@ import com.github.ares.org.antlr.v4.runtime.ParserRuleContext;
 import com.github.ares.org.antlr.v4.runtime.tree.TerminalNode;
 import com.github.ares.parser.model.BaseOption;
 import com.github.ares.parser.model.BaseSqlOption;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.sqlparser.model.SQLHint;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +39,8 @@ public class PLParserUtil {
     }
 
     /**
-     * {@code >=} and {@code <=} are two tokens in the script lexer. Join them again when the
-     * pieces are written back, including across {@code raw_token} wrappers.
+     * {@code >=} and {@code <=} are two tokens in the script lexer. Join them again when the pieces
+     * are written back, including across {@code raw_token} wrappers.
      */
     private static String joinSplitOperator(StringBuilder sb, String text) {
         if (text == null || text.length() != 1 || sb.length() < 2) {
@@ -310,7 +311,9 @@ public class PLParserUtil {
                 baseSqlOption.setRepartitionNums(num);
                 baseSqlOption.setRepartitionColumns(new ArrayList<>());
                 for (int i = 1; i < size; i++) {
-                    baseSqlOption.getRepartitionColumns().add(hint.getArguments().get(i));
+                    baseSqlOption
+                            .getRepartitionColumns()
+                            .add(SourceSinkTable.plainName(hint.getArguments().get(i)));
                 }
             } else if (size == 1) {
                 int num = Integer.parseInt(hint.getArguments().get(0));

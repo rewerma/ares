@@ -25,12 +25,14 @@ import com.github.ares.parser.plan.LogicalExceptionHandler;
 import com.github.ares.parser.plan.LogicalExitLoop;
 import com.github.ares.parser.plan.LogicalForLoop;
 import com.github.ares.parser.plan.LogicalIfElse;
+import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import com.github.ares.parser.plan.LogicalMergeIntoSQL;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalProject;
 import com.github.ares.parser.plan.LogicalSelectSQL;
 import com.github.ares.parser.plan.LogicalSparkNativeSql;
 import com.github.ares.parser.plan.LogicalStartTransaction;
+import com.github.ares.parser.plan.LogicalTruncateSQL;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
 import com.github.ares.parser.plan.LogicalWhileLoop;
 import com.github.ares.parser.utils.Constants;
@@ -693,16 +695,15 @@ public class PlParserTest {
     @Test
     public void parseSparkNativeCacheAndTempView() {
         String cache = "CACHE TABLE cached_src AS SELECT 1 AS id;";
-        LogicalAnonymousBody cacheBody = singleAnonymousBody(plTransformation.parseToBaseBody(cache));
-        LogicalSparkNativeSql cacheOp =
-                (LogicalSparkNativeSql) cacheBody.getAnonymousBody().get(0);
+        LogicalAnonymousBody cacheBody =
+                singleAnonymousBody(plTransformation.parseToBaseBody(cache));
+        LogicalSparkNativeSql cacheOp = (LogicalSparkNativeSql) cacheBody.getAnonymousBody().get(0);
         Assert.assertTrue(cacheOp.getSql().toUpperCase().contains("CACHE TABLE"));
 
         String tempView = "CREATE TEMP VIEW IF NOT EXISTS v1 AS SELECT 1 AS id;";
         LogicalAnonymousBody tempBody =
                 singleAnonymousBody(plTransformation.parseToBaseBody(tempView));
-        LogicalSparkNativeSql tempOp =
-                (LogicalSparkNativeSql) tempBody.getAnonymousBody().get(0);
+        LogicalSparkNativeSql tempOp = (LogicalSparkNativeSql) tempBody.getAnonymousBody().get(0);
         Assert.assertTrue(tempOp.getSql().toUpperCase().contains("IF NOT EXISTS"));
         Assert.assertTrue(tempOp.getSql().toUpperCase().contains("CREATE TEMP VIEW"));
 
@@ -730,6 +731,476 @@ public class PlParserTest {
                                 .get(0);
         Assert.assertTrue(uncacheIfExistsOp.getSql().toUpperCase().contains("IF EXISTS"));
         Assert.assertTrue(uncacheIfExistsOp.getSql().toUpperCase().contains("DEFAULT.CACHED_SRC"));
+
+        String replaceTemp =
+                "CREATE OR REPLACE TEMP VIEW v AS SELECT 1 AS id;\n"
+                        + "CREATE OR REPLACE TEMPORARY VIEW v AS SELECT 2 AS id;";
+        LogicalAnonymousBody replaceBody =
+                singleAnonymousBody(plTransformation.parseToBaseBody(replaceTemp));
+        Assert.assertEquals(2, replaceBody.getAnonymousBody().size());
+        LogicalSparkNativeSql firstReplace =
+                (LogicalSparkNativeSql) replaceBody.getAnonymousBody().get(0);
+        LogicalSparkNativeSql secondReplace =
+                (LogicalSparkNativeSql) replaceBody.getAnonymousBody().get(1);
+        Assert.assertTrue(firstReplace.getSql().toUpperCase().contains("OR REPLACE"));
+        Assert.assertTrue(secondReplace.getSql().toUpperCase().contains("OR REPLACE"));
+        Assert.assertTrue(secondReplace.getSql().toUpperCase().contains("TEMPORARY VIEW"));
+    }
+
+    @Test
+    public void parseNativeSqlRewritesCatalogAlias() {
+        String pl =
+                "CREATE TABLE t_src\n"
+                        + "USING hive\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name'='default.t_src',\n"
+                        + "    'type' = 'source'\n"
+                        + ");\n"
+                        + "CREATE TABLE t_out\n"
+                        + "USING hive\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name'='default.t_user',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "CACHE TABLE t_out;\n"
+                        + "CACHE TABLE cached_src AS SELECT id FROM t_src;\n"
+                        + "UNCACHE TABLE t_out;\n"
+                        + "UNCACHE TABLE IF EXISTS cached_src;\n"
+                        + "CREATE TEMP VIEW v1 AS SELECT * FROM t_src JOIN t_out;\n"
+                        + "CREATE TEMP VIEW v_cte AS WITH src AS (SELECT id FROM t_src)"
+                        + " SELECT * FROM src;";
+        List<LogicalSparkNativeSql> nativeSql = nativeSqlOf(plTransformation.parseToBaseBody(pl));
+        Assert.assertEquals(6, nativeSql.size());
+        Assert.assertTrue(nativeSql.get(0).getSql().contains("CACHE TABLE `default`.`t_user`"));
+        Assert.assertTrue(nativeSql.get(1).getSql().contains("cached_src"));
+        Assert.assertTrue(nativeSql.get(1).getSql().contains("FROM `default`.`t_src`"));
+        Assert.assertTrue(nativeSql.get(2).getSql().contains("UNCACHE TABLE `default`.`t_user`"));
+        Assert.assertTrue(nativeSql.get(3).getSql().toUpperCase().contains("CACHED_SRC"));
+        Assert.assertFalse(nativeSql.get(3).getSql().contains("`default`"));
+        Assert.assertTrue(nativeSql.get(4).getSql().toUpperCase().contains("CREATE TEMP VIEW"));
+        Assert.assertTrue(nativeSql.get(4).getSql().contains("v1"));
+        Assert.assertTrue(nativeSql.get(4).getSql().contains("`default`.`t_src`"));
+        Assert.assertTrue(nativeSql.get(4).getSql().contains("`default`.`t_user`"));
+        Assert.assertTrue(nativeSql.get(5).getSql().contains("FROM `default`.`t_src`"));
+        Assert.assertTrue(nativeSql.get(5).getSql().toUpperCase().contains("FROM SRC"));
+
+        String jdbc =
+                "CREATE TABLE t_jdbc\n"
+                        + "USING jdbc\n"
+                        + "OPTIONS (\n"
+                        + "    'url'='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false',\n"
+                        + "    'driver'='com.mysql.cj.jdbc.Driver',\n"
+                        + "    'user'='root',\n"
+                        + "    'password'='123456',\n"
+                        + "    'table_name'='t_user',\n"
+                        + "    'type' = 'source'\n"
+                        + ");\n"
+                        + "CACHE TABLE t_jdbc;";
+        List<LogicalSparkNativeSql> jdbcSql = nativeSqlOf(plTransformation.parseToBaseBody(jdbc));
+        Assert.assertEquals(1, jdbcSql.size());
+        Assert.assertTrue(jdbcSql.get(0).getSql().toUpperCase().contains("CACHE TABLE"));
+        Assert.assertTrue(jdbcSql.get(0).getSql().toLowerCase().contains("t_jdbc"));
+    }
+
+    private static List<LogicalSparkNativeSql> nativeSqlOf(LogicalProject project) {
+        List<LogicalSparkNativeSql> nativeSql = new ArrayList<>();
+        for (LogicalOperation operation : project.getLogicalOperations()) {
+            if (operation instanceof LogicalAnonymousBody) {
+                for (LogicalOperation inner :
+                        ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                    if (inner instanceof LogicalSparkNativeSql) {
+                        nativeSql.add((LogicalSparkNativeSql) inner);
+                    }
+                }
+            }
+        }
+        return nativeSql;
+    }
+
+    @Test
+    public void parsePartitionDdlRewritesCatalogAlias() {
+        String pl =
+                "CREATE TABLE t_src\n"
+                        + "USING hive\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name'='default.t_src',\n"
+                        + "    'type' = 'source'\n"
+                        + ");\n"
+                        + "CREATE TABLE `t_out`\n"
+                        + "USING hive\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name'='default.t_user',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "CREATE TABLE t_pm\n"
+                        + "USING paimon\n"
+                        + "OPTIONS (\n"
+                        + "    'metastore' = 'filesystem',\n"
+                        + "    'warehouse' = '/paimon',\n"
+                        + "    'table_name' = 'default.t_pm',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "ALTER TABLE `t_src` ADD IF NOT EXISTS PARTITION (dt = '2024-01-01');\n"
+                        + "ALTER TABLE t_out DROP IF EXISTS PARTITION (dt = '2024-01-02');\n"
+                        + "ALTER TABLE t_pm DROP IF EXISTS PARTITION (dt = 1);\n"
+                        + "ALTER TABLE default.t_other DROP IF EXISTS PARTITION (dt = 'x');";
+        LogicalProject project = plTransformation.parseToBaseBody(pl);
+        List<LogicalSparkNativeSql> nativeSql = new ArrayList<>();
+        for (LogicalOperation operation : project.getLogicalOperations()) {
+            if (operation instanceof LogicalAnonymousBody) {
+                for (LogicalOperation inner :
+                        ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                    if (inner instanceof LogicalSparkNativeSql) {
+                        nativeSql.add((LogicalSparkNativeSql) inner);
+                    }
+                }
+            }
+        }
+        Assert.assertEquals(4, nativeSql.size());
+        Assert.assertTrue(nativeSql.get(0).getSql().contains("`default`.`t_src`"));
+        Assert.assertTrue(nativeSql.get(0).getOriginSQL().contains("`t_src`"));
+        Assert.assertTrue(nativeSql.get(1).getSql().contains("`default`.`t_user`"));
+        Assert.assertFalse(nativeSql.get(1).getSql().toLowerCase().contains("t_out"));
+        Assert.assertTrue(nativeSql.get(2).getSql().contains("`paimon`.`default`.`t_pm`"));
+        Assert.assertTrue(nativeSql.get(3).getSql().toLowerCase().contains("default.t_other"));
+
+        String jdbc =
+                "CREATE TABLE t_jdbc\n"
+                        + "USING jdbc\n"
+                        + "OPTIONS (\n"
+                        + "    'url'='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false',\n"
+                        + "    'driver'='com.mysql.cj.jdbc.Driver',\n"
+                        + "    'user'='root',\n"
+                        + "    'password'='123456',\n"
+                        + "    'table_name'='t_user',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "ALTER TABLE t_jdbc DROP IF EXISTS PARTITION (dt = '2024-01-01');";
+        try {
+            plTransformation.parseToBaseBody(jdbc);
+            Assert.fail("jdbc partition DDL should be rejected");
+        } catch (ParseException ex) {
+            Assert.assertTrue(ex.getMessage().contains("not supported for connector jdbc"));
+        }
+    }
+
+    @Test
+    public void parseSparkNativeAddPartition() {
+        String add =
+                "ALTER TABLE `t_out` ADD IF NOT EXISTS PARTITION (dt = '2024-01-01')"
+                        + " LOCATION '/data/2024-01-01';\n"
+                        + "ALTER TABLE t_out ADD PARTITION (dt = '2024-01-02')"
+                        + " PARTITION (dt = '2024-01-03') LOCATION '/data/2024-01-03';\n"
+                        + "ALTER VIEW `v_out` ADD IF NOT EXISTS PARTITION (dt = 1, hh = '01');";
+        LogicalAnonymousBody body = singleAnonymousBody(plTransformation.parseToBaseBody(add));
+        Assert.assertEquals(3, body.getAnonymousBody().size());
+
+        LogicalSparkNativeSql ifNotExists = (LogicalSparkNativeSql) body.getAnonymousBody().get(0);
+        Assert.assertTrue(ifNotExists.getOriginSQL().contains("`t_out`"));
+        String ifNotExistsSql = ifNotExists.getSql().toUpperCase();
+        Assert.assertTrue(ifNotExistsSql.contains("ALTER TABLE"));
+        Assert.assertTrue(ifNotExistsSql.contains("`T_OUT`"));
+        Assert.assertTrue(ifNotExistsSql.contains("ADD IF NOT EXISTS PARTITION"));
+        Assert.assertTrue(ifNotExistsSql.contains("DT"));
+        Assert.assertTrue(ifNotExistsSql.contains("'2024-01-01'"));
+        Assert.assertTrue(ifNotExistsSql.contains("LOCATION"));
+        Assert.assertTrue(ifNotExistsSql.contains("'/DATA/2024-01-01'"));
+
+        LogicalSparkNativeSql multi = (LogicalSparkNativeSql) body.getAnonymousBody().get(1);
+        String multiSql = multi.getSql().toUpperCase();
+        Assert.assertTrue(multiSql.contains("ADD PARTITION"));
+        Assert.assertTrue(multiSql.contains("'2024-01-02'"));
+        Assert.assertTrue(multiSql.contains("'2024-01-03'"));
+        Assert.assertTrue(multiSql.contains("'/DATA/2024-01-03'"));
+
+        LogicalSparkNativeSql view = (LogicalSparkNativeSql) body.getAnonymousBody().get(2);
+        String viewSql = view.getSql().toUpperCase();
+        Assert.assertTrue(viewSql.contains("ALTER VIEW"));
+        Assert.assertTrue(viewSql.contains("`V_OUT`"));
+        Assert.assertTrue(viewSql.contains("ADD IF NOT EXISTS PARTITION"));
+        Assert.assertTrue(viewSql.contains("HH"));
+
+        try {
+            plTransformation.parseToBaseBody("ALTER TABLE t_out ADD COLUMNS (a INT);");
+            Assert.fail("ADD COLUMNS stays unsupported");
+        } catch (ParseException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Unsupported SQL syntax"));
+        }
+
+        String withParam =
+                "def dt = '2024-01-01';\n"
+                        + "ALTER TABLE `t_out` ADD IF NOT EXISTS PARTITION (dt = :dt);";
+        LogicalProject paramProject = plTransformation.parseToBaseBody(withParam);
+        LogicalSparkNativeSql paramAdd = null;
+        for (LogicalOperation operation : paramProject.getLogicalOperations()) {
+            if (operation instanceof LogicalAnonymousBody) {
+                for (LogicalOperation inner :
+                        ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                    if (inner instanceof LogicalSparkNativeSql) {
+                        paramAdd = (LogicalSparkNativeSql) inner;
+                    }
+                }
+            }
+        }
+        Assert.assertNotNull(paramAdd);
+        Assert.assertTrue(paramAdd.getSql().contains("\"${dt}\""));
+    }
+
+    @Test
+    public void parseSparkNativeDropPartition() {
+        String drop =
+                "ALTER TABLE `t_out` DROP IF EXISTS PARTITION (dt = '2024-01-01');\n"
+                        + "ALTER TABLE t_out DROP PARTITION (dt = '2024-01-02'),"
+                        + " PARTITION (dt = '2024-01-03') PURGE;\n"
+                        + "ALTER VIEW `v_out` DROP IF EXISTS PARTITION (dt = 1, hh = '01');";
+        LogicalAnonymousBody body = singleAnonymousBody(plTransformation.parseToBaseBody(drop));
+        Assert.assertEquals(3, body.getAnonymousBody().size());
+
+        LogicalSparkNativeSql ifExists = (LogicalSparkNativeSql) body.getAnonymousBody().get(0);
+        Assert.assertTrue(ifExists.getOriginSQL().contains("`t_out`"));
+        String ifExistsSql = ifExists.getSql().toUpperCase();
+        Assert.assertTrue(ifExistsSql.contains("ALTER TABLE"));
+        Assert.assertTrue(ifExistsSql.contains("`T_OUT`"));
+        Assert.assertTrue(ifExistsSql.contains("DROP IF EXISTS PARTITION"));
+        Assert.assertTrue(ifExistsSql.contains("DT"));
+        Assert.assertTrue(ifExistsSql.contains("'2024-01-01'"));
+
+        LogicalSparkNativeSql purge = (LogicalSparkNativeSql) body.getAnonymousBody().get(1);
+        String purgeSql = purge.getSql().toUpperCase();
+        Assert.assertTrue(purgeSql.contains("DROP PARTITION"));
+        Assert.assertTrue(purgeSql.contains("'2024-01-02'"));
+        Assert.assertTrue(purgeSql.contains("'2024-01-03'"));
+        Assert.assertTrue(purgeSql.contains("PURGE"));
+
+        LogicalSparkNativeSql view = (LogicalSparkNativeSql) body.getAnonymousBody().get(2);
+        String viewSql = view.getSql().toUpperCase();
+        Assert.assertTrue(viewSql.contains("ALTER VIEW"));
+        Assert.assertTrue(viewSql.contains("`V_OUT`"));
+        Assert.assertTrue(viewSql.contains("DROP IF EXISTS PARTITION"));
+        Assert.assertTrue(viewSql.contains("HH"));
+
+        try {
+            plTransformation.parseToBaseBody("ALTER TABLE t_out RENAME TO t_out2;");
+            Assert.fail("other ALTER TABLE statements stay unsupported");
+        } catch (ParseException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Unsupported SQL syntax"));
+        }
+
+        String withParam =
+                "def dt = '2024-01-01';\n"
+                        + "ALTER TABLE `t_out` DROP IF EXISTS PARTITION (dt = :dt);";
+        LogicalProject paramProject = plTransformation.parseToBaseBody(withParam);
+        LogicalSparkNativeSql paramDrop = null;
+        for (LogicalOperation operation : paramProject.getLogicalOperations()) {
+            if (operation instanceof LogicalAnonymousBody) {
+                for (LogicalOperation inner :
+                        ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                    if (inner instanceof LogicalSparkNativeSql) {
+                        paramDrop = (LogicalSparkNativeSql) inner;
+                    }
+                }
+            }
+        }
+        Assert.assertNotNull(paramDrop);
+        Assert.assertTrue(paramDrop.getSql().contains("\"${dt}\""));
+    }
+
+    @Test
+    public void parseJdbcInsertOverwrite() {
+        String pl =
+                "CREATE TABLE test1\n"
+                        + "USING jdbc\n"
+                        + "OPTIONS (\n"
+                        + "    'url'='jdbc:mysql://127.0.0.1:3306/mytest?useSSL=false',\n"
+                        + "    'driver'='com.mysql.cj.jdbc.Driver',\n"
+                        + "    'user'='root',\n"
+                        + "    'password'='123456',\n"
+                        + "    'table_name'='t_user'\n"
+                        + ");\n"
+                        + "INSERT OVERWRITE test1 (id, name) SELECT 1 AS id, 'a' AS name;\n";
+        LogicalProject project = plTransformation.parseToBaseBody(pl);
+        LogicalAnonymousBody body = null;
+        for (LogicalOperation operation : project.getLogicalOperations()) {
+            if (operation instanceof LogicalAnonymousBody) {
+                body = (LogicalAnonymousBody) operation;
+            }
+        }
+        Assert.assertNotNull(body);
+        Assert.assertEquals(1, body.getAnonymousBody().size());
+        LogicalInsertSelectSQL insert = (LogicalInsertSelectSQL) body.getAnonymousBody().get(0);
+        Assert.assertTrue(insert.isOverwrite());
+        Assert.assertEquals("test1", insert.getSinkTable().getTableName());
+        Assert.assertEquals(2, insert.getTargetColumns().size());
+        Assert.assertEquals("id", insert.getTargetColumns().get(0));
+        Assert.assertEquals("name", insert.getTargetColumns().get(1));
+    }
+
+    @Test
+    public void parseQuotedDmlResolvesUnquotedSink() {
+        String pl =
+                "CREATE TABLE t_user\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'datasource' = 'ds_177446813756928',\n"
+                        + "    'table_name' = 't_user',\n"
+                        + "    'type' = 'source'\n"
+                        + ");\n"
+                        + "CREATE TABLE t_user0\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'datasource' = 'ds_177446813756928',\n"
+                        + "    'table_name' = 't_user0',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "CREATE OR REPLACE TEMPORARY VIEW `__og_source_1` AS\n"
+                        + "SELECT `id`, `name`, `c_time`\n"
+                        + "FROM `t_user`;\n"
+                        + "TRUNCATE TABLE `t_user0`;\n"
+                        + "INSERT INTO TABLE `t_user0` (`id`, `name`, `c_time`)\n"
+                        + "SELECT `id`, `name`, `c_time`\n"
+                        + "FROM `__og_source_1`;\n";
+        LogicalProject project = plTransformation.parseToBaseBody(pl);
+        LogicalTruncateSQL truncate = null;
+        LogicalInsertSelectSQL insert = null;
+        for (LogicalOperation operation : project.getLogicalOperations()) {
+            if (!(operation instanceof LogicalAnonymousBody)) {
+                continue;
+            }
+            for (LogicalOperation inner : ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                if (inner instanceof LogicalTruncateSQL) {
+                    truncate = (LogicalTruncateSQL) inner;
+                } else if (inner instanceof LogicalInsertSelectSQL) {
+                    insert = (LogicalInsertSelectSQL) inner;
+                }
+            }
+        }
+        Assert.assertNotNull(truncate);
+        Assert.assertEquals("t_user0", truncate.getSinkTable().getTableName());
+        Assert.assertNotNull(insert);
+        Assert.assertEquals("t_user0", insert.getSinkTable().getTableName());
+        Assert.assertEquals("id", insert.getTargetColumns().get(0));
+        Assert.assertEquals("name", insert.getTargetColumns().get(1));
+        Assert.assertEquals("c_time", insert.getTargetColumns().get(2));
+
+        String quotedCreate =
+                "CREATE TABLE `t_quoted`\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name' = 't_quoted',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "TRUNCATE TABLE t_quoted;\n";
+        LogicalProject quoted = plTransformation.parseToBaseBody(quotedCreate);
+        LogicalCreateSinkTable sink = null;
+        LogicalTruncateSQL quotedTruncate = null;
+        for (LogicalOperation operation : quoted.getLogicalOperations()) {
+            if (operation instanceof LogicalCreateSinkTable) {
+                sink = (LogicalCreateSinkTable) operation;
+            } else if (operation instanceof LogicalAnonymousBody) {
+                for (LogicalOperation inner :
+                        ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                    if (inner instanceof LogicalTruncateSQL) {
+                        quotedTruncate = (LogicalTruncateSQL) inner;
+                    }
+                }
+            }
+        }
+        Assert.assertNotNull(sink);
+        Assert.assertEquals("t_quoted", sink.getTableName());
+        Assert.assertNotNull(quotedTruncate);
+        Assert.assertEquals("t_quoted", quotedTruncate.getSinkTable().getTableName());
+    }
+
+    @Test
+    public void parseQuotedInsertOverwriteResolvesSink() {
+        String pl =
+                "CREATE TABLE t_user\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'datasource' = 'ds_177446813756928',\n"
+                        + "    'table_name' = 't_user',\n"
+                        + "    'type' = 'source'\n"
+                        + ");\n"
+                        + "CREATE TABLE t_user0\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'datasource' = 'ds_177446813756928',\n"
+                        + "    'table_name' = 't_user0',\n"
+                        + "    'type' = 'sink'\n"
+                        + ");\n"
+                        + "CREATE OR REPLACE TEMPORARY VIEW `__og_source_1` AS\n"
+                        + "SELECT `id`, `name`, `c_time`\n"
+                        + "FROM `t_user`;\n"
+                        + "INSERT OVERWRITE TABLE `t_user0`\n"
+                        + "SELECT `id`, `name`, `c_time`\n"
+                        + "FROM `__og_source_1`;\n";
+        LogicalProject project = plTransformation.parseToBaseBody(pl);
+        LogicalInsertSelectSQL insert = null;
+        for (LogicalOperation operation : project.getLogicalOperations()) {
+            if (!(operation instanceof LogicalAnonymousBody)) {
+                continue;
+            }
+            for (LogicalOperation inner : ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                if (inner instanceof LogicalInsertSelectSQL) {
+                    insert = (LogicalInsertSelectSQL) inner;
+                }
+            }
+        }
+        Assert.assertNotNull(insert);
+        Assert.assertTrue(insert.isOverwrite());
+        Assert.assertEquals("t_user0", insert.getSinkTable().getTableName());
+    }
+
+    @Test
+    public void parseQuotedUpdateDeleteMergeResolvesSink() {
+        String pl =
+                "CREATE TABLE t_user\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name' = 't_user',\n"
+                        + "    'type' = 'source'\n"
+                        + ");\n"
+                        + "CREATE TABLE t_user0\n"
+                        + "USING mysql\n"
+                        + "OPTIONS (\n"
+                        + "    'table_name' = 't_user0',\n"
+                        + "    'type' = 'source,sink'\n"
+                        + ");\n"
+                        + "UPDATE `t_user0` SET `name` = 'a' WHERE `id` = 1;\n"
+                        + "DELETE FROM `t_user0` WHERE `id` = 2;\n"
+                        + "MERGE INTO `t_user0` t\n"
+                        + "USING `t_user` s\n"
+                        + "ON t.`id` = s.`id`\n"
+                        + "WHEN MATCHED THEN UPDATE SET t.`name` = s.`name`\n"
+                        + "WHEN NOT MATCHED THEN INSERT (`id`, `name`) VALUES (s.`id`, s.`name`);\n";
+        LogicalProject project = plTransformation.parseToBaseBody(pl);
+        LogicalUpdateSelectSQL update = null;
+        LogicalDeleteSelectSQL delete = null;
+        LogicalMergeIntoSQL merge = null;
+        for (LogicalOperation operation : project.getLogicalOperations()) {
+            if (!(operation instanceof LogicalAnonymousBody)) {
+                continue;
+            }
+            for (LogicalOperation inner : ((LogicalAnonymousBody) operation).getAnonymousBody()) {
+                if (inner instanceof LogicalUpdateSelectSQL) {
+                    update = (LogicalUpdateSelectSQL) inner;
+                } else if (inner instanceof LogicalDeleteSelectSQL) {
+                    delete = (LogicalDeleteSelectSQL) inner;
+                } else if (inner instanceof LogicalMergeIntoSQL) {
+                    merge = (LogicalMergeIntoSQL) inner;
+                }
+            }
+        }
+        Assert.assertNotNull(update);
+        Assert.assertEquals("t_user0", update.getSinkTable().getTableName());
+        Assert.assertEquals("name", update.getUpdateItems().get(0));
+        Assert.assertNotNull(delete);
+        Assert.assertEquals("t_user0", delete.getSinkTable().getTableName());
+        Assert.assertNotNull(merge);
+        Assert.assertEquals("t_user0", merge.getSinkTable().getTableName());
+        Assert.assertEquals("name", merge.getUpdateColumns().get(0));
+        Assert.assertEquals("id", merge.getInsertColumns().get(0));
+        Assert.assertEquals("name", merge.getInsertColumns().get(1));
     }
 
     private static LogicalAnonymousBody singleAnonymousBody(LogicalProject project) {

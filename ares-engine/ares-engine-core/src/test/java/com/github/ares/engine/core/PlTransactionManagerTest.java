@@ -153,6 +153,33 @@ public class PlTransactionManagerTest {
     }
 
     @Test
+    public void prepareOverwriteKeepsTheBatchOpen() {
+        PlTransactionManager manager = new PlTransactionManager();
+        RecordingHandler handler = new RecordingHandler();
+        manager.init(handler);
+        manager.start();
+        manager.commit();
+        assertEquals(1, handler.commits);
+        manager.prepareOverwrite(null, "t_user");
+        assertEquals(1, handler.overwrites);
+        manager.commit();
+        assertEquals(2, handler.commits);
+        assertTrue(manager.isActive());
+    }
+
+    @Test
+    public void prepareOverwriteRequiresTransaction() {
+        PlTransactionManager manager = new PlTransactionManager();
+        manager.init(new RecordingHandler());
+        try {
+            manager.prepareOverwrite(null, "t_user");
+            fail("expected AresException");
+        } catch (AresException e) {
+            assertTrue(e.getMessage().contains("INSERT OVERWRITE"));
+        }
+    }
+
+    @Test
     public void ensureNotActiveRejectsOpenTransaction() {
         PlTransactionManager manager = new PlTransactionManager();
         manager.start();
@@ -169,6 +196,7 @@ public class PlTransactionManagerTest {
         int rollbacks;
         int closes;
         int writes;
+        int overwrites;
 
         @Override
         public void write(
@@ -177,6 +205,11 @@ public class PlTransactionManagerTest {
                 CatalogTable catalogTable,
                 String sinkTableName) {
             writes++;
+        }
+
+        @Override
+        public void prepareOverwrite(AresSink<?, ?, ?, ?> sink, String sinkTableName) {
+            overwrites++;
         }
 
         @Override

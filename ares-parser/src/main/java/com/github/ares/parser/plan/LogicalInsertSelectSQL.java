@@ -18,6 +18,9 @@ public class LogicalInsertSelectSQL extends BaseSqlOption implements Serializabl
 
     private Boolean withEx;
 
+    /** JDBC {@code INSERT OVERWRITE}: clear existing rows, then insert, in one transaction. */
+    private boolean overwrite;
+
     public LogicalInsertSelectSQL() {
         super(OperationType.INSERT_SELECT_SQL);
     }

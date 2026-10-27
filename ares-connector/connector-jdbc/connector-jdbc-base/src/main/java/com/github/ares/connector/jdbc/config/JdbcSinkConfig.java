@@ -16,6 +16,13 @@ public class JdbcSinkConfig implements Serializable {
     private String dbType;
     private JdbcConnectionConfig jdbcConnectionConfig;
     private String simpleSql;
+
+    /**
+     * {@code DELETE} or transactional {@code TRUNCATE} used by {@code INSERT OVERWRITE}. Transient
+     * so existing serialized sinks keep their {@code serialVersionUID}.
+     */
+    private transient String overwriteClearSql;
+
     private String database;
     private String table;
     private String fieldIde;
@@ -42,6 +49,14 @@ public class JdbcSinkConfig implements Serializable {
 
     public void setSimpleSql(String simpleSql) {
         this.simpleSql = simpleSql;
+    }
+
+    public String getOverwriteClearSql() {
+        return overwriteClearSql;
+    }
+
+    public void setOverwriteClearSql(String overwriteClearSql) {
+        this.overwriteClearSql = overwriteClearSql;
     }
 
     public String getDatabase() {
@@ -90,6 +105,8 @@ public class JdbcSinkConfig implements Serializable {
                         JdbcSinkTypeHandler.handleSinkType(
                                 SinkType.valueOf(sinkType), config, sourceColumns, dialect);
         jdbcSinkConfig.setSimpleSql(statementSql);
+        jdbcSinkConfig.setOverwriteClearSql(
+                dialect.overwriteClearStatement(JdbcSinkTypeHandler.quotedTable(config, dialect)));
 
         return jdbcSinkConfig;
     }

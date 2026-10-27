@@ -12,6 +12,7 @@ import com.github.ares.connector.jdbc.internal.connection.SimpleJdbcConnectionPr
 import com.github.ares.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +39,27 @@ public class JdbcPlTransactionSession {
             throw e;
         } catch (Exception e) {
             throw new AresException("Write in transaction failed: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Deletes or truncates the target on the same connection that later {@link #write} calls use.
+     * The caller commits or rolls back both steps together.
+     */
+    public void clearForOverwrite(JdbcSink jdbcSink) {
+        String sql = jdbcSink.getJdbcSinkConfig().getOverwriteClearSql();
+        if (sql == null || sql.trim().isEmpty()) {
+            throw new AresException("INSERT OVERWRITE clear SQL is missing");
+        }
+        try {
+            SourceSession source = sourceFor(jdbcSink);
+            try (Statement statement = source.connection().createStatement()) {
+                statement.execute(sql);
+            }
+        } catch (AresException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AresException("INSERT OVERWRITE clear failed: " + e.getMessage(), e);
         }
     }
 
@@ -93,15 +115,18 @@ public class JdbcPlTransactionSession {
 
     private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> getOrCreateWriter(
             JdbcSink jdbcSink) throws Exception {
-        JdbcSinkConfig sinkConfig = jdbcSink.getJdbcSinkConfig();
-        JdbcConnectionConfig jdbcConfig = sinkConfig.getJdbcConnectionConfig();
+        return sourceFor(jdbcSink).writer(jdbcSink);
+    }
+
+    private SourceSession sourceFor(JdbcSink jdbcSink) throws Exception {
+        JdbcConnectionConfig jdbcConfig = jdbcSink.getJdbcSinkConfig().getJdbcConnectionConfig();
         String key = connectionKey(jdbcConfig);
         SourceSession source = sources.get(key);
         if (source == null) {
             source = new SourceSession(jdbcConfig);
             sources.put(key, source);
         }
-        return source.writer(jdbcSink);
+        return source;
     }
 
     private void flushWriters() throws Exception {
@@ -135,6 +160,10 @@ public class JdbcPlTransactionSession {
             sharedProvider = new SharedJdbcConnectionProvider(connectionProvider);
             Connection connection = connectionProvider.getOrEstablishConnection();
             connection.setAutoCommit(false);
+        }
+
+        private Connection connection() {
+            return connectionProvider.getConnection();
         }
 
         private JdbcOutputFormat<AresRow, JdbcBatchStatementExecutor<AresRow>> writer(

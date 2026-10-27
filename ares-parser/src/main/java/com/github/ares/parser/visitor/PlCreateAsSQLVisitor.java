@@ -4,6 +4,7 @@ import static com.github.ares.parser.utils.PLParserUtil.setRepartition;
 import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalCreateTableAsSQL;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -28,18 +29,19 @@ public class PlCreateAsSQLVisitor {
 
     public LogicalOperation visitCreateInnerTable(
             String originalSql, String createSQL, String innerTableName) {
-        if (sourceTables.containsKey(innerTableName.toLowerCase())) {
+        String normalized = SourceSinkTable.normalizeAlias(innerTableName);
+        if (sourceTables.containsKey(normalized)) {
             throw new ParseException(
                     String.format("Source table: %s exists, SQL: %s", innerTableName, createSQL));
         }
-        sourceTables.put(innerTableName.toLowerCase(), null);
+        sourceTables.put(normalized, null);
         int idx = createSQL.indexOf(innerTableName);
         idx = createSQL.toUpperCase().indexOf(" AS ", idx);
         String selectSQL = createSQL.substring(idx + 4);
         selectSQL = PLParserUtil.cleanSQL(selectSQL);
 
         LogicalCreateTableAsSQL createTableAsSQL = new LogicalCreateTableAsSQL();
-        createTableAsSQL.setTableName(innerTableName);
+        createTableAsSQL.setTableName(SourceSinkTable.plainName(innerTableName));
         createTableAsSQL.setOriginSQL(originalSql);
         SQLSelect sqlSelect = sqlParser.parseSelect(selectSQL);
         createTableAsSQL.setSelectSQL(sqlSelect.getSourceSql());

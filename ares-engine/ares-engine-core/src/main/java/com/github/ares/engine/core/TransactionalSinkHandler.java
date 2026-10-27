@@ -12,6 +12,12 @@ public interface TransactionalSinkHandler {
             CatalogTable catalogTable,
             String sinkTableName);
 
+    /**
+     * Clears a JDBC target before {@link #write} on the same open transaction. The manager commits
+     * or rolls back both steps together.
+     */
+    void prepareOverwrite(AresSink<?, ?, ?, ?> sink, String sinkTableName);
+
     void commit();
 
     void rollbackQuietly();

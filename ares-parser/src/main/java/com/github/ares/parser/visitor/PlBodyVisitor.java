@@ -3,6 +3,7 @@ package com.github.ares.parser.visitor;
 import com.github.ares.common.engine.InternalFieldType;
 import com.github.ares.common.engine.PlType;
 import com.github.ares.common.exceptions.ParseException;
+import com.github.ares.org.antlr.v4.runtime.tree.ParseTree;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.hive.HiveTables;
 import com.github.ares.parser.paimon.PaimonTables;
@@ -21,14 +22,20 @@ import com.github.ares.parser.plan.LogicalRollback;
 import com.github.ares.parser.plan.LogicalSetConfig;
 import com.github.ares.parser.plan.LogicalStartTransaction;
 import com.github.ares.parser.utils.PLParserUtil;
-import com.github.ares.org.antlr.v4.runtime.tree.ParseTree;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class PlBodyVisitor {
+    private static final Pattern DROP_TABLE_PARTITION =
+            Pattern.compile("(?i)\\bDROP\\s+(?:IF\\s+EXISTS\\s+)?PARTITION\\b");
+
+    private static final Pattern ADD_TABLE_PARTITION =
+            Pattern.compile("(?i)\\bADD\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?PARTITION\\b");
+
     protected PlVisitorManager visitorManager;
 
     public void init(PlVisitorManager visitorManager) {
@@ -250,7 +257,18 @@ public class PlBodyVisitor {
         if (prefix.CACHE() != null || prefix.UNCACHE() != null) {
             return visitorManager.getSparkNativeSqlVisitor().visit(originalSql, sql);
         }
+        if (prefix.ALTER() != null && isNativePartitionAlter(sql)) {
+            return visitorManager.getSparkNativeSqlVisitor().visit(originalSql, sql);
+        }
         throw new ParseException("Unsupported SQL syntax: " + originalSql);
+    }
+
+    /**
+     * {@code ALTER TABLE|VIEW ... ADD [IF NOT EXISTS] PARTITION} and {@code DROP [IF EXISTS]
+     * PARTITION}. The partition list itself is checked by the Spark SQL parser.
+     */
+    private static boolean isNativePartitionAlter(String sql) {
+        return DROP_TABLE_PARTITION.matcher(sql).find() || ADD_TABLE_PARTITION.matcher(sql).find();
     }
 
     private List<LogicalOperation> visitCteSql(
