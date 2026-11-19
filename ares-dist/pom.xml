@@ -141,6 +141,11 @@
         </dependency>
         <dependency>
             <groupId>com.github.ares</groupId>
+            <artifactId>connector-oscar</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ares</groupId>
             <artifactId>connector-postgres</artifactId>
             <version>${project.version}</version>
         </dependency>

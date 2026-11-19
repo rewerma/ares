@@ -30,4 +30,5 @@ public class DatabaseIdentifier {
     public static final String DORIS = "Doris";
     public static final String CLICKHOUSE = "ClickHouse";
     public static final String TIDB = "TiDB";
+    public static final String OSCAR = "Oscar";
 }

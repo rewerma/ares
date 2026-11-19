@@ -16,6 +16,7 @@
         <module>connector-jdbc-base</module>
         <module>connector-mysql</module>
         <module>connector-oracle</module>
+        <module>connector-oscar</module>
         <module>connector-postgres</module>
         <module>connector-sqlserver</module>
         <module>connector-db2</module>
