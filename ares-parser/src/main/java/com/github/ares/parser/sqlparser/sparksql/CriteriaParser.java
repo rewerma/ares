@@ -86,7 +86,8 @@ public class CriteriaParser {
                         (SqlBaseParser.DereferenceContext) primaryExpressionContext;
                 String field = SqlIdentifier.plain(dereferenceContext.fieldName.getText());
                 criteriaClause.setLeftExpr(field);
-                String alias = SqlIdentifier.plain(dereferenceContext.primaryExpression().getText());
+                String alias =
+                        SqlIdentifier.plain(dereferenceContext.primaryExpression().getText());
                 String expected =
                         targetTableAlias == null ? null : SqlIdentifier.plain(targetTableAlias);
                 if (!alias.equalsIgnoreCase(expected)) {

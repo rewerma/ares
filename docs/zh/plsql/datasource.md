@@ -61,14 +61,19 @@ OPTIONS (
 | `oracle` | `oracle.jdbc.OracleDriver` | `jdbc:oracle:thin:@主机:端口:SID` |
 | `postgres` | `org.postgresql.Driver` | `jdbc:postgresql://主机:端口/库名` |
 | `sqlserver` | `com.microsoft.sqlserver.jdbc.SQLServerDriver` | `jdbc:sqlserver://主机:端口;databaseName=库名` |
+| `db2` | `com.ibm.db2.jcc.DB2Driver` | `jdbc:db2://主机:端口/库名` |
+| `sybase` | `net.sourceforge.jtds.jdbc.Driver` | `jdbc:jtds:sybase://主机:端口/库名` |
+| `vertica` | `com.vertica.jdbc.Driver` | `jdbc:vertica://主机:端口/库名` |
+| `gbase8s` | `com.gbasedbt.jdbc.Driver` | `jdbc:gbasedbt-sqli://主机:端口/库名:GBASEDBTSERVER=服务名` |
 | `dameng` | `dm.jdbc.driver.DmDriver` | `jdbc:dm://主机:端口` |
 | `kingbase` | `com.kingbase8.Driver` | `jdbc:kingbase8://主机:端口/库名` |
 | `oceanbase` | `com.oceanbase.jdbc.Driver` | `jdbc:oceanbase://主机:端口/库名` |
 | `opengauss` | `org.opengauss.Driver` | `jdbc:opengauss://主机:端口/库名` |
 | `starrocks` | `com.mysql.cj.jdbc.Driver` | `jdbc:mysql://FE主机:9030/库名` |
 | `doris` | `com.mysql.cj.jdbc.Driver` | `jdbc:mysql://FE主机:9030/库名` |
+| `clickhouse` | `com.clickhouse.jdbc.ClickHouseDriver` | `jdbc:clickhouse://主机:8123/库名` |
 
-`table_name` 在 `mysql`、`starrocks`、`doris`，以及 `oceanbase` 的 MySQL 模式里，写成表名或 `库名.表名`。在 `oracle`、`sqlserver`、`postgres`、`dameng`、`kingbase`、`opengauss`，以及 `oceanbase` 的 Oracle 模式里，写成 `schema.表名`。
+`table_name` 在 `mysql`、`starrocks`、`doris`、`clickhouse`，以及 `oceanbase` 的 MySQL 模式里，写成表名或 `库名.表名`。在 `oracle`、`sqlserver`、`db2`、`sybase`、`vertica`、`gbase8s`、`postgres`、`dameng`、`kingbase`、`opengauss`，以及 `oceanbase` 的 Oracle 模式里，写成 `schema.表名`。Sybase 未写模式时按 `dbo`，Vertica 未写模式时按 `public`。DB2 的模式也可以只写在连接地址的 `currentSchema` 里。GBase 8s 未写模式时按当前用户解析，连接地址里的 `GBASEDBTSERVER` 会保留。Oracle 字符集 `ZHS16GBK` 依赖同目录的 `orai18n`。
 
 Kingbase 使用 KingbaseES V8 的 `kingbase8` 驱动，地址也可以写成 `jdbc:kingbase://`。
 

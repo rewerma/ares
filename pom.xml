@@ -42,6 +42,12 @@
         <oracle.version>12.2.0.1</oracle.version>
         <postgresql.version>42.7.3</postgresql.version>
         <sqlserver.version>9.2.1.jre8</sqlserver.version>
+        <db2.version>11.5.6.0</db2.version>
+        <jtds.version>1.3.1</jtds.version>
+        <vertica.version>24.1.0-0</vertica.version>
+        <gbase8s.version>3.6.3.32</gbase8s.version>
+        <clickhouse.version>0.4.6</clickhouse.version>
+        <lz4.version>1.8.0</lz4.version>
         <dameng.version>8.1.3.140</dameng.version>
         <kingbase.version>8.6.1</kingbase.version>
         <oceanbase.version>2.4.12</oceanbase.version>
@@ -147,6 +153,11 @@
                 <version>${oracle.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.oracle.database.nls</groupId>
+                <artifactId>orai18n</artifactId>
+                <version>${oracle.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
@@ -155,6 +166,51 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${sqlserver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ibm.db2</groupId>
+                <artifactId>jcc</artifactId>
+                <version>${db2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.jtds</groupId>
+                <artifactId>jtds</artifactId>
+                <version>${jtds.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vertica.jdbc</groupId>
+                <artifactId>vertica-jdbc</artifactId>
+                <version>${vertica.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.gbasedbt</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${gbase8s.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-http-client</artifactId>
+                <version>${clickhouse.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-client</artifactId>
+                <version>${clickhouse.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-data</artifactId>
+                <version>${clickhouse.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
+                <version>${lz4.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.dameng</groupId>

@@ -6,6 +6,7 @@ public class DatabaseIdentifier {
     public static final String DB_2 = "DB2";
     public static final String DAMENG = "Dameng";
     public static final String GBASE_8A = "Gbase8a";
+    public static final String GBASE_8S = "GBase8s";
     public static final String HIVE = "HIVE";
     public static final String INFORMIX = "Informix";
     public static final String KINGBASE = "KingBase";
@@ -18,6 +19,7 @@ public class DatabaseIdentifier {
     public static final String SNOWFLAKE = "Snowflake";
     public static final String SQLITE = "Sqlite";
     public static final String SQLSERVER = "SqlServer";
+    public static final String SYBASE = "Sybase";
     public static final String TABLE_STORE = "Tablestore";
     public static final String TERADATA = "Teradata";
     public static final String VERTICA = "Vertica";
@@ -26,5 +28,6 @@ public class DatabaseIdentifier {
     public static final String OPENGAUSS = "OpenGauss";
     public static final String STARROCKS = "StarRocks";
     public static final String DORIS = "Doris";
+    public static final String CLICKHOUSE = "ClickHouse";
     public static final String TIDB = "TiDB";
 }

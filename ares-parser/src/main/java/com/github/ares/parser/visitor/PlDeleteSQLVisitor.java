@@ -5,9 +5,9 @@ import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.paimon.PaimonDml;
 import com.github.ares.parser.paimon.PaimonTables;
-import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
 import com.github.ares.parser.plan.LogicalOperation;

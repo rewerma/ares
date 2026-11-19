@@ -8,6 +8,7 @@ import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import com.github.ares.parser.plan.LogicalOperation;
+import com.github.ares.parser.plan.LogicalSparkNativeSql;
 import com.github.ares.parser.sqlparser.SQLParser;
 import com.github.ares.parser.sqlparser.SQLParserFactory;
 import com.github.ares.parser.sqlparser.SQLParserFactoryLoader;
@@ -33,6 +34,15 @@ public class PlInsertSQLVisitor {
         LogicalCreateSinkTable sinkTable =
                 sinkTables.get(SourceSinkTable.normalizeAlias(sqlInsert.getTable()));
         if (sinkTable == null) {
+            // Catalog-qualified targets (`catalog`.`db`.`table`) are Spark SQL, including
+            // INSERT OVERWRITE of a Paimon SparkCatalog table. A registered Ares sink rejects
+            // OVERWRITE.
+            if (sqlInsert.getTable() != null && sqlInsert.getTable().contains(".")) {
+                LogicalSparkNativeSql nativeSql = new LogicalSparkNativeSql();
+                nativeSql.setOriginSQL(originalSql);
+                nativeSql.setSql(insertSQL);
+                return nativeSql;
+            }
             throw new ParseException(
                     String.format("Sink table name not exists: %s", sqlInsert.getTable()));
         }
