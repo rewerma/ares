@@ -19,6 +19,7 @@
         <module>connector-console</module>
         <module>connector-jdbc</module>
         <module>connector-paimon</module>
+        <module>connector-druid</module>
     </modules>
 
     <properties>
