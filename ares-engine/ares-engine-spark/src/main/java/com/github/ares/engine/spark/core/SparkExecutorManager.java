@@ -4,6 +4,7 @@ import com.github.ares.api.sink.AresSink;
 import com.github.ares.api.table.catalog.CatalogTable;
 import com.github.ares.com.google.inject.Inject;
 import com.github.ares.engine.core.ExecutorManager;
+import com.github.ares.engine.core.TransactionalSinkHandler;
 import com.github.ares.parser.config.PlProperties;
 import com.github.ares.parser.hive.HiveTables;
 import com.github.ares.parser.paimon.PaimonTables;
@@ -26,7 +27,11 @@ public class SparkExecutorManager extends ExecutorManager implements Serializabl
     public void init(PlProperties plProperties, SparkSession sparkSession) {
         sparkSessionManager.init(sparkSession);
         super.init(plProperties);
-        getTransactionManager().init(new SparkJdbcTransactionalSinkHandler(this));
+        getTransactionManager().init(createTransactionalSinkHandler());
+    }
+
+    TransactionalSinkHandler createTransactionalSinkHandler() {
+        return new SparkLazyTransactionalSinkHandler(this);
     }
 
     @Override

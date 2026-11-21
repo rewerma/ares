@@ -23,15 +23,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.github.ares.api.source.AresSource;
 import com.github.ares.api.source.SourceTableInfo;
 import com.github.ares.api.table.factory.Factory;
 import com.github.ares.api.table.factory.FactoryUtil;
 import com.github.ares.api.table.factory.TableSinkFactory;
 import com.github.ares.api.table.factory.TableSourceFactory;
+import com.github.ares.common.configuration.ReadonlyConfig;
+import com.github.ares.common.utils.SerializationUtils;
 import com.github.ares.connector.discovery.AresFactoryDiscovery;
 import com.github.ares.connector.discovery.PluginIdentifier;
 import com.github.ares.connector.druid.config.DruidOptions;
 import com.github.ares.connector.druid.sink.DruidSinkFactory;
+import com.github.ares.connector.druid.source.DruidSource;
+import com.github.ares.connector.druid.source.DruidSourceConfig;
 import com.github.ares.connector.utils.PluginUtil;
 
 import java.util.ArrayList;
@@ -153,6 +158,33 @@ public class DruidConnectorDispatchTest {
             assertTrue(ex.getMessage().contains("read-only SELECT or EXPLAIN"));
             assertEquals(null, transport.lastBody.get());
         }
+    }
+
+    @Test
+    public void sourceSerializesForSparkOptions() {
+        Map<String, Object> config = new LinkedHashMap<String, Object>();
+        config.put("url", ENDPOINT);
+        config.put("table_name", "docker-install-health-test");
+        config.put("user", "admin");
+        config.put("password", "secret");
+        config.put("query_timeout_ms", 15000);
+        DruidSource source = new DruidSource(ReadonlyConfig.fromMap(config));
+
+        String encoded = SerializationUtils.objectToString(source);
+        AresSource<?, ?, ?> restored = SerializationUtils.stringToObject(encoded);
+
+        assertTrue(restored instanceof DruidSource);
+        assertEquals("druid", restored.getPluginName());
+
+        DruidSourceConfig restoredConfig =
+                SerializationUtils.stringToObject(
+                        SerializationUtils.objectToString(new DruidSourceConfig(ReadonlyConfig.fromMap(config))));
+        assertEquals(ENDPOINT, restoredConfig.getUrl());
+        assertEquals("admin", restoredConfig.getUser());
+        assertEquals("secret", restoredConfig.getPassword());
+        assertEquals(15000, restoredConfig.getTimeoutMs());
+        assertEquals(
+                "SELECT * FROM \"docker-install-health-test\"", restoredConfig.resolveSql());
     }
 
     @Test

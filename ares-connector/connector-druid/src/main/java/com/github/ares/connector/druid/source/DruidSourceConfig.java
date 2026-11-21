@@ -29,7 +29,12 @@ import com.github.ares.connector.druid.DruidIdentifiers;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class DruidSourceConfig {
+import java.io.Serializable;
+
+/** Spark serializes the source (and this config) into DataFrameReader options. */
+public class DruidSourceConfig implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String url;
     private final String user;
