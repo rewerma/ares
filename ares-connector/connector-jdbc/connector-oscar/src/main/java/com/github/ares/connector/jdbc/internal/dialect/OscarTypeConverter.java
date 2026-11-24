@@ -31,7 +31,8 @@ import com.google.auto.service.AutoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Oscar types follow the Oracle-compatible set. reference https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
+// Oscar types follow the Oracle-compatible set. reference
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Data-Types.html
 @AutoService(TypeConverter.class)
 public class OscarTypeConverter implements TypeConverter<BasicTypeDefine> {
     private static final Logger log = LoggerFactory.getLogger(OscarTypeConverter.class);

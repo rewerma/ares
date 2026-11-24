@@ -2,33 +2,44 @@ package com.github.ares.spark.starter;
 
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.core.starter.command.Common;
-import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.lake.LakeFormat;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.plan.LogicalProject;
 import java.nio.file.Path;
 import java.util.List;
 
-/**
- * Adds the Paimon Spark jar from thirdparty/paimon, and Hadoop jars when the warehouse is on HDFS.
- */
+/** Adds lake Spark jars from thirdparty, and Hadoop jars when a warehouse is on HDFS. */
 public final class PaimonStarterSupport {
     private PaimonStarterSupport() {}
 
     public static void rejectFilesystemOnSpark2(LogicalProject project) {
-        if (PaimonTables.projectUsesFilesystem(project)) {
-            throw new ParseException("Paimon filesystem catalog requires Spark 3");
+        for (LakeFormat format : LakeFormat.values()) {
+            if (LakeTables.projectUsesFilesystem(project, format)) {
+                throw new ParseException(
+                        format.displayName() + " filesystem catalog requires Spark 3");
+            }
         }
     }
 
     public static void addFilesystemDependencies(List<Path> jars, LogicalProject project) {
-        if (!PaimonTables.projectUsesFilesystem(project)) {
-            return;
+        boolean hdfs = false;
+        for (LakeFormat format : LakeFormat.values()) {
+            if (!LakeTables.projectUsesFilesystem(project, format)) {
+                continue;
+            }
+            List<Path> formatJars = Common.getThirdPartyComponentJars(format.connector());
+            if (formatJars.isEmpty()) {
+                throw new ParseException(
+                        format.displayName()
+                                + " filesystem catalog requires thirdparty/"
+                                + format.connector());
+            }
+            addAll(jars, formatJars);
+            if (LakeTables.projectUsesHdfs(project, format)) {
+                hdfs = true;
+            }
         }
-        List<Path> paimonJars = Common.getThirdPartyPaimonJars();
-        if (paimonJars.isEmpty()) {
-            throw new ParseException("Paimon filesystem catalog requires thirdparty/paimon");
-        }
-        addAll(jars, paimonJars);
-        if (PaimonTables.projectUsesHdfs(project)) {
+        if (hdfs) {
             addAll(jars, Common.getThirdPartyHadoopJars());
         }
     }

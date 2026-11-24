@@ -6,7 +6,7 @@ import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.org.antlr.v4.runtime.tree.ParseTree;
 import com.github.ares.parser.antlr4.plsql.PlSqlParser;
 import com.github.ares.parser.hive.HiveTables;
-import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.plan.LogicalAssignment;
 import com.github.ares.parser.plan.LogicalCommit;
 import com.github.ares.parser.plan.LogicalContinueLoop;
@@ -342,7 +342,7 @@ public class PlBodyVisitor {
             if (operation instanceof LogicalCreateTableAsSQL
                     && (HiveTables.scriptUsesHive(
                                     ((LogicalCreateTableAsSQL) operation).getOriginSQL())
-                            || PaimonTables.scriptUsesPaimon(
+                            || LakeTables.scriptUsesLake(
                                     ((LogicalCreateTableAsSQL) operation).getOriginSQL()))) {
                 return true;
             }

@@ -11,6 +11,8 @@ import com.github.ares.parser.config.ParserInjectorFactory;
 import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.lake.LakeFormat;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalAnonymousBody;
 import com.github.ares.parser.plan.LogicalCommit;
@@ -690,6 +692,108 @@ public class PlParserTest {
         Assert.assertTrue(hiveCreated.getSql().contains("`default`.`t_hive`"));
         Assert.assertFalse(hiveCreated.getSql().contains("`paimon`"));
         Assert.assertTrue(hiveCreated.getSql().contains("'primary-key'='id'"));
+    }
+
+    @Test
+    public void parseHudiAndIcebergCreateTable() {
+        String hudi =
+                "CREATE TABLE t_user (\n"
+                        + "    id BIGINT,\n"
+                        + "    name STRING,\n"
+                        + "    dt STRING,\n"
+                        + "    PRIMARY KEY (id, dt) NOT ENFORCED\n"
+                        + ")\n"
+                        + "USING hudi\n"
+                        + "PARTITIONED BY (dt)\n"
+                        + "OPTIONS (\n"
+                        + "    'metastore' = 'filesystem',\n"
+                        + "    'fs.defaultFS' = 'hdfs://localhost:9000',\n"
+                        + "    'warehouse' = '/hudi',\n"
+                        + "    'table_name' = 'default.t_user',\n"
+                        + "    'preCombineField' = 'ts',\n"
+                        + "    'type' = 'source,sink'\n"
+                        + ");\n"
+                        + "UPDATE t_user SET name = 'a' WHERE id = 1;";
+        LogicalProject hudiProject = plTransformation.parseToBaseBody(hudi);
+        LogicalCreatePaimonTable hudiCreated = null;
+        LogicalCreateSinkTable hudiSink = null;
+        LogicalUpdateSelectSQL hudiUpdate = null;
+        List<LogicalOperation> hudiOperations = new ArrayList<>();
+        for (LogicalOperation operation : hudiProject.getLogicalOperations()) {
+            if (operation instanceof LogicalAnonymousBody) {
+                hudiOperations.addAll(((LogicalAnonymousBody) operation).getAnonymousBody());
+            } else {
+                hudiOperations.add(operation);
+            }
+        }
+        for (LogicalOperation operation : hudiOperations) {
+            if (operation instanceof LogicalCreatePaimonTable) {
+                hudiCreated = (LogicalCreatePaimonTable) operation;
+            } else if (operation instanceof LogicalCreateSinkTable) {
+                hudiSink = (LogicalCreateSinkTable) operation;
+            } else if (operation instanceof LogicalUpdateSelectSQL) {
+                hudiUpdate = (LogicalUpdateSelectSQL) operation;
+            }
+        }
+        Assert.assertNotNull(hudiCreated);
+        String hudiDdl = hudiCreated.getSql().toLowerCase();
+        Assert.assertTrue(hudiDdl.contains("`default`.`t_user`"));
+        Assert.assertFalse(hudiDdl.contains("`hudi`.`default`"));
+        Assert.assertTrue(hudiDdl.contains("using hudi"));
+        Assert.assertTrue(hudiDdl.contains("location 'hdfs://localhost:9000/hudi/default/t_user'"));
+        Assert.assertTrue(hudiDdl.contains("'primarykey'='id,dt'"));
+        Assert.assertTrue(hudiDdl.contains("'precombinefield'='ts'"));
+        Assert.assertNotNull(hudiSink);
+        Assert.assertEquals("hudi", hudiSink.getConnector());
+        Assert.assertEquals("hdfs://localhost:9000/hudi", hudiSink.getOptions().get("warehouse"));
+        Assert.assertTrue(LakeTables.projectUsesFilesystem(hudiProject, LakeFormat.HUDI));
+        Assert.assertTrue(LakeTables.projectUsesHdfs(hudiProject, LakeFormat.HUDI));
+        Assert.assertFalse(PaimonTables.projectUsesFilesystem(hudiProject));
+        Assert.assertNotNull(hudiUpdate);
+        Assert.assertTrue(hudiUpdate.getPaimonSql().contains("__ARES_PAIMON_TARGET__"));
+
+        String iceberg =
+                "CREATE TABLE IF NOT EXISTS t_ice (\n"
+                        + "    id BIGINT,\n"
+                        + "    name STRING,\n"
+                        + "    PRIMARY KEY (id) NOT ENFORCED\n"
+                        + ")\n"
+                        + "USING iceberg\n"
+                        + "OPTIONS (\n"
+                        + "    'metastore' = 'filesystem',\n"
+                        + "    'warehouse' = '/iceberg',\n"
+                        + "    'table_name' = 'default.t_ice',\n"
+                        + "    'format-version' = '2'\n"
+                        + ");";
+        LogicalProject icebergProject = plTransformation.parseToBaseBody(iceberg);
+        LogicalCreatePaimonTable icebergCreated = null;
+        for (LogicalOperation operation : icebergProject.getLogicalOperations()) {
+            if (operation instanceof LogicalCreatePaimonTable) {
+                icebergCreated = (LogicalCreatePaimonTable) operation;
+            }
+        }
+        Assert.assertNotNull(icebergCreated);
+        String icebergDdl = icebergCreated.getSql().toLowerCase();
+        Assert.assertTrue(icebergDdl.contains("`iceberg`.`default`.`t_ice`"));
+        Assert.assertTrue(icebergDdl.contains("using iceberg"));
+        Assert.assertTrue(icebergDdl.contains("'format-version'='2'"));
+        Assert.assertFalse(icebergDdl.contains("primary"));
+        Assert.assertEquals("id", icebergCreated.getProperties().get("identifier-fields"));
+        Assert.assertTrue(LakeTables.projectUsesFilesystem(icebergProject, LakeFormat.ICEBERG));
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseHudiFilesystemRejectsCustomCatalog() {
+        String pl =
+                "CREATE TABLE test1\n"
+                        + "USING hudi\n"
+                        + "OPTIONS (\n"
+                        + "    'metastore' = 'filesystem',\n"
+                        + "    'warehouse' = '/hudi',\n"
+                        + "    'catalog' = 'other',\n"
+                        + "    'table_name'='default.t_user'\n"
+                        + ");";
+        plTransformation.parseToBaseBody(pl);
     }
 
     @Test

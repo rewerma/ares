@@ -9,8 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Defers loading {@link SparkJdbcTransactionalSinkHandler} until a transactional JDBC sink is
- * actually used. Engine init and script-end close must not require {@code
- * JdbcPlTransactionSession} on the classpath (for example a Druid-only {@code --jars} set).
+ * actually used. Engine init and script-end close must not require {@code JdbcPlTransactionSession}
+ * on the classpath (for example a Druid-only {@code --jars} set).
  */
 public class SparkLazyTransactionalSinkHandler implements TransactionalSinkHandler {
 

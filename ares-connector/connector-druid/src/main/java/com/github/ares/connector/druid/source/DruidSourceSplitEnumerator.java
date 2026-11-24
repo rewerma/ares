@@ -18,7 +18,6 @@
 package com.github.ares.connector.druid.source;
 
 import com.github.ares.api.source.SourceSplitEnumerator;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

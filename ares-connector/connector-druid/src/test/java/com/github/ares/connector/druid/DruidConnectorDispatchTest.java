@@ -38,13 +38,10 @@ import com.github.ares.connector.druid.sink.DruidSinkFactory;
 import com.github.ares.connector.druid.source.DruidSource;
 import com.github.ares.connector.druid.source.DruidSourceConfig;
 import com.github.ares.connector.utils.PluginUtil;
-
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.junit.After;
 import org.junit.Test;
 
@@ -60,8 +57,7 @@ public class DruidConnectorDispatchTest {
     @Test
     public void factoryDiscoveryFindsDruidSourceAndSink() {
         List<Factory> factories =
-                FactoryUtil.discoverFactories(
-                        Thread.currentThread().getContextClassLoader());
+                FactoryUtil.discoverFactories(Thread.currentThread().getContextClassLoader());
         boolean source = false;
         boolean sink = false;
         for (Factory factory : factories) {
@@ -81,7 +77,8 @@ public class DruidConnectorDispatchTest {
     @Test
     public void pluginUtilCreateSourceRunsSelectThroughSqlHttp() {
         RecordingTransport transport =
-                new RecordingTransport("[[\"__time\",\"page\"],[\"LONG\",\"STRING\"],[1690000000000,\"Home\"]]");
+                new RecordingTransport(
+                        "[[\"__time\",\"page\"],[\"LONG\",\"STRING\"],[1690000000000,\"Home\"]]");
         DruidSqlClient.setTestTransport(transport);
         Map<String, Object> config = new LinkedHashMap<String, Object>();
         config.put("url", ENDPOINT);
@@ -96,7 +93,9 @@ public class DruidConnectorDispatchTest {
 
         assertNotNull(info);
         assertEquals("druid", info.getSource().getPluginName());
-        assertEquals("__time", info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getName());
+        assertEquals(
+                "__time",
+                info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getName());
         assertEquals(ENDPOINT, transport.lastUrl.get());
         assertEquals(
                 "SELECT * FROM \"docker-install-health-test\"",
@@ -119,19 +118,20 @@ public class DruidConnectorDispatchTest {
         AresFactoryDiscovery discovery = new AresFactoryDiscovery(TableSourceFactory.class);
         SourceTableInfo info =
                 PluginUtil.createSource(discovery, PluginIdentifier.of("source", "druid"), config);
-        assertEquals("__time", info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getName());
+        assertEquals(
+                "__time",
+                info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getName());
         assertEquals(
                 com.github.ares.api.table.type.LocalTimeType.LOCAL_DATE_TIME_TYPE,
                 info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getDataType());
-        assertEquals(
-                "SELECT * FROM \"t_user1\"",
-                queryFromRequestBody(transport.lastBody.get()));
+        assertEquals("SELECT * FROM \"t_user1\"", queryFromRequestBody(transport.lastBody.get()));
     }
 
     @Test
     public void pluginUtilCreateSourceAllowsExplain() {
 
-        RecordingTransport transport = new RecordingTransport("[[\"PLAN\"],[\"STRING\"],[\"Scan\"]]");
+        RecordingTransport transport =
+                new RecordingTransport("[[\"PLAN\"],[\"STRING\"],[\"Scan\"]]");
         DruidSqlClient.setTestTransport(transport);
         Map<String, Object> config = new LinkedHashMap<String, Object>();
         config.put("url", ENDPOINT);
@@ -139,7 +139,9 @@ public class DruidConnectorDispatchTest {
         AresFactoryDiscovery discovery = new AresFactoryDiscovery(TableSourceFactory.class);
         SourceTableInfo info =
                 PluginUtil.createSource(discovery, PluginIdentifier.of("source", "druid"), config);
-        assertEquals("PLAN", info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getName());
+        assertEquals(
+                "PLAN",
+                info.getCatalogTables().get(0).getTableSchema().getColumns().get(0).getName());
         assertTrue(transport.lastBody.get().contains("EXPLAIN SELECT 1"));
     }
 
@@ -178,13 +180,13 @@ public class DruidConnectorDispatchTest {
 
         DruidSourceConfig restoredConfig =
                 SerializationUtils.stringToObject(
-                        SerializationUtils.objectToString(new DruidSourceConfig(ReadonlyConfig.fromMap(config))));
+                        SerializationUtils.objectToString(
+                                new DruidSourceConfig(ReadonlyConfig.fromMap(config))));
         assertEquals(ENDPOINT, restoredConfig.getUrl());
         assertEquals("admin", restoredConfig.getUser());
         assertEquals("secret", restoredConfig.getPassword());
         assertEquals(15000, restoredConfig.getTimeoutMs());
-        assertEquals(
-                "SELECT * FROM \"docker-install-health-test\"", restoredConfig.resolveSql());
+        assertEquals("SELECT * FROM \"docker-install-health-test\"", restoredConfig.resolveSql());
     }
 
     @Test
@@ -192,7 +194,8 @@ public class DruidConnectorDispatchTest {
         AresFactoryDiscovery discovery = new AresFactoryDiscovery(TableSinkFactory.class);
         TableSinkFactory factory =
                 (TableSinkFactory)
-                        discovery.createOptionalPluginInstance(PluginIdentifier.of("sink", "druid"))
+                        discovery
+                                .createOptionalPluginInstance(PluginIdentifier.of("sink", "druid"))
                                 .get();
         try {
             factory.createSink(null);
@@ -214,7 +217,6 @@ public class DruidConnectorDispatchTest {
                 "SELECT * FROM \"druid\".\"docker-install-health-test\"",
                 DruidIdentifiers.selectStar("druid.docker-install-health-test"));
     }
-
 
     private static String queryFromRequestBody(String jsonBody) {
         if (jsonBody == null) {
@@ -262,7 +264,8 @@ public class DruidConnectorDispatchTest {
         }
 
         @Override
-        public DruidHttpResponse post(String url, Map<String, String> headers, String jsonBody, int timeoutMs) {
+        public DruidHttpResponse post(
+                String url, Map<String, String> headers, String jsonBody, int timeoutMs) {
             lastUrl.set(url);
             lastBody.set(jsonBody);
             lastHeaders.set(headers);

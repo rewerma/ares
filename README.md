@@ -14,7 +14,7 @@ Ares-Access 是基于 `PL-SQL` 语法的 ETL、跨源计算、数据分析、存
 
 ![架构流程图](docs/ares.png)
 
-- 功能特性1：支持多种数据源连接，包括 `Mysql`, `Oracle`, `SQLServer`, `PostgreSQL`, `Dameng`, `Kingbase`, `OceanBase`, `OpenGauss`, `HDFS`, `FTP`, `SFTP`, `Paimon` 等；Hive 表通过 Spark 集群已整合的 Hive Catalog 访问，支持 `USING hive` 引用已有表，也支持 Hive 原生 `CREATE TABLE` 建表；Paimon 的 hive catalog 和 filesystem 都可以引用已有表，也可以用 `CREATE TABLE ... USING paimon` 建表；filesystem 通过 `warehouse` 接入，并可以配置 HDFS；
+- 功能特性1：支持多种数据源连接，包括 `Mysql`, `Oracle`, `SQLServer`, `PostgreSQL`, `Dameng`, `Kingbase`, `OceanBase`, `OpenGauss`, `HDFS`, `FTP`, `SFTP`, `Paimon`, `Hudi`, `Iceberg` 等；Hive 表通过 Spark 集群已整合的 Hive Catalog 访问，支持 `USING hive` 引用已有表，也支持 Hive 原生 `CREATE TABLE` 建表；Paimon、Hudi、Iceberg 的 hive catalog 和 filesystem 都可以引用已有表，也可以用 `CREATE TABLE ... USING paimon|hudi|iceberg` 建表；filesystem 通过 `warehouse` 接入，并可以配置 HDFS；
 - 功能特性2：支持跨源计算，可以连接多个源端加载数据到Ares引擎并通过Spark进行分布式计算，最后将结果输出到目标端；
 - 功能特性3：支持丰富的DML-SQL语法，包括：`INSERT`, `UPDATE`, `DELETE`, `MERGE`, `TRUNCATE`等（部分目标端仅支持`INSERT`）；
 - 功能特性4：支持过程语法，包括：`def`、`if`、`for`、`while`、游标、`try/catch`，详细参见：[PL-SQL语法](docs/zh/plsql/ares-plsql.md)

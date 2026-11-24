@@ -23,7 +23,7 @@ import com.github.ares.engine.core.InsertSelectSqlExecutor;
 import com.github.ares.engine.core.PlParams;
 import com.github.ares.engine.spark.utils.TypeConverterUtils;
 import com.github.ares.parser.hive.HiveTables;
-import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.plan.LogicalInsertSelectSQL;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
         String connector = String.valueOf(sinkConfig.get(CommonOptions.CONNECTOR.key()));
         if (isSql.isOverwrite()
                 && (HiveTables.isHiveConnector(connector)
-                        || PaimonTables.isPaimonConnector(connector))) {
+                        || LakeTables.isLakeConnector(connector))) {
             throw new AresException(overwriteUnsupportedMessage(connector));
         }
         if (isSql.getWithShow() != null) {
@@ -95,7 +95,7 @@ public class SparkInsertSelectSqlExecutor extends InsertSelectSqlExecutor implem
                     isSql.getTargetColumns());
             return;
         }
-        if (PaimonTables.isPaimonConnector(connector)) {
+        if (LakeTables.isLakeConnector(connector)) {
             PaimonSparkSql.insert(sparkSession, sinkConfig, resultDf, isSql.getTargetColumns());
             return;
         }

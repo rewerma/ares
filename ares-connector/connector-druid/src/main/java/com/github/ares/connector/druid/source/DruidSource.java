@@ -30,12 +30,12 @@ import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.connector.druid.DruidSqlClient;
 import com.github.ares.connector.druid.DruidTypeMapper;
 import com.github.ares.connector.druid.config.DruidOptions;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DruidSource implements AresSource<AresRow, DruidSourceSplit, ArrayList<DruidSourceSplit>> {
+public class DruidSource
+        implements AresSource<AresRow, DruidSourceSplit, ArrayList<DruidSourceSplit>> {
 
     private final DruidSourceConfig config;
     private JobContext jobContext;
@@ -64,7 +64,9 @@ public class DruidSource implements AresSource<AresRow, DruidSourceSplit, ArrayL
                                     config.getPassword(),
                                     config.resolveSql(),
                                     config.getTimeoutMs());
-            TableSchema schema = DruidTypeMapper.schema(result.getColumns(), result.getTypes(), result.getRows());
+            TableSchema schema =
+                    DruidTypeMapper.schema(
+                            result.getColumns(), result.getTypes(), result.getRows());
             String table = config.getTableName() == null ? "druid_query" : config.getTableName();
             CatalogTable catalogTable =
                     CatalogTable.of(
@@ -77,7 +79,8 @@ public class DruidSource implements AresSource<AresRow, DruidSourceSplit, ArrayL
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to read Apache Druid schema: " + e.getMessage(), e);
+            throw new IllegalStateException(
+                    "Failed to read Apache Druid schema: " + e.getMessage(), e);
         }
     }
 
@@ -95,7 +98,8 @@ public class DruidSource implements AresSource<AresRow, DruidSourceSplit, ArrayL
     }
 
     @Override
-    public SourceReader<AresRow, DruidSourceSplit> createReader(SourceReader.Context readerContext) {
+    public SourceReader<AresRow, DruidSourceSplit> createReader(
+            SourceReader.Context readerContext) {
         return new DruidSourceReader(readerContext, config);
     }
 

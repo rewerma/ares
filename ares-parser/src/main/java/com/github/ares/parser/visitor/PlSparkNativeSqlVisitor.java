@@ -10,9 +10,9 @@ import com.github.ares.parser.antlr4.CustomErrorListener;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseLexer;
 import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.model.TableWith;
-import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -37,8 +37,8 @@ public class PlSparkNativeSqlVisitor {
     /**
      * Spark statements executed as written: cache management ({@code CACHE TABLE}, {@code UNCACHE
      * TABLE [IF EXISTS]}, {@code CLEAR CACHE}), temporary views, and {@code ALTER TABLE|VIEW ...
-     * ADD [IF NOT EXISTS] PARTITION} / {@code DROP [IF EXISTS] PARTITION}. A registered Hive or
-     * Paimon alias used as a table is replaced with its catalog {@code table_name}.
+     * ADD [IF NOT EXISTS] PARTITION} / {@code DROP [IF EXISTS] PARTITION}. A registered Hive,
+     * Paimon, Hudi, or Iceberg alias is replaced with its catalog table.
      */
     public List<LogicalOperation> visit(String originalSql, String sql) {
         String normalized = normalizeSql(sql);
@@ -195,7 +195,7 @@ public class PlSparkNativeSqlVisitor {
             return;
         }
         String connector = registered.getConnector();
-        if (HiveTables.isHiveConnector(connector) || PaimonTables.isPaimonConnector(connector)) {
+        if (HiveTables.isHiveConnector(connector) || LakeTables.isLakeConnector(connector)) {
             return;
         }
         throw new ParseException(

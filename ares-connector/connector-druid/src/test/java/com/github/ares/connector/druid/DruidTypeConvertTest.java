@@ -1,9 +1,13 @@
 package com.github.ares.connector.druid;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.github.ares.api.table.catalog.TableSchema;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.LocalTimeType;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,13 +18,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class DruidTypeConvertTest {
 
@@ -40,18 +38,24 @@ public class DruidTypeConvertTest {
         assertEquals(BasicType.STRING_TYPE, schema.getColumns().get(2).getDataType());
         assertEquals(BasicType.STRING_TYPE, schema.getColumns().get(3).getDataType());
 
-        LocalDateTime expected =
-                LocalDateTime.ofInstant(Instant.parse(USER_ISO), ZoneOffset.UTC);
-        assertEquals(expected, DruidTypeMapper.convert(USER_ISO, LocalTimeType.LOCAL_DATE_TIME_TYPE));
+        LocalDateTime expected = LocalDateTime.ofInstant(Instant.parse(USER_ISO), ZoneOffset.UTC);
+        assertEquals(
+                expected, DruidTypeMapper.convert(USER_ISO, LocalTimeType.LOCAL_DATE_TIME_TYPE));
         assertEquals(Long.valueOf(2L), DruidTypeMapper.convert("2", BasicType.LONG_TYPE));
         assertEquals("alice", DruidTypeMapper.convert("alice", BasicType.STRING_TYPE));
         assertNull(DruidTypeMapper.convert(null, LocalTimeType.LOCAL_DATE_TIME_TYPE));
         assertNull(DruidTypeMapper.convert(null, BasicType.LONG_TYPE));
-        assertEquals("2023-03-09 20:23:00", DruidTypeMapper.convert("2023-03-09 20:23:00", BasicType.STRING_TYPE));
+        assertEquals(
+                "2023-03-09 20:23:00",
+                DruidTypeMapper.convert("2023-03-09 20:23:00", BasicType.STRING_TYPE));
 
         LocalDateTime fromEpoch =
-                (LocalDateTime) DruidTypeMapper.convert("1690000000000", LocalTimeType.LOCAL_DATE_TIME_TYPE);
-        assertEquals(LocalDateTime.ofInstant(Instant.ofEpochMilli(1690000000000L), ZoneOffset.UTC), fromEpoch);
+                (LocalDateTime)
+                        DruidTypeMapper.convert(
+                                "1690000000000", LocalTimeType.LOCAL_DATE_TIME_TYPE);
+        assertEquals(
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(1690000000000L), ZoneOffset.UTC),
+                fromEpoch);
     }
 
     @Test
@@ -74,10 +78,11 @@ public class DruidTypeConvertTest {
 
     @Test
     public void nonTimeLongColumnWithIsoValuesIsPromoted() {
-        TableSchema schema = DruidTypeMapper.schema(
-                Arrays.asList("event_ts", "id"),
-                Arrays.asList("LONG", "BIGINT"),
-                Collections.singletonList(row("event_ts", USER_ISO, "id", "1")));
+        TableSchema schema =
+                DruidTypeMapper.schema(
+                        Arrays.asList("event_ts", "id"),
+                        Arrays.asList("LONG", "BIGINT"),
+                        Collections.singletonList(row("event_ts", USER_ISO, "id", "1")));
         assertEquals(LocalTimeType.LOCAL_DATE_TIME_TYPE, schema.getColumns().get(0).getDataType());
         assertEquals(BasicType.LONG_TYPE, schema.getColumns().get(1).getDataType());
     }

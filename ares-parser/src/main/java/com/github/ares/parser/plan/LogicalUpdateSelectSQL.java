@@ -24,7 +24,8 @@ public class LogicalUpdateSelectSQL extends BaseSqlOption implements Serializabl
     private CriteriaClause whereClause;
 
     /**
-     * Spark SQL for a Paimon table, with {@code __ARES_PAIMON_TARGET__} as the table placeholder.
+     * Spark SQL for a Paimon, Hudi, or Iceberg table, with {@code __ARES_PAIMON_TARGET__} as the
+     * table placeholder.
      */
     private String paimonSql;
 

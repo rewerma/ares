@@ -150,12 +150,22 @@ public class Common {
 
     /** Paimon Spark runtime dir. */
     public static Path thirdPartyPaimonDir() {
-        return Paths.get(getAresHome(), "thirdparty", "paimon");
+        return thirdPartyComponentDir("paimon");
     }
 
     /** return Paimon jars from thirdparty/paimon when a job uses the filesystem catalog. */
     public static List<Path> getThirdPartyPaimonJars() {
-        return jarsIn(thirdPartyPaimonDir());
+        return getThirdPartyComponentJars("paimon");
+    }
+
+    /** Lake runtime dir, for example thirdparty/hudi or thirdparty/iceberg. */
+    public static Path thirdPartyComponentDir(String name) {
+        return Paths.get(getAresHome(), "thirdparty", name);
+    }
+
+    /** Jars packaged for a filesystem lake catalog. */
+    public static List<Path> getThirdPartyComponentJars(String name) {
+        return jarsIn(thirdPartyComponentDir(name));
     }
 
     private static List<Path> jarsIn(Path dir) {

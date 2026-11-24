@@ -425,3 +425,83 @@ OPTIONS (
 ```
 
 没有列定义的 `USING paimon OPTIONS (...)` 仍然只引用已经存在的表。
+
+## Hudi
+
+`USING hudi` 和 Paimon 使用同一套选项。`INSERT`、`TRUNCATE`、`UPDATE`、`DELETE`、`MERGE` 都会下发到 Hudi 表。单表更新和删除保持原语句；带关联表的 `UPDATE`、`DELETE` 会改写成 `MERGE`。行级变更要求表有主键，主键写成 `PRIMARY KEY (...) NOT ENFORCED`，也可以写在 `TBLPROPERTIES` 的 `primaryKey` 里。`preCombineField` 这类表属性直接写在 `OPTIONS` 里。
+
+### hive catalog
+
+Spark 集群已经整合 Hudi 和 Hive 时，不需要配置 `warehouse`。`table_name` 写成 `数据库.表名`。
+
+```sql
+CREATE TABLE t_user_v
+USING hudi
+OPTIONS (
+    'metastore' = 'hive',
+    'table_name' = 'default.t_user',
+    'type' = 'source,sink'
+);
+```
+
+### filesystem
+
+`warehouse` 是 Hudi 表路径的根目录。表会建在 Spark session catalog 上，位置是 `warehouse/数据库/表名`。filesystem 模式需要 Spark 3，并加载 `thirdparty/hudi`；仓库在 HDFS 上时还会加载 `thirdparty/hadoop`。Hudi 使用 session catalog，不需要另起 `catalog` 名称。
+
+```sql
+CREATE TABLE t_user (
+    id BIGINT,
+    name STRING,
+    ts BIGINT,
+    dt STRING,
+    PRIMARY KEY (id) NOT ENFORCED
+)
+USING hudi
+PARTITIONED BY (dt)
+OPTIONS (
+    'metastore' = 'filesystem',
+    'warehouse' = 'hdfs://localhost:9000/hudi',
+    'table_name' = 'default.t_user',
+    'preCombineField' = 'ts',
+    'type' = 'source,sink'
+);
+```
+
+没有列定义的 `USING hudi OPTIONS (...)` 引用 `warehouse` 下已经存在的表。
+
+## Iceberg
+
+`USING iceberg` 同样支持 `metastore` 为 `hive` 或 `filesystem`。`INSERT`、`TRUNCATE`、`UPDATE`、`DELETE`、`MERGE` 下发到 Iceberg 表。filesystem 模式注册名为 `iceberg` 的 Hadoop catalog，多个仓库用 `catalog` 区分。需要 Spark 3，并加载 `thirdparty/iceberg`。
+
+主键写成 `PRIMARY KEY (...) NOT ENFORCED`。建表之后会执行 `ALTER TABLE ... SET IDENTIFIER FIELDS`。
+
+```sql
+CREATE TABLE t_user (
+    id BIGINT,
+    name STRING,
+    dt STRING,
+    PRIMARY KEY (id) NOT ENFORCED
+)
+USING iceberg
+PARTITIONED BY (dt)
+OPTIONS (
+    'metastore' = 'filesystem',
+    'warehouse' = 'hdfs://localhost:9000/iceberg',
+    'table_name' = 'default.t_user',
+    'format-version' = '2',
+    'type' = 'source,sink'
+);
+```
+
+Hive metastore 不需要 `warehouse`，前提是 Spark 集群已经整合 Iceberg：
+
+```sql
+CREATE TABLE t_user_v
+USING iceberg
+OPTIONS (
+    'metastore' = 'hive',
+    'table_name' = 'default.t_user',
+    'type' = 'source,sink'
+);
+```
+

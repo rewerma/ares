@@ -83,6 +83,20 @@
             </includes>
             <outputDirectory>/thirdparty/paimon</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>../ares-shade/ares-hudi/target/</directory>
+            <includes>
+                <include>ares-hudi.jar</include>
+            </includes>
+            <outputDirectory>/thirdparty/hudi</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>../ares-shade/ares-iceberg/target/</directory>
+            <includes>
+                <include>ares-iceberg.jar</include>
+            </includes>
+            <outputDirectory>/thirdparty/iceberg</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

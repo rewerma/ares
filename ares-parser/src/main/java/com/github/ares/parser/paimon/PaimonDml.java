@@ -8,60 +8,72 @@ import com.github.ares.parser.sqlparser.model.SQLUpdate;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
-/** Rewrites Ares UPDATE, DELETE, and MERGE into Spark SQL for a Paimon table. */
+/** Rewrites Ares UPDATE, DELETE, and MERGE into Spark SQL for a Paimon, Hudi, or Iceberg table. */
 public final class PaimonDml {
     public static final String TARGET = "__ARES_PAIMON_TARGET__";
 
     private PaimonDml() {}
 
     public static String update(SQLUpdate update) {
+        return update(update, "Paimon");
+    }
+
+    public static String update(SQLUpdate update, String format) {
         if (hasJoin(update.getJoinTable(), update.getJoinSql())) {
             StringBuilder sql = new StringBuilder();
             sql.append("MERGE INTO ").append(TARGET);
             appendAlias(sql, update.getAlias());
             appendUsing(sql, update.getJoinTable(), update.getJoinSql(), update.getJoinAlias());
-            sql.append(" ON (").append(requireWhere(update.getWhereSql())).append(")");
+            sql.append(" ON (").append(requireWhere(update.getWhereSql(), format)).append(")");
             sql.append(" WHEN MATCHED THEN UPDATE SET ");
-            sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues()));
+            sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues(), format));
             return withLeadingCte(update.getLeadingCte(), sql.toString());
         }
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE ").append(TARGET);
         appendAlias(sql, update.getAlias());
         sql.append(" SET ");
-        sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues()));
-        sql.append(" WHERE ").append(requireWhere(update.getWhereSql()));
+        sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues(), format));
+        sql.append(" WHERE ").append(requireWhere(update.getWhereSql(), format));
         return withLeadingCte(update.getLeadingCte(), sql.toString());
     }
 
     public static String delete(SQLDelete delete) {
+        return delete(delete, "Paimon");
+    }
+
+    public static String delete(SQLDelete delete, String format) {
         if (hasJoin(delete.getJoinTable(), delete.getJoinSql())) {
             StringBuilder sql = new StringBuilder();
             sql.append("MERGE INTO ").append(TARGET);
             appendAlias(sql, delete.getAlias());
             appendUsing(sql, delete.getJoinTable(), delete.getJoinSql(), delete.getJoinAlias());
-            sql.append(" ON (").append(requireWhere(delete.getWhereSql())).append(")");
+            sql.append(" ON (").append(requireWhere(delete.getWhereSql(), format)).append(")");
             sql.append(" WHEN MATCHED THEN DELETE");
             return withLeadingCte(delete.getLeadingCte(), sql.toString());
         }
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM ").append(TARGET);
         appendAlias(sql, delete.getAlias());
-        sql.append(" WHERE ").append(requireWhere(delete.getWhereSql()));
+        sql.append(" WHERE ").append(requireWhere(delete.getWhereSql(), format));
         return withLeadingCte(delete.getLeadingCte(), sql.toString());
     }
 
     public static String merge(SQLMerge merge) {
+        return merge(merge, "Paimon");
+    }
+
+    public static String merge(SQLMerge merge, String format) {
         if (merge.getSqlUpdate() == null
                 && merge.getSqlInsert() == null
                 && !merge.isMatchedDelete()) {
-            throw new ParseException("Paimon MERGE requires WHEN MATCHED or WHEN NOT MATCHED");
+            throw new ParseException(format + " MERGE requires WHEN MATCHED or WHEN NOT MATCHED");
         }
         StringBuilder sql = new StringBuilder();
         sql.append("MERGE INTO ").append(TARGET);
         appendAlias(sql, merge.getAlias());
         appendUsing(sql, merge.getUsingTable(), merge.getUsingSql(), merge.getUsingAlias());
-        sql.append(" ON (").append(requireWhere(merge.getOnSql())).append(")");
+        sql.append(" ON (").append(requireWhere(merge.getOnSql(), format)).append(")");
         if (merge.isMatchedDelete()) {
             sql.append(" WHEN MATCHED");
             appendAnd(sql, merge.getMatchedConditionSql());
@@ -71,14 +83,14 @@ public final class PaimonDml {
             sql.append(" WHEN MATCHED");
             appendAnd(sql, combine(merge.getMatchedConditionSql(), update.getWhereSql()));
             sql.append(" THEN UPDATE SET ");
-            sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues()));
+            sql.append(assignments(update.getUpdateColumns(), update.getUpdateValues(), format));
         }
         if (merge.getSqlInsert() != null) {
             SQLInsert insert = merge.getSqlInsert();
             sql.append(" WHEN NOT MATCHED");
             appendAnd(sql, merge.getNotMatchedConditionSql());
             sql.append(" THEN INSERT (");
-            sql.append(columns(insert.getColumns()));
+            sql.append(columns(insert.getColumns(), format));
             sql.append(") VALUES (");
             sql.append(String.join(", ", insert.getValuesArray().get(0)));
             sql.append(")");
@@ -129,12 +141,12 @@ public final class PaimonDml {
         return "(" + left + ") AND (" + right + ")";
     }
 
-    private static String assignments(List<String> columns, List<String> values) {
+    private static String assignments(List<String> columns, List<String> values, String format) {
         if (columns == null
                 || values == null
                 || columns.isEmpty()
                 || columns.size() != values.size()) {
-            throw new ParseException("Paimon UPDATE requires assignment expressions");
+            throw new ParseException(format + " UPDATE requires assignment expressions");
         }
         StringBuilder sql = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
@@ -146,9 +158,9 @@ public final class PaimonDml {
         return sql.toString();
     }
 
-    private static String columns(List<String> columns) {
+    private static String columns(List<String> columns, String format) {
         if (columns == null || columns.isEmpty()) {
-            throw new ParseException("Paimon MERGE INSERT requires column names");
+            throw new ParseException(format + " MERGE INSERT requires column names");
         }
         StringBuilder sql = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
@@ -172,9 +184,9 @@ public final class PaimonDml {
         return "`" + name.replace("`", "``") + "`";
     }
 
-    private static String requireWhere(String whereSql) {
+    private static String requireWhere(String whereSql, String format) {
         if (StringUtils.isBlank(whereSql)) {
-            throw new ParseException("Paimon DML requires a condition");
+            throw new ParseException(format + " DML requires a condition");
         }
         return whereSql;
     }

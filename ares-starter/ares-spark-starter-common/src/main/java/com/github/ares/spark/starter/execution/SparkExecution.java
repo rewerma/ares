@@ -5,7 +5,8 @@ import com.github.ares.common.exceptions.TaskExecuteException;
 import com.github.ares.core.starter.execution.TaskExecution;
 import com.github.ares.engine.spark.core.MainExecutor;
 import com.github.ares.parser.hive.HiveTables;
-import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.lake.LakeFormat;
+import com.github.ares.parser.lake.LakeTables;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,21 +25,38 @@ public class SparkExecution implements TaskExecution {
         this.engineTypeVersion = engineTypeVersion;
         this.sqlScript = sqlScript;
         this.properties = properties;
-        if (scriptUsesHive(sqlScript) || scriptUsesPaimonHive(sqlScript)) {
+        if (scriptUsesHive(sqlScript)
+                || LakeTables.scriptUsesHiveMetastore(readScript(sqlScript))) {
             properties.setProperty(SparkRuntimeEnvironment.ENABLE_HIVE_KEY, "true");
         }
-        if (scriptUsesPaimonFilesystem(sqlScript)) {
-            appendSparkExtension(properties, PaimonTables.SPARK_EXTENSIONS_CLASS);
-        }
+        configureLakeFilesystem(properties, readScript(sqlScript));
         this.sparkRuntimeEnvironment = SparkRuntimeEnvironment.getInstance(properties);
     }
 
-    private static boolean scriptUsesPaimonHive(Path sqlScript) {
-        return PaimonTables.scriptUsesHiveMetastore(readScript(sqlScript));
+    private static void configureLakeFilesystem(Properties properties, String sql) {
+        for (LakeFormat format : LakeFormat.values()) {
+            if (!LakeTables.scriptUsesFilesystem(sql, format)) {
+                continue;
+            }
+            appendSparkExtension(properties, format.extensionsClass());
+            if (format != LakeFormat.HUDI) {
+                continue;
+            }
+            setIfAbsent(properties, "spark.sql.catalog.spark_catalog", format.catalogClass());
+            setIfAbsent(
+                    properties, "spark.serializer", "org.apache.spark.serializer.KryoSerializer");
+            setIfAbsent(
+                    properties,
+                    "spark.kryo.registrator",
+                    "org.apache.spark.HoodieSparkKryoRegistrar");
+        }
     }
 
-    private static boolean scriptUsesPaimonFilesystem(Path sqlScript) {
-        return PaimonTables.scriptUsesFilesystem(readScript(sqlScript));
+    private static void setIfAbsent(Properties properties, String key, String value) {
+        String current = properties.getProperty(key);
+        if (current == null || current.trim().isEmpty()) {
+            properties.setProperty(key, value);
+        }
     }
 
     private static String readScript(Path sqlScript) {

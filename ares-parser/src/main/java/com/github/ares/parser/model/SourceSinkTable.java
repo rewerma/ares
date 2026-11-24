@@ -15,7 +15,7 @@ public class SourceSinkTable implements Serializable {
     private final Map<String, LogicalCreateSourceTable> sourceTables = new LinkedHashMap<>();
     private final Map<String, LogicalCreateSinkTable> sinkTables = new LinkedHashMap<>();
 
-    /** Script alias to the quoted Spark catalog table for Hive and Paimon. */
+    /** Script alias to the quoted Spark catalog table for Hive, Paimon, Hudi, and Iceberg. */
     private final Map<String, String> catalogAliases = new LinkedHashMap<>();
 
     public void cacheCatalogAlias(String alias, String quotedTable) {

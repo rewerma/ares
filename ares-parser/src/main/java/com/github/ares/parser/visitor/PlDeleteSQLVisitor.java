@@ -5,9 +5,9 @@ import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.lake.LakeFormat;
 import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.paimon.PaimonDml;
-import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalDeleteSelectSQL;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -46,8 +46,9 @@ public class PlDeleteSQLVisitor {
         deleteSelectSQL.setOriginSQL(originalSql);
         deleteSelectSQL.setSelectSQL(selectSQL);
         deleteSelectSQL.setWhereClause(sqlDelete.getWhereClause());
-        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
-            deleteSelectSQL.setPaimonSql(PaimonDml.delete(sqlDelete));
+        LakeFormat lake = LakeFormat.of(sinkTable.getConnector());
+        if (lake != null) {
+            deleteSelectSQL.setPaimonSql(PaimonDml.delete(sqlDelete, lake.displayName()));
         }
 
         if (sqlDelete.getHints() != null) {

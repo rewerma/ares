@@ -10,10 +10,10 @@ import java.time.format.DateTimeParseException;
 import java.util.regex.Pattern;
 
 /**
- * Parses Apache Druid SQL HTTP temporal cells. {@code typesHeader} may say {@code LONG} for
- * {@code __time}, while the array payload uses ISO-8601 UTC instants such as
- * {@code 2023-03-09T12:23:00.000Z}. Ares {@code LocalDateTime} values use the UTC wall clock of
- * that instant (not the JVM default zone).
+ * Parses Apache Druid SQL HTTP temporal cells. {@code typesHeader} may say {@code LONG} for {@code
+ * __time}, while the array payload uses ISO-8601 UTC instants such as {@code
+ * 2023-03-09T12:23:00.000Z}. Ares {@code LocalDateTime} values use the UTC wall clock of that
+ * instant (not the JVM default zone).
  */
 final class DruidTimeValues {
 
@@ -43,9 +43,10 @@ final class DruidTimeValues {
         if (isEpochNumber(trimmed)) {
             return instantFromEpoch(Long.parseLong(trimmed));
         }
-        String text = trimmed.indexOf(' ') > 0 && trimmed.indexOf('T') < 0
-                ? trimmed.replace(' ', 'T')
-                : trimmed;
+        String text =
+                trimmed.indexOf(' ') > 0 && trimmed.indexOf('T') < 0
+                        ? trimmed.replace(' ', 'T')
+                        : trimmed;
         try {
             if (text.endsWith("Z") || text.endsWith("z")) {
                 return Instant.parse(text);
@@ -73,7 +74,8 @@ final class DruidTimeValues {
             throw new IllegalArgumentException("Druid date value is blank");
         }
         if (isEpochNumber(trimmed)) {
-            return LocalDateTime.ofInstant(instantFromEpoch(Long.parseLong(trimmed)), ZoneOffset.UTC)
+            return LocalDateTime.ofInstant(
+                            instantFromEpoch(Long.parseLong(trimmed)), ZoneOffset.UTC)
                     .toLocalDate();
         }
         if (!isIsoDateTime(trimmed) && trimmed.length() >= 10 && trimmed.charAt(4) == '-') {

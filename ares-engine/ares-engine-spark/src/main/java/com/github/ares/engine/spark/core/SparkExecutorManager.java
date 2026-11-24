@@ -7,7 +7,7 @@ import com.github.ares.engine.core.ExecutorManager;
 import com.github.ares.engine.core.TransactionalSinkHandler;
 import com.github.ares.parser.config.PlProperties;
 import com.github.ares.parser.hive.HiveTables;
-import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalTruncateSQL;
 import java.io.Serializable;
@@ -46,7 +46,7 @@ public class SparkExecutorManager extends ExecutorManager implements Serializabl
                     HiveTables.tableName(sinkTable.getOptions()));
             return true;
         }
-        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+        if (LakeTables.isLakeConnector(sinkTable.getConnector())) {
             PaimonSparkSql.truncate(sparkSessionManager.getSparkSession(), sinkTable.getOptions());
             return true;
         }

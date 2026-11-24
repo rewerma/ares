@@ -28,7 +28,8 @@ public final class DruidOptions {
             Options.key("url")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("Apache Druid SQL HTTP endpoint, e.g. http://host:8888/druid/v2/sql/");
+                    .withDescription(
+                            "Apache Druid SQL HTTP endpoint, e.g. http://host:8888/druid/v2/sql/");
 
     public static final Option<String> USER =
             Options.key("user").stringType().noDefaultValue().withDescription("Basic auth user");

@@ -20,8 +20,8 @@ package com.github.ares.connector.druid;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Quotes Apache Druid SQL identifiers. Hyphenated datasource names must be double-quoted.
- * The HTTP endpoint path is never derived from these names.
+ * Quotes Apache Druid SQL identifiers. Hyphenated datasource names must be double-quoted. The HTTP
+ * endpoint path is never derived from these names.
  */
 public final class DruidIdentifiers {
 
@@ -32,7 +32,9 @@ public final class DruidIdentifiers {
             return raw;
         }
         String trimmed = raw.trim();
-        if (trimmed.length() >= 2 && trimmed.charAt(0) == '"' && trimmed.charAt(trimmed.length() - 1) == '"') {
+        if (trimmed.length() >= 2
+                && trimmed.charAt(0) == '"'
+                && trimmed.charAt(trimmed.length() - 1) == '"') {
             return trimmed;
         }
         return "\"" + trimmed.replace("\"", "\"\"") + "\"";
@@ -43,7 +45,9 @@ public final class DruidIdentifiers {
             return tableName;
         }
         String trimmed = tableName.trim();
-        if (trimmed.length() >= 2 && trimmed.charAt(0) == '"' && trimmed.charAt(trimmed.length() - 1) == '"') {
+        if (trimmed.length() >= 2
+                && trimmed.charAt(0) == '"'
+                && trimmed.charAt(trimmed.length() - 1) == '"') {
             return trimmed;
         }
         if (!trimmed.contains(".")) {

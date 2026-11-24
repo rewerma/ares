@@ -117,7 +117,8 @@ final class DruidJson {
                     index++;
                     return row;
                 }
-                throw new IllegalStateException("Apache Druid SQL response row is not a JSON array");
+                throw new IllegalStateException(
+                        "Apache Druid SQL response row is not a JSON array");
             }
         }
 
@@ -152,7 +153,8 @@ final class DruidJson {
                 break;
             }
             if (index == start) {
-                throw new IllegalStateException("Apache Druid SQL response has an unexpected token");
+                throw new IllegalStateException(
+                        "Apache Druid SQL response has an unexpected token");
             }
             return text.substring(start, index);
         }
@@ -196,7 +198,8 @@ final class DruidJson {
                         break;
                     case 'u':
                         if (index + 4 <= text.length()) {
-                            out.append((char) Integer.parseInt(text.substring(index, index + 4), 16));
+                            out.append(
+                                    (char) Integer.parseInt(text.substring(index, index + 4), 16));
                             index += 4;
                         }
                         break;

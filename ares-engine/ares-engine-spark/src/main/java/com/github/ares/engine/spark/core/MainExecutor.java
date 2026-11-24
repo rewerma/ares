@@ -24,7 +24,7 @@ import com.github.ares.parser.config.PlProperties;
 import com.github.ares.parser.datasource.PropertiesDataSourcePatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
 import com.github.ares.parser.hive.HiveTables;
-import com.github.ares.parser.paimon.PaimonTables;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalCreateSourceTable;
 import com.github.ares.parser.plan.LogicalOperation;
@@ -181,7 +181,7 @@ public class MainExecutor {
                 continue;
             }
             if (HiveTables.isHiveConnector(sinkTable.getConnector())
-                    || PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
+                    || LakeTables.isLakeConnector(sinkTable.getConnector())) {
                 sinks.put(sinkTable.getTableName(), Optional.empty());
                 sparkExecutorManager
                         .getSinkPluginManager()

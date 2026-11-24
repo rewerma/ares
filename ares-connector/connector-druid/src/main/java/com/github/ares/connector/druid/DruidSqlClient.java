@@ -17,9 +17,6 @@
 
 package com.github.ares.connector.druid;
 
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,12 +29,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Official Apache Druid SQL HTTP client ({@code POST /druid/v2/sql}). Passwords are used only for
- * the Authorization header and are never logged. The endpoint is used as provided; callers must
- * not rewrite {@code /druid/v2/sql/} when a schema or database is selected.
+ * the Authorization header and are never logged. The endpoint is used as provided; callers must not
+ * rewrite {@code /druid/v2/sql/} when a schema or database is selected.
  */
 public final class DruidSqlClient {
 
@@ -64,7 +61,8 @@ public final class DruidSqlClient {
         }
     }
 
-    public DruidSqlResult query(String endpoint, String user, String password, String sql, int timeoutMs)
+    public DruidSqlResult query(
+            String endpoint, String user, String password, String sql, int timeoutMs)
             throws Exception {
         if (StringUtils.isBlank(endpoint)) {
             throw new IllegalArgumentException("Apache Druid SQL HTTP url is required");
@@ -82,7 +80,8 @@ public final class DruidSqlClient {
         DruidHttpResponse response =
                 transport.post(ensureTrailingSlash(endpoint.trim()), headers, json, timeoutMs);
         if (response.getStatus() < 200 || response.getStatus() >= 300) {
-            throw new IllegalStateException("Apache Druid SQL request failed: HTTP " + response.getStatus());
+            throw new IllegalStateException(
+                    "Apache Druid SQL request failed: HTTP " + response.getStatus());
         }
         return parseArrayResult(response.getBody());
     }
@@ -177,7 +176,8 @@ public final class DruidSqlClient {
 
     private static final class JdkTransport implements DruidHttpTransport {
         @Override
-        public DruidHttpResponse post(String url, Map<String, String> headers, String jsonBody, int timeoutMs)
+        public DruidHttpResponse post(
+                String url, Map<String, String> headers, String jsonBody, int timeoutMs)
                 throws Exception {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("POST");
@@ -220,7 +220,8 @@ public final class DruidSqlClient {
         private final List<String> types;
         private final List<Map<String, String>> rows;
 
-        public DruidSqlResult(List<String> columns, List<String> types, List<Map<String, String>> rows) {
+        public DruidSqlResult(
+                List<String> columns, List<String> types, List<Map<String, String>> rows) {
             this.columns = columns == null ? Collections.<String>emptyList() : columns;
             this.types = types == null ? Collections.<String>emptyList() : types;
             this.rows = rows == null ? Collections.<Map<String, String>>emptyList() : rows;

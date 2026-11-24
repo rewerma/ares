@@ -33,7 +33,6 @@ import com.github.ares.api.table.factory.TableSourceFactoryContext;
 import com.github.ares.common.configuration.utils.OptionRule;
 import com.github.ares.connector.druid.config.DruidOptions;
 import com.google.auto.service.AutoService;
-
 import java.io.Serializable;
 
 @AutoService(Factory.class)

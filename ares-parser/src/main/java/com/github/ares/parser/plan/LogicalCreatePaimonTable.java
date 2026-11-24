@@ -6,7 +6,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-/** Paimon CREATE TABLE executed by Spark SQL against a Paimon catalog. */
+/** Paimon, Hudi, and Iceberg CREATE TABLE executed by Spark SQL. */
 @Getter
 @Setter
 public class LogicalCreatePaimonTable extends LogicalOperation implements Serializable {

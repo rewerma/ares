@@ -23,12 +23,10 @@ import com.github.ares.api.table.type.AresDataType;
 import com.github.ares.api.table.type.BasicType;
 import com.github.ares.api.table.type.DecimalType;
 import com.github.ares.api.table.type.LocalTimeType;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 public final class DruidTypeMapper {
 
@@ -38,7 +36,8 @@ public final class DruidTypeMapper {
         return schema(columns, types, Collections.<Map<String, String>>emptyList());
     }
 
-    public static TableSchema schema(List<String> columns, List<String> types, List<Map<String, String>> rows) {
+    public static TableSchema schema(
+            List<String> columns, List<String> types, List<Map<String, String>> rows) {
         TableSchema.Builder builder = TableSchema.builder();
         if (columns == null) {
             return builder.build();
@@ -135,7 +134,10 @@ public final class DruidTypeMapper {
     }
 
     static boolean looksLikeTimestampColumn(String columnName, List<Map<String, String>> rows) {
-        if (isTimeColumn(columnName) || rows == null || rows.isEmpty() || StringUtils.isBlank(columnName)) {
+        if (isTimeColumn(columnName)
+                || rows == null
+                || rows.isEmpty()
+                || StringUtils.isBlank(columnName)) {
             return isTimeColumn(columnName);
         }
         boolean sawIso = false;

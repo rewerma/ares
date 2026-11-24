@@ -20,11 +20,10 @@ package com.github.ares.connector.druid.source;
 import com.github.ares.api.source.Boundedness;
 import com.github.ares.api.source.Collector;
 import com.github.ares.api.source.SourceReader;
-import com.github.ares.api.table.type.AresRow;
 import com.github.ares.api.table.catalog.TableSchema;
+import com.github.ares.api.table.type.AresRow;
 import com.github.ares.connector.druid.DruidSqlClient;
 import com.github.ares.connector.druid.DruidTypeMapper;
-
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -63,20 +62,25 @@ public class DruidSourceReader implements SourceReader<AresRow, DruidSourceSplit
                             split.getSql(),
                             config.getTimeoutMs());
             TableSchema schema =
-                    DruidTypeMapper.schema(result.getColumns(), result.getTypes(), result.getRows());
+                    DruidTypeMapper.schema(
+                            result.getColumns(), result.getTypes(), result.getRows());
             synchronized (output.getCheckpointLock()) {
                 for (Map<String, String> row : result.getRows()) {
                     Object[] values = new Object[result.getColumns().size()];
                     for (int i = 0; i < result.getColumns().size(); i++) {
                         String name = result.getColumns().get(i);
                         String raw = row == null ? null : row.get(name);
-                        values[i] = DruidTypeMapper.convert(raw, schema.getColumns().get(i).getDataType());
+                        values[i] =
+                                DruidTypeMapper.convert(
+                                        raw, schema.getColumns().get(i).getDataType());
                     }
                     output.collect(new AresRow(values));
                 }
             }
         }
-        if (noMoreSplit && splits.isEmpty() && Boundedness.BOUNDED.equals(context.getBoundedness())) {
+        if (noMoreSplit
+                && splits.isEmpty()
+                && Boundedness.BOUNDED.equals(context.getBoundedness())) {
             context.signalNoMoreElement();
         }
     }

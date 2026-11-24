@@ -21,9 +21,10 @@ import com.github.ares.parser.antlr4.sparksql.SqlBaseParser;
 import com.github.ares.parser.datasource.SourceConfigPatcher;
 import com.github.ares.parser.datasource.SourceConfigPatcherFactory;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.lake.LakeDdl;
+import com.github.ares.parser.lake.LakeFormat;
+import com.github.ares.parser.lake.LakeTables;
 import com.github.ares.parser.model.SourceSinkTable;
-import com.github.ares.parser.paimon.PaimonDdl;
-import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateHiveTable;
 import com.github.ares.parser.plan.LogicalCreatePaimonTable;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
@@ -63,7 +64,7 @@ public class PlCreateTableWithVisitor {
     }
 
     public List<LogicalOperation> visitCreate(String originalSql, String sql) {
-        String rewritten = PaimonDdl.rewritePrimaryKey(normalizeSql(sql));
+        String rewritten = LakeDdl.rewritePrimaryKey(normalizeSql(sql));
         SqlBaseParser.StatementContext statement = parseNormalized(rewritten).statement();
         if (statement instanceof SqlBaseParser.CreateViewContext) {
             SqlBaseParser.CreateViewContext view = (SqlBaseParser.CreateViewContext) statement;
@@ -96,8 +97,8 @@ public class PlCreateTableWithVisitor {
             if (isHiveNativeCreate(create)) {
                 return visitHiveNativeTable(originalSql, sql, tableName);
             }
-            if (isPaimonCreate(create)) {
-                return visitPaimonCreate(
+            if (isLakeCreate(create)) {
+                return visitLakeCreate(
                         originalSql,
                         rewritten,
                         create,
@@ -157,9 +158,9 @@ public class PlCreateTableWithVisitor {
         return create.colTypeList() != null || storage || external;
     }
 
-    private static boolean isPaimonCreate(SqlBaseParser.CreateTableContext create) {
+    private static boolean isLakeCreate(SqlBaseParser.CreateTableContext create) {
         if (create.tableProvider() == null
-                || !PaimonTables.isPaimonConnector(
+                || !LakeTables.isLakeConnector(
                         create.tableProvider().multipartIdentifier().getText())) {
             return false;
         }
@@ -236,8 +237,8 @@ public class PlCreateTableWithVisitor {
         if (HiveTables.isHiveConnector(usingConnector)) {
             return visitHiveTable(originalSql, tableName, standardType, options);
         }
-        if (PaimonTables.isPaimonConnector(usingConnector)) {
-            return visitPaimonTable(originalSql, tableName, standardType, options);
+        if (LakeTables.isLakeConnector(usingConnector)) {
+            return visitLakeTable(originalSql, tableName, standardType, options);
         }
         List<LogicalOperation> result = new ArrayList<>();
         if (standardType.contains(SOURCE_TYPE)) {
@@ -292,46 +293,50 @@ public class PlCreateTableWithVisitor {
     }
 
     /**
-     * Column definitions create the Paimon table, then register the same alias used by {@code USING
-     * paimon OPTIONS}.
+     * Column definitions create the lake table, then register the same alias used by {@code USING
+     * paimon|hudi|iceberg OPTIONS}.
      */
-    private List<LogicalOperation> visitPaimonCreate(
+    private List<LogicalOperation> visitLakeCreate(
             String originalSql,
             String source,
             SqlBaseParser.CreateTableContext create,
             String tableName,
             Map<String, String> rawOptions) {
-        Map<String, String> merged = mergeConnectorOptions(PaimonTables.CONNECTOR, rawOptions);
+        String connector = create.tableProvider().multipartIdentifier().getText();
+        Map<String, String> merged = mergeConnectorOptions(connector, rawOptions);
         String tableType = merged.remove("type");
         String standardType =
                 tableType == null ? SOURCE_TYPE + "," + SINK_TYPE : normalizeType(tableType);
         Map<String, Object> options = parseOptionValues(merged);
-        Map<String, String> tableProperties = PaimonDdl.tableProperties(options);
-        Map<String, Object> paimonOptions = PaimonTables.connectorOptions(options);
-        LogicalCreatePaimonTable createPaimonTable = new LogicalCreatePaimonTable();
-        createPaimonTable.setOriginSQL(originalSql);
-        createPaimonTable.setSql(
-                PaimonDdl.sparkDdl(create, source, paimonOptions, tableProperties));
-        createPaimonTable.setTableName(PaimonTables.qualifiedTable(paimonOptions));
-        createPaimonTable.setProperties(paimonOptions);
+        Map<String, String> tableProperties = LakeDdl.tableProperties(options);
+        Map<String, Object> lakeOptions = LakeTables.connectorOptions(options);
+        String primaryKey = LakeDdl.primaryKeyColumns(originalSql);
+        if (primaryKey != null && LakeTables.requireFormat(lakeOptions) == LakeFormat.ICEBERG) {
+            lakeOptions.put(LakeTables.IDENTIFIER_FIELDS, primaryKey);
+        }
+        LogicalCreatePaimonTable createLakeTable = new LogicalCreatePaimonTable();
+        createLakeTable.setOriginSQL(originalSql);
+        createLakeTable.setSql(LakeDdl.sparkDdl(create, source, lakeOptions, tableProperties));
+        createLakeTable.setTableName(LakeTables.qualifiedTable(lakeOptions));
+        createLakeTable.setProperties(lakeOptions);
 
         List<LogicalOperation> result = new ArrayList<>();
-        result.add(createPaimonTable);
-        result.addAll(visitPaimonTable(originalSql, tableName, standardType, options));
+        result.add(createLakeTable);
+        result.addAll(visitLakeTable(originalSql, tableName, standardType, options));
         return result;
     }
 
     /**
-     * Hive metastore follows the Hive view path. Filesystem metastore queries {@code
-     * catalog.database.table} and can point {@code warehouse} at HDFS.
+     * Hive metastore follows the Hive view path. Filesystem metastore queries the Spark catalog
+     * table and can point {@code warehouse} at HDFS.
      */
-    private List<LogicalOperation> visitPaimonTable(
+    private List<LogicalOperation> visitLakeTable(
             String originalSql,
             String tableName,
             String standardType,
             Map<String, Object> options) {
-        Map<String, Object> paimonOptions = PaimonTables.connectorOptions(options);
-        String quotedTable = PaimonTables.quoteTable(PaimonTables.qualifiedTable(paimonOptions));
+        Map<String, Object> lakeOptions = LakeTables.connectorOptions(options);
+        String quotedTable = LakeTables.quoteTable(LakeTables.qualifiedTable(lakeOptions));
         String normalized = tableName.toLowerCase(Locale.ROOT);
         sourceSinkTable.cacheCatalogAlias(normalized, quotedTable);
         List<LogicalOperation> result = new ArrayList<>();
@@ -339,13 +344,13 @@ public class PlCreateTableWithVisitor {
             String createSql = "CREATE VIEW " + normalized + " AS SELECT * FROM " + quotedTable;
             LogicalOperation created = plCreateAs(originalSql, createSql, normalized);
             if (created instanceof LogicalCreateTableAsSQL) {
-                ((LogicalCreateTableAsSQL) created).setProperties(paimonOptions);
+                ((LogicalCreateTableAsSQL) created).setProperties(lakeOptions);
             }
             result.add(created);
         }
         if (standardType.contains(SINK_TYPE)) {
             LogicalCreateSinkTable sinkTable =
-                    plCreateSinkTableVisitor.visitCreateSinkTable(normalized, paimonOptions);
+                    plCreateSinkTableVisitor.visitCreateSinkTable(normalized, lakeOptions);
             if (sinkTables.containsKey(sinkTable.getTableName())) {
                 throw new ParseException(
                         String.format("Sink table name exists: %s", sinkTable.getTableName()));

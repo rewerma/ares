@@ -26,10 +26,8 @@ import static com.github.ares.connector.druid.config.DruidOptions.USER;
 
 import com.github.ares.common.configuration.ReadonlyConfig;
 import com.github.ares.connector.druid.DruidIdentifiers;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 
 /** Spark serializes the source (and this config) into DataFrameReader options. */
 public class DruidSourceConfig implements Serializable {

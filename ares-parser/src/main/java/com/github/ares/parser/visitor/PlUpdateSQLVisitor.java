@@ -5,9 +5,9 @@ import static com.github.ares.parser.utils.PLParserUtil.setShowLine;
 
 import com.github.ares.common.exceptions.ParseException;
 import com.github.ares.parser.hive.HiveTables;
+import com.github.ares.parser.lake.LakeFormat;
 import com.github.ares.parser.model.SourceSinkTable;
 import com.github.ares.parser.paimon.PaimonDml;
-import com.github.ares.parser.paimon.PaimonTables;
 import com.github.ares.parser.plan.LogicalCreateSinkTable;
 import com.github.ares.parser.plan.LogicalOperation;
 import com.github.ares.parser.plan.LogicalUpdateSelectSQL;
@@ -47,8 +47,9 @@ public class PlUpdateSQLVisitor {
         updateSelectSQL.setSelectSQL(selectSQL);
         updateSelectSQL.setUpdateItems(sqlUpdate.getUpdateColumns());
         updateSelectSQL.setWhereClause(sqlUpdate.getWhereClause());
-        if (PaimonTables.isPaimonConnector(sinkTable.getConnector())) {
-            updateSelectSQL.setPaimonSql(PaimonDml.update(sqlUpdate));
+        LakeFormat lake = LakeFormat.of(sinkTable.getConnector());
+        if (lake != null) {
+            updateSelectSQL.setPaimonSql(PaimonDml.update(sqlUpdate, lake.displayName()));
         }
 
         if (sqlUpdate.getHints() != null) {
