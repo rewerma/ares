@@ -58,7 +58,7 @@
         <hadoop3.version>3.3.4</hadoop3.version>
         <paimon.version>1.4.2</paimon.version>
         <hudi.version>1.2.1</hudi.version>
-        <iceberg.version>1.11.0</iceberg.version>
+        <iceberg.version>1.6.1</iceberg.version>
         <spotless.version>2.30.0</spotless.version>
     </properties>
 
